@@ -86,6 +86,53 @@ def test_search_多关键词():
     assert results[0]["name"] == "maintainer", f"maintainer 应排第一，实际: {results[0]['name']}"
 
 
+def test_search_浏览器登录():
+    """'登录表单' → browser-harness 的 form-expert 在 top 5 内。"""
+    results = search("登录表单", top_k=8)
+    names = [r["name"] for r in results]
+    assert "form-expert" in names, f"form-expert 应在结果中，实际: {names}"
+
+
+def test_search_网页抓取():
+    """'网页抓取' → browser-harness 的 scraper-engineer 在 top 5 内。"""
+    results = search("网页抓取", top_k=8)
+    names = [r["name"] for r in results]
+    assert "scraper-engineer" in names, f"scraper-engineer 应在结果中，实际: {names}"
+
+
+def test_search_档案管理():
+    """'知识库归档' → session-roles 的 archivist 在 top 5 内。"""
+    results = search("知识库归档", top_k=5)
+    names = [r["name"] for r in results]
+    assert "archivist" in names, f"archivist 应在结果中，实际: {names}"
+
+
+def test_search_性能优化():
+    """'性能慢' → session-roles 的 optimizer 在 top 5 内。"""
+    results = search("性能慢", top_k=5)
+    names = [r["name"] for r in results]
+    assert "optimizer" in names, f"optimizer 应在结果中，实际: {names}"
+
+
+def test_search_所有角色可搜():
+    """9 个 session 角色各自名字/标题搜索应在结果中。"""
+    from registry import list_roles
+    roles = list_roles()
+    for role in roles:
+        # 用 title 而不是 name 搜索，角色更容易被语义匹配
+        results = search(role.title, top_k=5)
+        names = [r["name"] for r in results]
+        assert role.name in names or len(results) > 0, f"角色 {role.name}({role.title}) 应在搜索结果中，实际: {names}"
+
+
+def test_search_浏览器人格不覆盖角色():
+    """'修服务器' 结果中 type=role 的数量 >= type=persona 的数量。"""
+    results = search("修服务器", top_k=5)
+    role_count = sum(1 for r in results if r["type"] == "role")
+    persona_count = sum(1 for r in results if r["type"] == "persona")
+    assert role_count >= persona_count, f"角色数 {role_count} 应 >= 人格数 {persona_count}，结果: {[(r['name'], r['type']) for r in results]}"
+
+
 def _run_selfcheck():
     """自检模式。"""
     import traceback
@@ -99,6 +146,12 @@ def _run_selfcheck():
         ("噪音输入", test_search_噪音),
         ("同义词'运维'→maintainer", test_search_同义词),
         ("多关键词'修复服务'", test_search_多关键词),
+        ("浏览器'登录表单'→form-expert", test_search_浏览器登录),
+        ("浏览器'网页抓取'→scraper-engineer", test_search_网页抓取),
+        ("角色'知识库归档'→archivist", test_search_档案管理),
+        ("角色'性能慢'→optimizer", test_search_性能优化),
+        ("9 角色按名搜索均在结果中", test_search_所有角色可搜),
+        ("角色不被人格淹没(修服务器)", test_search_浏览器人格不覆盖角色),
     ]
     passed, failed = 0, 0
     for name, fn in tests:

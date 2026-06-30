@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Check syntax
+        run: |
+          python3 -m py_compile src/models.py src/registry.py src/search.py src/cli.py
+      - name: Run tests
+        run: |
+          python3 tests/test_search.py
+      - name: Validate JSONs
+        run: |
+          python3 -c "
+          import json, os
+          for root, _, files in os.walk('personas'):
+            for f in sorted(files):
+              if f.endswith('.json'):
+                path = os.path.join(root, f)
+                with open(path) as fh:
+                  json.load(fh)
+                print(f'  OK  {path}')
+          print('All JSON valid')
+          "
