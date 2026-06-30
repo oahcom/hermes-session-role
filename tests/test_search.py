@@ -12,7 +12,8 @@ import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 # 加载数据
-from models import load_all
+# 加载数据
+from registry import load_all
 load_all()
 
 from search import search

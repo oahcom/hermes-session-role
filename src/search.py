@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models import PersonaDef, RoleDef
+from registry import list_roles, list_personas
 
 # ── 同义词表（手动维护：运维/修复/维护/诊断/部署 等常见操作词） ──
 _SYNONYM_GROUPS: list[set[str]] = [
@@ -172,8 +173,6 @@ def search(query: str, top_k: int = 5) -> list[dict]:
     Returns:
         按相关度降序排列的列表
     """
-    from models import list_roles, list_personas
-
     all_items = []
     all_items.extend(list_roles())
     all_items.extend(list_personas())

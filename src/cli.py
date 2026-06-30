@@ -10,7 +10,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from models import load_all, get, list_roles, list_personas, list_categories
+from registry import load_all, get, list_roles, list_personas, list_categories
 from search import search as semantic_search
 
 
