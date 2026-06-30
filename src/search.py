@@ -200,19 +200,19 @@ def search(query: str, top_k: int = 5) -> list[dict]:
             + _field_score(query_tokens, item.description) * _WEIGHTS["description"]
             + _field_score(query_tokens, item.category) * _WEIGHTS["category"]
             + _field_score(query_tokens, item.name) * _WEIGHTS["name"]
-            + _field_score(query_tokens, item.system_prompt[:200]) * _WEIGHTS["prompt"]
+            + _field_score(query_tokens, item.system_prompt) * _WEIGHTS["prompt"]
         )
 
         # 关键词完整覆盖加成：query 所有单字都在标题+描述+prompt 中
         if query_chars:
-            key_text = item.title + item.description + item.system_prompt[:300]
+            key_text = item.title + item.description + item.system_prompt[:500]
             key_chars = set(re.findall(r'[一-鿿]', key_text))
             if all(c in key_chars for c in query_chars):
                 score += 25.0
 
         # 偏序匹配加成："修服务器" → 检查字序
         if query_chars and len(query_chars) >= 3:
-            ordered = _score_ordered_match(query_chars, item.title + item.description + item.system_prompt[:300])
+            ordered = _score_ordered_match(query_chars, item.title + item.description + item.system_prompt[:500])
             score += ordered
 
         role_type = "role" if hasattr(item, 'lifecycle') else "persona"
