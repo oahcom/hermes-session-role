@@ -26,7 +26,7 @@ _SYNONYM_GROUPS: list[set[str]] = [
      "server", "service", "system", "host", "daemon"},
     # 监控/检查组（中英打通）
     {"监控", "监测", "检查", "审查", "扫描", "探测", "查看", "巡检", "跟踪",
-     "monitor", "watch", "scan", "track", "detect", "probe", "surveil"},
+     "monitor", "observe", "watch", "check", "scan", "track", "supervise", "detect", "probe", "surveil"},
     # 部署/更新组
     {"部署", "发布", "发布", "更新", "升级", "安装", "配置",
      "deploy", "release", "publish", "update", "upgrade", "install", "setup"},
@@ -56,7 +56,6 @@ _SYNONYM_GROUPS: list[set[str]] = [
      "role", "profile", "identity", "persona"},
     # ── 英文同义词 ──
     {"deploy", "release", "publish", "update", "upgrade", "install"},
-    {"monitor", "observe", "watch", "check", "scan", "track", "supervise"},
     {"fix", "repair", "patch", "hotfix", "resolve", "bugfix", "correct"},
     {"maintain", "maintainer", "guard", "protect", "safeguard"},
     {"scout", "explore", "discover", "hunt", "survey", "recon"},
