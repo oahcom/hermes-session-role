@@ -71,7 +71,7 @@ python3 tests/test_search.py
 | "清理" | curator (top 3) | — |
 | "写代码" | developer | — |
 | "翻译文档" | i18n-localizer | — |
-| "监控" | maintainer | — |
+| "监控" | coordinator | — |
 | "扫描" | scout | — |
 | "部署" | maintainer | — |
 | "审查" | developer | — |
