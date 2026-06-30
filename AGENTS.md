@@ -1,21 +1,17 @@
-# Hermes Session Roles 项目
+# Hermes Session Roles
 
-## 项目概述
+Registers career identities for Claude Code sessions -- 7 session roles and 57 browser-automation personas. Each definition declares who the session is, what it produces, and which signals drive it.
 
-多 session Claude Code 生态的职业身份注册表。定义每个 session 的"我是谁、我为什么存在、我怎么工作、我产出什么、谁消费我的产出"。
-
-融合 Browser Harness 人格系统（290+ 个专家人格）和 Hermes 基础设施角色（运维/侦察/消费/维护/管理/开发/闭环）。
-
-## 架构
+## File Tree
 
 ```
 session-roles/
   personas/
-    browser-harness/      → 浏览器自动化专家人格（外倾，面向网络）
+    browser-harness/            57 browser-automation personas
       persona_01_core.json
       persona_02_specialized.json
       persona_03_advanced.json
-    session-roles/         → 基础设施角色（内倾，面向系统）
+    session-roles/              7 infrastructure roles
       persona_00_maintainer.json
       persona_01_scout.json
       persona_02_consumer.json
@@ -24,30 +20,61 @@ session-roles/
       persona_05_developer.json
       persona_06_closer.json
   src/
-    models.py              → PersonaDef, RoleDef
-    registry.py            → load_all, get, list
-    search.py              → 语义搜索（复用 Browser Harness）
-    cli.py                 → persona list/show/load/search
+    models.py                   PersonaDef, RoleDef, register/get/load_all
+    search.py                   keyword + synonym semantic search (stdlib only)
+    cli.py                      CLI entry point (4 subcommands below)
+  tests/
+    test_search.py
 ```
 
-## 关键决策
+## CLI Commands
 
-- 复用 Browser Harness 的 `PersonaDef` 结构（name/title/description/category/system_prompt/config_overrides/eval_criteria）
-- 扩展 `lifecycle` + `input_signals` + `output_targets` 供 session 启动控制
-- JSON 文件持久化，无需 DB
-- 语义搜索用 stdlib 的 difflib，零外部依赖
+All commands load definitions first, then operate on them.
 
-## 文件操作规范
+```
+python src/cli.py list [--roles] [--category CAT]
+python src/cli.py show <name>
+python src/cli.py load <name> [--json] [--extra key=val ...]
+python src/cli.py search <query> [--top N]
+```
 
-- 不要在 main 分支直接编辑
-- 所有编辑在 worktree 分支进行
-- 提交信息格式：`feat/fix/chore: 做了什么（中文）`
+| Command  | Purpose                                                      |
+|----------|--------------------------------------------------------------|
+| `list`   | List personas grouped by category, or `--roles` for the 7 roles only |
+| `show`   | Dump full JSON of a persona or role                          |
+| `load`   | Render system prompt (with optional template vars)           |
+| `search` | Semantic search across all definitions (top-5 default)       |
 
-## 关键路径
+## Quick Reference
 
-| 路径 | 说明 |
-|------|------|
-| `personas/browser-harness/` | Browser Harness 的 50 个浏览器自动化人格 |
-| `personas/session-roles/` | 基础设施 7 个角色 |
-| `src/` | Python 注册表引擎 |
-| `AGENTS.md` | 本文件 |
+Common search queries:
+
+```bash
+python src/cli.py search "修服务器"          # maintainer role
+python src/cli.py search "安全审计"           # security personas
+python src/cli.py search "数据采集 爬虫"      # data-collection personas
+python src/cli.py search "自动化部署"         # automation personas
+```
+
+Adding a new role -- add entry to `personas/session-roles/persona_NN_name.json` with these required fields:
+
+```json
+{
+  "name": "string",
+  "title": "string",
+  "description": "string",
+  "category": "string",
+  "system_prompt": "string",
+  "lifecycle": "infinite|ondemand",
+  "drive": "cron|loop|ondemand",
+  "input_signals": [],
+  "output_targets": []
+}
+```
+
+## Red Lines
+
+1. Never edit on `main`/`quality-gate` directly. All edits go on a worktree branch.
+2. Commit format: `feat/fix/chore: short description in English` -- keep it under 72 chars.
+3. Verify before marking done: `git diff --name-only`, `python -m py_compile` on every changed `.py` file, `python -m pytest` if tests exist.
+4. Zero external dependencies. Search uses only stdlib (`difflib` / `re`). Do not add pip packages.
