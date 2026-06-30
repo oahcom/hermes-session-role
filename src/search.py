@@ -71,11 +71,11 @@ _SYNONYM_GROUPS: list[set[str]] = [
 
 # ── 字段权重：标题/描述为主，system_prompt 为辅 ──
 _WEIGHTS: dict[str, float] = {
-    "title": 30.0,
-    "description": 30.0,
+    "title": 40.0,
+    "description": 40.0,
     "category": 15.0,
     "name": 10.0,
-    "prompt": 5.0,
+    "prompt": 3.0,
 }
 
 
