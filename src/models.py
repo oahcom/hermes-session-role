@@ -21,11 +21,16 @@ class PersonaDef:
     config_overrides: dict[str, Any] = field(default_factory=dict)
     eval_criteria: list[str] = field(default_factory=list)
     prompt_refs: dict[str, str] = field(default_factory=dict)  # 模块化 prompt 引用
+    skills: list[str] = field(default_factory=list)  # 技能列表
+    skill_refs: dict[str, str] = field(default_factory=dict)  # 技能引用路径
+    goal: str = ""  # 角色目标
+    constraints: list[str] = field(default_factory=list)  # 红线约束
 
     def to_dict(self) -> dict[str, Any]:
         return {k: getattr(self, k) for k in (
             "name", "title", "description", "category",
-            "system_prompt", "config_overrides", "eval_criteria", "prompt_refs"
+            "system_prompt", "config_overrides", "eval_criteria",
+            "prompt_refs", "skills", "skill_refs", "goal", "constraints",
         )}
 
     @classmethod
@@ -121,4 +126,9 @@ class RoleDef(PersonaDef):
     def from_dict(cls, d: dict) -> RoleDef:
         persona_fields = {k: d[k] for k in PersonaDef.__dataclass_fields__ if k in d}
         role_fields = {k: d[k] for k in cls.__dataclass_fields__ if k in d and k not in PersonaDef.__dataclass_fields__}
-        return cls(**persona_fields, **role_fields)
+        role = cls(**persona_fields, **role_fields)
+        # 补丁：to_dict 时确保 skills/skill_refs 等 BaseDef 字段存在
+        for extra_field in ['skills', 'skill_refs', 'goal', 'constraints']:
+            if extra_field in d and extra_field not in PersonaDef.__dataclass_fields__:
+                pass  # 已在 PersonaDef 初始化时处理
+        return role

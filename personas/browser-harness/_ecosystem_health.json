@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "generated_at": 1784042411.4200625,
+    "source": "autonomous-loop-round-6"
+  },
+  "bus_db": {
+    "healthy": true,
+    "facts": 4673,
+    "by_category": {
+      "task_spec": 3523,
+      "workflow": 531,
+      "code_fix": 155,
+      "architecture": 123,
+      "blocker": 100,
+      "notice": 68,
+      "performance": 37,
+      "reflexion_lesson": 24,
+      "prd": 19,
+      "security": 19,
+      "product_design": 18,
+      "system_design": 18,
+      "design_issue": 17,
+      "research": 17,
+      "cleanup": 3
+    },
+    "integrity_check": "ok",
+    "size_mb": 1.18
+  },
+  "routing": {
+    "roles": 26,
+    "empty_consume": [],
+    "empty_produce": []
+  },
+  "projects": {
+    "session-launcher": {
+      "py_files": 33,
+      "compile_errors": 0,
+      "git_dirty_files": 2,
+      "lines": 7738
+    },
+    "session-pipeline": {
+      "py_files": 14,
+      "compile_errors": 0,
+      "git_dirty_files": 1,
+      "lines": 4077
+    },
+    "hermes-session-roles": {
+      "py_files": 10,
+      "compile_errors": 0,
+      "git_dirty_files": 1,
+      "lines": 1752
+    }
+  },
+  "services": {
+    "sister-agent-ssk": "active",
+    "sister-agent-dkk": "active",
+    "cron-worker": "inactive"
+  },
+  "sentinels": {
+    "total": 12,
+    "stale": 0,
+    "alive_ratio": "12/12"
+  },
+  "memory": {
+    "entries": 112
+  }
+}
