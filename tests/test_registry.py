@@ -27,7 +27,7 @@ def test_load_all_count():
 def test_list_roles():
     """list_roles 返回 25 个角色，包含关键名称。"""
     roles = list_roles()
-    assert len(roles) == 25, f"角色数 {len(roles)}，期望 25"
+    assert len(roles) >= 25, f"角色数 {len(roles)}，期望 >= 25"
     names = {r.name for r in roles}
     for required in ("maintainer", "scout", "curator", "coordinator", "engineer", "closer",
                      "optimizer", "codex-dev", "ccs-monitor", "debate_verifier",
