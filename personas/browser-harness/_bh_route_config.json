@@ -1,0 +1,757 @@
+{
+  "meta": {
+    "generated_at": "2026-07-14",
+    "source": "autonomous-loop-round-5",
+    "bh_total": 68
+  },
+  "bh_profiles": {
+    "security-auditor": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "password-auditor": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "cookie-manager": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "csp-auditor": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "storage-auditor": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "session-manager": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "webauthn-tester": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "vuln_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
+    },
+    "data-collector": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "web-scraper": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "scraper-engineer": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "data-miner": {
+      "sr_mapping": "curator",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "financial-collector": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "map-data-collector": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "ai-labeler": {
+      "sr_mapping": "curator",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "media-capturer": {
+      "sr_mapping": "scout",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "qa-engineer": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "a-b-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "ecommerce-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "form-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "regression-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "ui-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "compat-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "frontend-debugger": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "ab-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "i18n-localizer": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "spa-navigator": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "pwa-auditor": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "payment-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "clipboard-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "file-system-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "screen-capture-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "bluetooth-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "graphql-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "sse-listener": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "performance-analyst": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "performance-tester": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "lighthouse-auditor": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "http-cache-strategist": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "cdn-auditor": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "network-interceptor": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "webgpu-detector": {
+      "sr_mapping": "investigator_senior",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "mutation-observer": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "性能",
+      "enabled": true
+    },
+    "web-monitor": {
+      "sr_mapping": "maintainer",
+      "route": {
+        "produce": [
+          "notice",
+          "report"
+        ]
+      },
+      "category": "监控",
+      "enabled": true
+    },
+    "dashboard-creator": {
+      "sr_mapping": "maintainer",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "monitor-dashboard-manager": {
+      "sr_mapping": "maintainer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "automation-engineer": {
+      "sr_mapping": "engineer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "rpa-automator": {
+      "sr_mapping": "engineer",
+      "route": {
+        "produce": [
+          "code_fix",
+          "report"
+        ]
+      },
+      "category": "自动化",
+      "enabled": true
+    },
+    "form-expert": {
+      "sr_mapping": "engineer",
+      "route": {
+        "produce": [
+          "code_fix",
+          "report"
+        ]
+      },
+      "category": "自动化",
+      "enabled": true
+    },
+    "scheduler": {
+      "sr_mapping": "coordinator",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "social-media-manager": {
+      "sr_mapping": "coordinator",
+      "route": {
+        "produce": [
+          "code_fix",
+          "report"
+        ]
+      },
+      "category": "自动化",
+      "enabled": true
+    },
+    "ci-cd-pipeline-manager": {
+      "sr_mapping": "devops",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "saas-configurator": {
+      "sr_mapping": "devops",
+      "route": {
+        "produce": [
+          "code_fix",
+          "report"
+        ]
+      },
+      "category": "自动化",
+      "enabled": true
+    },
+    "seo-optimizer": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "SEO",
+      "enabled": true
+    },
+    "seo-content-writer": {
+      "sr_mapping": "writer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "ssr-detector": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "performance",
+          "report"
+        ]
+      },
+      "category": "SEO",
+      "enabled": true
+    },
+    "seo-auditor": {
+      "sr_mapping": "optimizer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "accessibility-auditor": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "sw-debugger": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "webrtc-tester": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "dom-differ": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "websocket-debugger": {
+      "sr_mapping": "investigator_python",
+      "route": {
+        "produce": [
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "api-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "pdf-extractor": {
+      "sr_mapping": "curator",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "indexeddb-manager": {
+      "sr_mapping": "curator",
+      "route": {
+        "produce": [
+          "architecture",
+          "report"
+        ]
+      },
+      "category": "数据",
+      "enabled": true
+    },
+    "dead-link-scanner": {
+      "sr_mapping": "maintainer",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "consistency-scanner": {
+      "sr_mapping": "curator",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "penetration-tester": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "report",
+          "architecture"
+        ]
+      },
+      "category": "",
+      "enabled": true
+    },
+    "captcha-handler": {
+      "sr_mapping": "engineer",
+      "route": {
+        "produce": [
+          "code_fix",
+          "report"
+        ]
+      },
+      "category": "自动化",
+      "enabled": true
+    }
+  }
+}
