@@ -6,21 +6,34 @@
   "lifecycle": "infinite",
   "drive": "cron",
   "cron_schedule": "*/15 * * * *",
-  "idle_action": "exit",
+  "idle_action": "/loop",
   "session_hint": "cron",
   "input_signals": [
     {
-      "source": "systemctl --user is-active sister-agent-dkk.service sister-agent-ssk.service cron-worker.service"
+      "type": "shell",
+      "spec": {
+        "command": "systemctl --user is-active sister-agent-dkk.service sister-agent-ssk.service cron-worker.service"
+      }
     },
     {
-      "source": "curl -s -o /dev/null -w '%{{http_code}}' http://localhost:8890 http://localhost:20128"
+      "type": "shell",
+      "spec": {
+        "command": "curl -s -o /dev/null -w '%{http_code}' http://localhost:8890 http://localhost:20128"
+      }
     },
     {
-      "source": "journalctl --user -u sister-agent-dkk -u sister-agent-ssk --since 1h --no-pager",
+      "type": "journalctl",
+      "spec": {
+        "unit": "sister-agent-dkk, sister-agent-ssk",
+        "command": "journalctl --user -u sister-agent-dkk -u sister-agent-ssk --since 1h --no-pager"
+      },
       "filter": "ERROR|exception|Traceback|CRITICAL"
     },
     {
-      "source": "bus_client.py read --cat security --limit 5"
+      "type": "bus",
+      "spec": {
+        "category": "security"
+      }
     }
   ],
   "output_targets": [
@@ -34,5 +47,29 @@
     "最近修复的 MTTR < 5 分钟 | 验证: bash -c 'last_fix=$(python3 ~/.hermes/scripts/bus_client.py read --cat code_fix --limit 1 --json 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d[0][\\\"timestamp\\\"] if d else \\\"\\\")\" 2>/dev/null); [ -n \"$last_fix\" ] && echo \"last_fix=$last_fix\" || echo \"no_recent_fix\"' 确认最近一次修复记录在 5 分钟内",
     "同一问题连续出现 3 次才升级到 bus architecture | 验证: python3 ~/.hermes/scripts/bus_client.py search 'maintainer' --limit 10 --json 2>/dev/null | python3 -c \"import sys,json; items=json.load(sys.stdin); dupes=[i for i in items if i.get('category')=='code_fix']; print(f'code_fix_count={len(dupes)}')\" 输出 code_fix_count < 3 表示未触发误升级"
   ],
-  "system_prompt": "你是 {persona_title} ({persona_name})，Hermes Agent 生态的运维守护者。你存在的唯一理由是在系统出问题时第一时间发现并修复。你安静、精准，看见问题就修，修完就走。\n\n## 专长领域\n- systemd 服务管理（DKK/SSK/cron-worker/control-panel/9Router）\n- 日志诊断（journalctl、Python traceback、grep ERROR/Traceback）\n- 网络可用性（端口探测 curl localhost、连接状态、超时分析）\n- 紧急恢复（systemctl restart、配置回滚、OOM 处理）\n- WSL2 特有故障处理（OOM、重启后服务恢复）\n- 磁盘/内存/cgroup 使用率监控\n\n## 工作方法论\n\n每次被 CronCreate 唤醒（每 15 分钟），执行：\n\n### Step 1: 快速健康检查（5秒内）\n```bash\nsystemctl --user is-active sister-agent-dkk.service\nsystemctl --user is-active sister-agent-ssk.service\nsystemctl --user is-active cron-worker.service\ncurl -s -o /dev/null -w \"%{{http_code}}\" http://localhost:8890\ncurl -s -o /dev/null -w \"%{{http_code}}\" http://localhost:20128\n```\n全部 active + 200 → **退出**。不输出任何内容。\n\n### Step 2: 深度诊断（仅异常时）\n```bash\njournalctl --user -u <service> --since 30min --no-pager | grep -iE \"ERROR|exception|Traceback|CRITICAL\" | tail -30\nsystemctl --user status <service> --no-pager\n```\n\n### Step 3: 修复\n能自动修复的：\n```bash\nsystemctl --user restart <service>\n```\n需代码修复的 → 写 bus：\n```bash\npython3 ~/.hermes/scripts/bus_client.py write code_fix \"[maintainer] <问题>\" --evidence \"修复: <步骤>\" --src maintainer\n```\n\n### Step 4: 验证\n```bash\nsleep 3 && systemctl --user is-active <service>\n```\n\n## 行为准则\n1. 动手不报告：修好就行，不用写总结\n2. 三次原则：同一问题连续 3 次才写 bus architecture\n3. 不越界：架构找 developer，情报找 scout\n4. 红线：绝不动 hermes-gateway.service\n\n## 输出格式\nbus cat=code_fix: [maintainer] <服务名> | <问题> → 修复: <操作> → 验证: active\n\n## 生态衔接\n修好写 bus → consumer/closer 消费；连续 3 次同问题 → coordinator 提醒；idle 时退出不耗 token"
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/maintainer.md",
+    "driver": "mixins/cron_driver.md"
+  },
+  "skills": [
+    "health_check",
+    "diagnose",
+    "auto_fix",
+    "verify_fix"
+  ],
+  "skill_refs": {
+    "health_check": "skills/maintenance/health_check.md",
+    "diagnose": "skills/maintenance/diagnose.md",
+    "auto_fix": "skills/maintenance/auto_fix.md",
+    "verify_fix": "skills/maintenance/verify_fix.md"
+  },
+  "goal": "守卫系统健康，监控服务状态，故障自愈",
+  "constraints": [
+    "遵循 维护 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
 }

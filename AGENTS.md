@@ -1,80 +1,89 @@
-# Hermes Session Roles
+# hermes-session-roles AGENTS.md
 
-Registers career identities for Claude Code sessions -- 7 session roles and 57 browser-automation personas. Each definition declares who the session is, what it produces, and which signals drive it.
+## 项目概述
+Session 生态的**定义层**——声明每个 CCS 的身份、专长、输入输出契约、验收标准。
+纯数据，无逻辑。
 
-## File Tree
-
+## 整体架构
 ```
-session-roles/
-  personas/
-    browser-harness/            57 browser-automation personas
-      persona_01_core.json
-      persona_02_specialized.json
-      persona_03_advanced.json
-    session-roles/              7 infrastructure roles
-      persona_00_maintainer.json
-      persona_01_scout.json
-      persona_02_consumer.json
-      persona_03_curator.json
-      persona_04_coordinator.json
-      persona_05_developer.json
-      persona_06_closer.json
-  src/
-    models.py                   PersonaDef, RoleDef, register/get/load_all
-    search.py                   keyword + synonym semantic search (stdlib only)
-    cli.py                      CLI entry point (4 subcommands below)
-  tests/
-    test_search.py
+hermes-session-roles  →  session-launcher  →  session-pipeline
+  (定义层)              (执行层)              (路由层)
 ```
 
-## CLI Commands
+**铁律：修改角色 JSON 时必须同时考虑上下游影响。**
 
-All commands load definitions first, then operate on them.
+## Git 工作流
+1. 禁止切换分支，始终在 main 分支工作
+2. 小步提交，每完成一个逻辑单元立即 commit
+3. 出错用新提交修复，不要 revert
+4. 本地即生产环境
 
-```
-python src/cli.py list [--roles] [--category CAT]
-python src/cli.py show <name>
-python src/cli.py load <name> [--json] [--extra key=val ...]
-python src/cli.py search <query> [--top N]
-```
+## 协作红线
+1. system_prompt 只写专业能力——协作逻辑一律不写
+2. eval_criteria 必须可执行——禁止写"质量高"这种不可验证的标准
+3. schema 只增不改——新字段可加，旧字段不能删
+4. 文件命名：persona_XX_name.json
 
-| Command  | Purpose                                                      |
-|----------|--------------------------------------------------------------|
-| `list`   | List personas grouped by category, or `--roles` for the 7 roles only |
-| `show`   | Dump full JSON of a persona or role                          |
-| `load`   | Render system prompt (with optional template vars)           |
-| `search` | Semantic search across all definitions (top-5 default)       |
+---
 
-## Quick Reference
+## 自维护指令（Agent 按此执行）
 
-Common search queries:
+### 1. 每次修改角色后：全量验证
 
 ```bash
-python src/cli.py search "修服务器"          # maintainer role
-python src/cli.py search "安全审计"           # security personas
-python src/cli.py search "数据采集 爬虫"      # data-collection personas
-python src/cli.py search "自动化部署"         # automation personas
+python3 src/validate_roles.py
+# 预期: 文件数: 25, 角色数: 25, 错误数: 0
+
+python3 tests/test_search.py
+# 预期: 15/15 通过
 ```
 
-Adding a new role -- add entry to `personas/session-roles/persona_NN_name.json` with these required fields:
+### 2. 新增角色清单
 
-```json
-{
-  "name": "string",
-  "title": "string",
-  "description": "string",
-  "category": "string",
-  "system_prompt": "string",
-  "lifecycle": "infinite|ondemand",
-  "drive": "cron|loop|ondemand",
-  "input_signals": [],
-  "output_targets": []
-}
+- [ ] `python3 src/cli.py show <name>` 不报错
+- [ ] `python3 tests/test_search.py` 全通过
+- [ ] eval_criteria 每条能在 shell 里跑通
+- [ ] system_prompt 无协作逻辑
+- [ ] drive=cron 时有 cron_schedule
+- [ ] input_signals 的 source 可直接在 shell 执行
+- [ ] output_targets 格式 `bus cat=<分类> <描述>`
+- [ ] 文件命名 `persona_XX_name.json`，XX 两位数序号
+- [ ] prompts 文件包含 `## 参考来源` 章节
+- [ ] 非原创角色必须有外部 URL 引用
+
+### 3. 角色验证6维度
+
+| 维度 | 检查内容 | 命令 |
+|------|----------|------|
+| D1 正确性 | JSON schema 完整、字段类型正确 | validate_roles.py |
+| D2 安全性 | prompt 无越界指令、eval 注入 | grep -i "eval\|exec\|os.system" |
+| D3 可维护性 | 命名规范、分类一致 | ls personas/session-roles/ |
+| D4 性能 | prompt 长度、信号轮询频率 | wc -c system_prompt |
+| D5 一致性 | 全部角色风格统一 | diff persona_*.json 结构 |
+| D6 可测试性 | eval_criteria 可 shell 执行 | 逐条在 shell 运行 |
+
+### 4. 跨项目联动
+
+修改角色定义（input_signals / output_targets）后，session-pipeline 的路由表
+自动更新。验证方式：
+
+```bash
+cd /home/administrator/session-pipeline
+PYTHONPATH=src python3 -c "
+from router import get_router
+r = get_router()
+print('maintainer produce:', r.role_produce_categories('maintainer'))
+print('security consumers:', r.get_consumers('security'))
+"
 ```
 
-## Red Lines
+### 5. 每周自进化
 
-1. Never edit on `main`/`quality-gate` directly. All edits go on a worktree branch.
-2. Commit format: `feat/fix/chore: short description in English` -- keep it under 72 chars.
-3. Verify before marking done: `git diff --name-only`, `python -m py_compile` on every changed `.py` file, `python -m pytest` if tests exist.
-4. Zero external dependencies. Search uses only stdlib (`difflib` / `re`). Do not add pip packages.
+- 检查是否有角色缺失 output_targets 或 input_signals
+- 检查是否有重复角色（name 冲突）
+- 检查 Browser Harness 映射是否需要更新
+- 评估 prompt 蒸馏质量：每条规则是否来自真实踩坑
+
+## Browser Harness 集成
+57 个人格按三层组织：core(10) → specialized(25) → advanced(22)
+通过 `_bh_to_sr_map.json` 桥接到 session 角色。

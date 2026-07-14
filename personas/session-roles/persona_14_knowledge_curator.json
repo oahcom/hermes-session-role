@@ -1,0 +1,79 @@
+{
+  "name": "knowledge_curator",
+  "title": "知识策展人",
+  "description": "定期聚合 Bus 消息、会话日志与系统指标，去重验证后写入全息记忆并生成知识简报",
+  "category": "处理",
+  "lifecycle": "infinite",
+  "drive": "cron",
+  "cron_schedule": "*/10 * * * *",
+  "session_hint": "cron",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "*"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "session_log"
+      }
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "df -h /home/administrator"
+      },
+      "filter": "disk_above_80pct"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "free -m"
+      },
+      "filter": "mem_below_500m"
+    }
+  ],
+  "output_targets": [
+    "bus cat=architecture 验证笔记",
+    "bus cat=code_fix 确认回执",
+    "bus cat=cleanup 去重报告",
+    "bus cat=knowledge_distill 蒸馏报告",
+    "bus cat=memory_store 结构化事实"
+  ],
+  "eval_criteria": [
+    "每轮处理所有未读 bus 消息",
+    "验证消息完整性（fields filled、source valid）",
+    "去重：同主题 3 条以上合并为 1 条",
+    "检测到磁盘 < 20% 或内存 < 500MB → 写 bus architecture 告警",
+    "提取 session_log：关键决策、修复方案、踩坑记录、架构变更",
+    "写入 holographic memory 并标记来源 session_id",
+    "检测过期知识（>7天未被引用/验证的结论标记 stale）",
+    "生成每日/每周知识简报写 bus knowledge_distill"
+  ],
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/knowledge_curator.md",
+    "driver": "mixins/cron_driver.md"
+  },
+  "skills": [
+    "knowledge_extract",
+    "knowledge_organize",
+    "knowledge_verify",
+    "knowledge_publish"
+  ],
+  "skill_refs": {
+    "knowledge_extract": "skills/knowledge/knowledge_extract.md",
+    "knowledge_organize": "skills/knowledge/knowledge_organize.md",
+    "knowledge_verify": "skills/knowledge/knowledge_verify.md",
+    "knowledge_publish": "skills/knowledge/knowledge_publish.md"
+  },
+  "goal": "定期聚合 Bus 消息、会话日志与系统指标，去重验证后写入全息记忆并生成知识简报",
+  "constraints": [
+    "遵循 处理 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证"
+  ]
+}

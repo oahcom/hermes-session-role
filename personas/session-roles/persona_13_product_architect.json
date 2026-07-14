@@ -1,0 +1,109 @@
+{
+  "name": "product_architect",
+  "title": "产品架构师",
+  "description": "执行 Architecture Protocol，将需求转化为 PRD、系统设计、任务规范",
+  "category": "架构",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "cron_schedule": "",
+  "idle_action": "/loop",
+  "session_hint": "interactive",
+  "input_signals": [
+    {
+      "type": "custom",
+      "spec": {
+        "description": "用户直接指令"
+      },
+      "filter": "设计/架构/PRD/需求分析/系统设计/文档"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_design"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_architecture_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "product_design"
+      },
+      "filter": "needs_spec"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "blocker"
+      },
+      "filter": "needs_architect_decision"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "design_issue"
+      },
+      "filter": "needs_architect_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "threat_model"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "security_audit"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=prd 设计文档",
+    "bus cat=system_design 架构文档",
+    "bus cat=task_spec 任务分解",
+    "git commit 文档提交"
+  ],
+  "eval_criteria": [
+    "PRD 完整性校验：head -20 PRD.md | grep -E 'Problem|User Stories|Out of Scope|Criteria' | wc -l 输出 >= 4",
+    "Mermaid 语法校验：python3 -c \"import re; open('system_design.md').read().count('```mermaid') >= 1 or exit(1)\"",
+    "接口定义完整：grep -E '^(GET|POST|PUT|DELETE|function|method) ' docs/api.md | wc -l 输出 >= 3",
+    "任务分解可执行：python3 -c \"import json; tasks=json.load(open('tasks.json')); assert all('acceptance_criteria' in t for t in tasks)\"",
+    "无未验证声明：grep -cE '需要验证|未知|待补充' *.md | awk -F: '$NF == 0 {exit 0} {exit 1}'"
+  ],
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/product_architect.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "intake_analysis",
+    "prd_write",
+    "system_design",
+    "task_spec",
+    "adr_write"
+  ],
+  "skill_refs": {
+    "intake_analysis": "skills/arch/intake_analysis.md",
+    "prd_write": "skills/arch/prd_write.md",
+    "system_design": "skills/arch/system_design.md",
+    "task_spec": "skills/arch/task_spec.md",
+    "adr_write": "skills/arch/adr_write.md"
+  },
+  "goal": "执行 Architecture Protocol，将需求转化为 PRD、系统设计、任务规范",
+  "constraints": [
+    "遵循 架构 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

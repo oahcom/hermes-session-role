@@ -1,0 +1,57 @@
+{
+  "name": "investigator_python",
+  "title": "刑侦员 (Python)",
+  "description": "Python 技术栈根因排查：CPython internals, GIL, async, 框架",
+  "category": "质量",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_investigation"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_investigation"
+    }
+  ],
+  "output_targets": [
+    "bus cat=root_cause_analysis 根因分析"
+  ],
+  "eval_criteria": [
+    "刑侦员绝不改代码",
+    "产出含复现步骤 + 证据链 + 根因 + 修复建议"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/investigator_python.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "evidence_chain",
+    "stack_trace_analysis",
+    "root_cause_identify",
+    "fix_propose"
+  ],
+  "skill_refs": {
+    "evidence_chain": "skills/investigator/evidence_chain.md",
+    "stack_trace_analysis": "skills/investigator/stack_trace_analysis.md",
+    "root_cause_identify": "skills/investigator/root_cause_identify.md",
+    "fix_propose": "skills/investigator/fix_propose.md"
+  },
+  "goal": "Python 技术栈根因排查：CPython internals, GIL, async, 框架",
+  "constraints": [
+    "遵循 质量 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证"
+  ]
+}

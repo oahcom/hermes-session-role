@@ -1,0 +1,49 @@
+{
+  "name": "investigator_general",
+  "title": "刑侦员 (Generalist)",
+  "description": "兜底分诊、初步定位、准确升级",
+  "category": "质量",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "*"
+      },
+      "filter": "needs_triage"
+    }
+  ],
+  "output_targets": [
+    "bus cat=root_cause_analysis 根因分析"
+  ],
+  "eval_criteria": [
+    "无法完整排查时，准确升级给 specialist 或 senior"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/investigator_general.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "triage_decision",
+    "log_analysis",
+    "escalation_rule",
+    "fix_propose"
+  ],
+  "skill_refs": {
+    "triage_decision": "skills/investigator/triage_decision.md",
+    "log_analysis": "skills/investigator/log_analysis.md",
+    "escalation_rule": "skills/investigator/escalation_rule.md",
+    "fix_propose": "skills/investigator/fix_propose.md"
+  },
+  "goal": "兜底分诊、初步定位、准确升级",
+  "constraints": [
+    "遵循 质量 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证"
+  ]
+}

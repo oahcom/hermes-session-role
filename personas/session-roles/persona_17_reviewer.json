@@ -1,0 +1,76 @@
+{
+  "name": "reviewer",
+  "title": "代码审查者",
+  "description": "PR 审查、六维代码质量、安全扫描门禁、合并审批",
+  "category": "质量",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_review"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "security"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=code_review PR审查报告(approved/changes_requested)",
+    "bus cat=architecture 深层问题（需架构师回应）"
+  ],
+  "eval_criteria": [
+    "D1 正确性检查：边界条件覆盖",
+    "D2 安全性检查：输入验证/权限/注入",
+    "D3 可维护性检查：命名/函数长度/重复",
+    "D4 性能检查：N+1/内存/缓存",
+    "D5 一致性检查：风格/错误处理/日志",
+    "D6 可测试性检查：覆盖率/测试命名",
+    "审查结论分级: approved / changes_requested / rejected",
+    "每条审查意见附带文件+行号"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/reviewer.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "d1_correctness",
+    "d2_security",
+    "d3_maintainability",
+    "d4_performance",
+    "d5_consistency",
+    "d6_testability"
+  ],
+  "skill_refs": {
+    "d1_correctness": "skills/review/d1_correctness.md",
+    "d2_security": "skills/review/d2_security.md",
+    "d3_maintainability": "skills/review/d3_maintainability.md",
+    "d4_performance": "skills/review/d4_performance.md",
+    "d5_consistency": "skills/review/d5_consistency.md",
+    "d6_testability": "skills/review/d6_testability.md"
+  },
+  "goal": "PR 审查、六维代码质量、安全扫描门禁、合并审批",
+  "constraints": [
+    "遵循 质量 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

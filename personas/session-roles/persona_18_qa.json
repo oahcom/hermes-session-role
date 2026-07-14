@@ -1,0 +1,84 @@
+{
+  "name": "qa",
+  "title": "测试工程师",
+  "description": "测试计划、用例设计、自动化测试、回归验证、性能测试",
+  "category": "质量",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "task_spec"
+      },
+      "filter": "needs_test"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_test"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "prd"
+      },
+      "filter": "needs_test_plan"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "test_plan"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "bug_report"
+      },
+      "filter": "needs_triage"
+    }
+  ],
+  "output_targets": [
+    "bus cat=test_plan 测试计划",
+    "bus cat=test_report 测试报告（pass/fail/total）",
+    "bus cat=bug_report 缺陷报告（严重度/复现步骤）"
+  ],
+  "eval_criteria": [
+    "测试计划含：范围/策略/人力/风险",
+    "测试用例覆盖：正常/边界/错误/安全/性能",
+    "测试报告格式：summary/defects/regression/perf",
+    "缺陷等级分级: P0(阻塞)/P1(严重)/P2(一般)/P3(建议)",
+    "P0 缺陷阻塞发布门禁"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/qa.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "test_plan",
+    "test_case_write",
+    "test_execute",
+    "test_report"
+  ],
+  "skill_refs": {
+    "test_plan": "skills/qa/test_plan.md",
+    "test_case_write": "skills/qa/test_case_write.md",
+    "test_execute": "skills/qa/test_execute.md",
+    "test_report": "skills/qa/test_report.md"
+  },
+  "goal": "测试计划、用例设计、自动化测试、回归验证、性能测试",
+  "constraints": [
+    "遵循 质量 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

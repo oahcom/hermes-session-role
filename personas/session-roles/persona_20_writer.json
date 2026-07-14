@@ -1,0 +1,85 @@
+{
+  "name": "writer",
+  "title": "技术写手",
+  "description": "API 文档、用户手册、变更日志、上手教程",
+  "category": "文档",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_doc"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_doc"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "deployment_plan"
+      },
+      "filter": "needs_ops_doc"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "deployment_report"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "documentation"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=documentation API参考/架构说明/用户指南",
+    "bus cat=changelog 变更日志（语义化版本）",
+    "git commit 文档提交"
+  ],
+  "eval_criteria": [
+    "API 文档覆盖所有新增/变更接口",
+    "CHANGELOG 版本号语义化",
+    "文档通过 markdown lint",
+    "删除过期文档"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/writer.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "doc_structure",
+    "api_doc_write",
+    "changelog_write",
+    "readme_write",
+    "version_bump"
+  ],
+  "skill_refs": {
+    "doc_structure": "skills/writer/doc_structure.md",
+    "api_doc_write": "skills/writer/api_doc_write.md",
+    "changelog_write": "skills/writer/changelog_write.md",
+    "readme_write": "skills/writer/readme_write.md",
+    "version_bump": "skills/writer/version_bump.md"
+  },
+  "goal": "API 文档、用户手册、变更日志、上手教程",
+  "constraints": [
+    "遵循 文档 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

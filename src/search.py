@@ -28,12 +28,9 @@ _SYNONYM_GROUPS: list[set[str]] = [
     # 监控/检查组（中英打通）
     {"监控", "监测", "检查", "审查", "扫描", "探测", "查看", "巡检", "跟踪",
      "monitor", "observe", "watch", "check", "scan", "track", "supervise", "detect", "probe", "surveil"},
-    # 部署/更新组
-    {"部署", "发布", "发布", "更新", "升级", "安装", "配置",
+    # 部署/更新组（同时覆盖中英文，避免下方英文重复组）
+    {"部署", "发布", "更新", "升级", "安装", "配置",
      "deploy", "release", "publish", "update", "upgrade", "install", "setup"},
-    # 清理组
-    {"清理", "删除", "清除", "去重", "压缩", "熵增", "回收",
-     "clean", "purge", "prune", "dedup", "compress", "gc"},
     # 安全组（中英打通）
     {"安全", "漏洞", "风险", "防护", "保护", "告警", "审计", "入侵",
      "security", "secure", "safe", "vuln", "cve", "audit", "alert"},
@@ -56,7 +53,7 @@ _SYNONYM_GROUPS: list[set[str]] = [
     {"角色", "人格", "身份", "职责", "职能",
      "role", "profile", "identity", "persona"},
     # ── 英文同义词 ──
-    {"deploy", "release", "publish", "update", "upgrade", "install"},
+    # 已由部署/更新组覆盖（中英文合并），避免重复
     {"fix", "repair", "patch", "hotfix", "resolve", "bugfix", "correct"},
     {"maintain", "maintainer", "guard", "protect", "safeguard"},
     {"scout", "explore", "discover", "hunt", "survey", "recon"},
@@ -111,13 +108,11 @@ def _expand_synonyms(tokens: list[str]) -> set[str]:
     return expanded
 
 
-def _field_score(query_tokens: list[str], text: str, use_synonyms: bool = True) -> float:
+def _field_score(query_tokens: list[str], query_expanded: set[str], text: str) -> float:
     """单字段匹配度 (0-1)。
 
-    支持同义词扩展：query token 和 target token 各自动展开同义词集，
-    若两个扩展集有交集则视为命中。
-
-    这样"fix"↔"维护"、deploy↔"部署" 等跨语言同义词都能匹配。
+    使用预先展开的 query 同义词集与 target 展开集做交集判断。
+    避免每次调用重复展开同义词（pre-optimized in search()）。
     """
     if not text:
         return 0.0
@@ -125,20 +120,13 @@ def _field_score(query_tokens: list[str], text: str, use_synonyms: bool = True) 
     if not target_tokens:
         return 0.0
 
-    if use_synonyms:
-        # 两边同时展开，取交集判断命中
-        query_expanded = _expand_synonyms(query_tokens)
-        target_expanded = _expand_synonyms(target_tokens)
-        hits = 0
-        for qt in query_tokens:
-            qt_expanded = _expand_synonyms([qt])
-            if qt_expanded & target_expanded:
-                hits += 1
-        return hits / len(query_tokens) if query_tokens else 0.0
-    else:
-        target_set = set(target_tokens)
-        hits = sum(1 for qt in query_tokens if qt in target_set)
-        return hits / len(query_tokens) if query_tokens else 0.0
+    target_expanded = _expand_synonyms(target_tokens)
+    hits = 0
+    for qt in query_tokens:
+        qt_expanded = _expand_synonyms([qt])
+        if qt_expanded & target_expanded:
+            hits += 1
+    return hits / len(query_tokens) if query_tokens else 0.0
 
 
 def _score_ordered_match(query_chars: list[str], target_text: str) -> float:
@@ -185,6 +173,7 @@ def search(query: str, top_k: int = 5) -> list[dict]:
         return []
 
     query_chars = re.findall(r'[一-鿿]', query.lower())
+    query_expanded = _expand_synonyms(query_tokens) if query_tokens else set()
 
     seen = set()
     results = []
@@ -193,13 +182,13 @@ def search(query: str, top_k: int = 5) -> list[dict]:
             continue
         seen.add(item.name)
 
-        # 字段加权评分（带同义词扩展）
+        # 字段加权评分（带同义词扩展，使用预展开的 query_expanded）
         score = (
-            _field_score(query_tokens, item.title) * _WEIGHTS["title"]
-            + _field_score(query_tokens, item.description) * _WEIGHTS["description"]
-            + _field_score(query_tokens, item.category) * _WEIGHTS["category"]
-            + _field_score(query_tokens, item.name) * _WEIGHTS["name"]
-            + _field_score(query_tokens, item.system_prompt) * _WEIGHTS["prompt"]
+            _field_score(query_tokens, query_expanded, item.title) * _WEIGHTS["title"]
+            + _field_score(query_tokens, query_expanded, item.description) * _WEIGHTS["description"]
+            + _field_score(query_tokens, query_expanded, item.category) * _WEIGHTS["category"]
+            + _field_score(query_tokens, query_expanded, item.name) * _WEIGHTS["name"]
+            + _field_score(query_tokens, query_expanded, item.system_prompt) * _WEIGHTS["prompt"]
         )
 
         # 关键词完整覆盖加成：query 所有单字都在标题+描述+prompt 中

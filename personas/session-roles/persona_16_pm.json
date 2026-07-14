@@ -1,0 +1,104 @@
+{
+  "name": "pm",
+  "title": "产品经理",
+  "description": "用户需求分析、用户故事拆分、优先级排序、验收确认",
+  "category": "管理",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "prd"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_user_impact"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "test_report"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "deployment_report"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "feedback"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "custom",
+      "spec": {
+        "description": "用户直接指令"
+      },
+      "filter": "需求/功能/痛点/竞品"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "bug_report"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "documentation"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=user_story 用户故事（含验收条件）",
+    "bus cat=feedback 功能验证/用户反馈"
+  ],
+  "eval_criteria": [
+    "用户故事格式: As a/I want/so that 完整",
+    "每个故事含 Acceptance Criteria",
+    "故事点估算 S/M/L 明确",
+    "P0/P1/P2/P3 优先级标记",
+    "依赖关系在 BACKLOG.md 中标注"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/pm.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "requirement_analysis",
+    "user_story_write",
+    "priority_rank",
+    "acceptance_verify"
+  ],
+  "skill_refs": {
+    "requirement_analysis": "skills/pm/requirement_analysis.md",
+    "user_story_write": "skills/pm/user_story_write.md",
+    "priority_rank": "skills/pm/priority_rank.md",
+    "acceptance_verify": "skills/pm/acceptance_verify.md"
+  },
+  "goal": "用户需求分析、用户故事拆分、优先级排序、验收确认",
+  "constraints": [
+    "遵循 管理 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

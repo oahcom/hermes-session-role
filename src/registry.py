@@ -9,7 +9,7 @@ import json
 import os
 from typing import Any
 
-from models import PersonaDef, RoleDef
+from models import PersonaDef, RoleDef, render_prompt_from_refs
 
 
 _ROLES: dict[str, RoleDef] = {}
@@ -20,9 +20,7 @@ def register(obj: PersonaDef | RoleDef) -> None:
     """注册一个人格/角色。"""
     if isinstance(obj, RoleDef):
         _ROLES[obj.name] = obj
-        _PERSONAS[obj.name] = obj
-    if isinstance(obj, PersonaDef):
-        _PERSONAS[obj.name] = obj
+    _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
 
 
 def get(name: str) -> PersonaDef | RoleDef | None:
@@ -56,21 +54,43 @@ def load_all(base_dir: str | None = None) -> int:
         base_dir = os.path.join(os.path.dirname(__file__), "..")
 
     count = 0
+    prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
     for root, _, files in os.walk(base_dir):
         for fname in sorted(files):
             if not fname.startswith("persona_") or not fname.endswith(".json"):
                 continue
             path = os.path.join(root, fname)
             try:
-                with open(path) as f:
-                    data = json.load(f)
+                with open(path, encoding="utf-8") as f:
+                    raw = f.read()
+                data = json.loads(raw)
                 items = data if isinstance(data, list) else [data]
                 for item in items:
+                    if item.get("category") == "测试":
+                        continue
                     if "lifecycle" in item or "input_signals" in item:
-                        register(RoleDef.from_dict(item))
+                        obj = RoleDef.from_dict(item)
                     else:
-                        register(PersonaDef.from_dict(item))
+                        obj = PersonaDef.from_dict(item)
+
+                    # 渲染 prompt_refs → system_prompt（若 system_prompt 为空）
+                    if not obj.system_prompt and obj.prompt_refs:
+                        render_kwargs = {
+                            "persona_name": obj.name,
+                            "persona_title": obj.title,
+                        }
+                        if isinstance(obj, RoleDef):
+                            render_kwargs["cron_schedule"] = obj.cron_schedule
+                        obj.system_prompt = render_prompt_from_refs(
+                            obj.prompt_refs, prompts_dir, **render_kwargs
+                        )
+
+                    register(obj)
                     count += 1
+            except json.JSONDecodeError as e:
+                print(f"  [registry] JSON 解析失败 {fname}: {e}")
+            except (OSError, IOError) as e:
+                print(f"  [registry] 文件读写失败 {fname}: {e}")
             except Exception as e:
-                print(f"  [registry] 加载 {fname} 失败: {e}")
+                print(f"  [registry] 未知错误加载 {fname}: {type(e).__name__}: {e}")
     return count

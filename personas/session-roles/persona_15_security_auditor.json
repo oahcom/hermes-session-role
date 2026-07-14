@@ -1,0 +1,99 @@
+{
+  "name": "security_auditor",
+  "title": "安全审计员",
+  "description": "执行系统安全审计、OWASP Top 10 检查、依赖漏洞扫描和配置基线审计",
+  "category": "安全",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "cron_schedule": "",
+  "idle_action": "/loop",
+  "session_hint": "interactive",
+  "input_signals": [
+    {
+      "type": "custom",
+      "spec": {
+        "description": "用户直接指令"
+      },
+      "filter": "安全审计/渗透/合规/CVE/漏洞扫描"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "security"
+      },
+      "filter": "needs_audit"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "blocker"
+      },
+      "filter": "security_related"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "security_patch"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "security_audit"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "threat_model"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "deployment_plan"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=security_audit 审计报告",
+    "bus cat=code_fix 安全补丁",
+    "bus cat=architecture 安全架构建议",
+    "git commit 安全加固代码"
+  ],
+  "eval_criteria": [
+    "覆盖 OWASP Top 10 检查项",
+    "每份报告含：风险等级、复现步骤、修复建议、参考 CVE",
+    "依赖漏洞扫描：pip-audit / cargo audit / npm audit 至少一项通过",
+    "配置审计：systemd/cron/SSH/防火墙/密钥管理至少 5 项检查"
+  ],
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/security_auditor.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "owasp_scan",
+    "threat_model",
+    "vuln_assess",
+    "compliance_check"
+  ],
+  "skill_refs": {
+    "owasp_scan": "skills/security/owasp_scan.md",
+    "threat_model": "skills/security/threat_model.md",
+    "vuln_assess": "skills/security/vuln_assess.md",
+    "compliance_check": "skills/security/compliance_check.md"
+  },
+  "goal": "执行系统安全审计、OWASP Top 10 检查、依赖漏洞扫描和配置基线审计",
+  "constraints": [
+    "遵循 安全 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}

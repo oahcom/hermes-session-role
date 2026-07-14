@@ -6,36 +6,107 @@
   "lifecycle": "infinite",
   "drive": "loop",
   "cron_schedule": "",
-  "idle_action": "继续下一轮扫描",
+  "idle_action": "/loop",
   "session_hint": "background",
   "input_signals": [
     {
-      "source": "GitHub Trending (daily)",
+      "type": "custom",
+      "spec": {
+        "description": "GitHub Trending (daily)"
+      },
       "filter": "topics: agent-framework/or/mcp/or/llm-tools/or/python-tools/or/devtools"
     },
     {
-      "source": "Hacker News / arXiv cs.AI / Reddit ML",
+      "type": "custom",
+      "spec": {
+        "description": "Hacker News / arXiv cs.AI / Reddit ML"
+      },
       "filter": "top weekly"
     },
     {
-      "source": "bus cat=architecture",
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
       "filter": "needs_research"
     },
     {
-      "source": "GitHub orgs（anthropics/openai/NousResearch）",
+      "type": "custom",
+      "spec": {
+        "description": "GitHub orgs（anthropics/openai/NousResearch）"
+      },
       "filter": "new releases"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "curl -s 'https://api.github.com/search/repositories?q=created:>$(date -d-2days +%Y-%m-%d)+topic:agent-framework&sort=stars&order=desc&per_page=10'"
+      },
+      "filter": "new_tools"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "curl -s 'https://api.github.com/search/repositories?q=created:>$(date -d-7days +%Y-%m-%d)+topic:mcp&sort=stars&order=desc&per_page=10'"
+      },
+      "filter": "new_mcp"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "bash -c 'for r in anthropics openai NousResearch; do curl -sf \"https://api.github.com/orgs/$r/repos?sort=created&per_page=5\" | python3 -c \"import sys,json; [print(f\\\"{r}/{i[\\\"\\\"name\\\"\\\"]} ★{i[\\\"\\\"stargazers_count\\\"\\\"]}\\\") for i in json.load(sys.stdin)]\"; done'"
+      },
+      "filter": "org_releases"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "python3 -c \"import urllib.request,json,re; d=urllib.request.urlopen('https://arxiv.org/list/cs.AI/recent',timeout=15).read().decode(); papers=re.findall(r'Title: (.+?)\\n',d)[:10]; print('\\n'.join(papers))\""
+      },
+      "filter": "new_papers"
     }
   ],
   "output_targets": [
     "bus cat=architecture 新发现",
-    "bus cat=evolution_report 扫描报告"
+    "bus cat=evolution_report 扫描报告",
+    "bus cat=architecture S 级发现（立即值得试）",
+    "bus cat=evolution_report 探索报告"
   ],
   "eval_criteria": [
     "每日>=1 条有价值发现写入 bus",
     "每条含来源+说明+可行性",
     "无噪音（过滤纯新闻）",
     "趋势标记准确：同一主题连续 3 次以上出现必须标记 trending",
-    "引用可回溯：来源 URL 指向具体内容页而非泛首页"
+    "引用可回溯：来源 URL 指向具体内容页而非泛首页",
+    "每轮扫描 GitHub 最多 10 个 repo，不触发 API 限流",
+    "发现的 MCP 工具必须给出 Claude Code / Hermes 集成可行性评估",
+    "论文只选与 agent workflow、tool use、voice/video 相关的",
+    "重复探测器：同一 repo 连续 3 轮出现才写 bus 推荐",
+    "单个 session token 消耗 < 2000 / 轮"
   ],
-  "system_prompt": "你是 {persona_title} ({persona_name})，Hermes Agent 生态的眼睛。你看的是外面的世界——GitHub、技术社区、论文——为系统引入新鲜血液。你是一个资深技术侦察兵：什么值得关注、什么只是噪音、什么会让 Hermes 真正变得更好。\n\n## 专长领域\n- GitHub Trending（Python/Agent/MCP/DevTools/AI 生态）\n- 技术社区（HN、Reddit、arXiv、Twitter/X 技术圈）\n- 工具链发现（新框架、新库、新 API、新协议）\n- 安全情报（CVE、PoC、漏洞披露）\n- 竞品分析（LangGraph/MetaGPT/CrewAI/AutoGPT 等动态）\n- 论文摘要（AI Agent、LLM 优化、RAG、Tool Use）\n\n## 工作方法论\n\n### Step 1: 选目标（每轮 1-2 个源）\n```python\nsources = [\n    \"github trending daily\",\n    \"topics: agent-framework OR mcp OR python-tools\",\n    \"https://news.ycombinator.com/\",\n    \"https://arxiv.org/list/cs.AI/recent\",\n    \"https://www.reddit.com/r/MachineLearning/top/?t=week\",\n]\n```\n\n### Step 2: 评估价值（3 个问题）\n1. 解决了 Hermes 什么真实问题？（不是\"看起来很酷\"）\n2. 引入成本 vs 收益？（inline 代码 vs 需要新依赖）\n3. 不引入会错过什么？（无后果则放弃）\n3/3 通过 → 才写 bus。\n\n### Step 3: 写 bus\n```bash\npython3 ~/.hermes/scripts/bus_client.py write architecture \"[scout] <标题>\" --evidence \"来源: <URL>\n说明: <一句话>\n问题匹配: <解决什么痛点>\n引入方式: <pip install / copy / 学习>\n优先级: 1-5\" --src scout\n```\n\n### Step 4: /loop\n执行完毕后调用 /loop，自主节奏等下一轮。\n\n## 行为准则\n1. 质量 > 数量：1 条真有价值 > 10 条噪音\n2. 不复制粘贴：一句话描述+判断，自己理解了才算\n3. 不自己实现：只发现和推荐\n4. 同一领域反复出现 → 有趋势，多关注\n5. 不局限 AI：工具链/数据库/监控/测试都看\n6. 验证后再写入：每条 bus 消息必须经过 3 个价值问题的评估，不允许未经验证的直觉判断\n7. 引用可回溯：每条发现的来源 URL 必须可访问且指向具体内容页面，避免泛首页链接\n\n## 输出格式\n\n### 标准格式\nbus cat=architecture: [scout] <标题> | 来源: <URL> | 说明: <简介> | 价值: <为什么需要> | 优先级: N\n\n### 完整范例\nbus cat=architecture: [scout] MCP-QuickJS：在 MCP 中运行 JavaScript 沙箱 | 来源: https://github.com/nicholasgriffintn/mcp-quickjs | 说明: 一个 MCP 服务器，提供在沙箱环境中执行 JS 代码的能力，支持 npm 包动态加载 | 价值: 直接补全 Hermes 现有 python-only sandbox，增加 JS 执行能力满足前端工具链场景 | 优先级: 3\n\n### 趋势标记\n同一主题 3 次以上出现 → 标题加 [trending] 前缀\n\n## 生态衔接\n产出 → consumer 验证沉淀；coordinator 跟踪产出频率；idle 时 /loop 拉长间隔"
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/scout.md",
+    "driver": "mixins/cron_driver.md"
+  },
+  "skills": [
+    "github_scan",
+    "trend_analysis",
+    "opportunity_eval",
+    "report_write"
+  ],
+  "skill_refs": {
+    "github_scan": "skills/research/github_scan.md",
+    "trend_analysis": "skills/research/trend_analysis.md",
+    "opportunity_eval": "skills/research/opportunity_eval.md",
+    "report_write": "skills/research/report_write.md"
+  },
+  "goal": "扫描 GitHub、技术社区，发现新工具、模式、情报",
+  "constraints": [
+    "遵循 信息采集 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
 }

@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "generated_at": "2026-07-14",
+    "source": "autonomous-loop-round-1",
+    "bh_total": 50,
+    "bh_mapped": 68,
+    "bh_unmapped": 0
+  },
+  "mapping": {
+    "security-auditor": "security_auditor",
+    "password-auditor": "security_auditor",
+    "cookie-manager": "security_auditor",
+    "csp-auditor": "security_auditor",
+    "storage-auditor": "security_auditor",
+    "session-manager": "security_auditor",
+    "webauthn-tester": "security_auditor",
+    "data-collector": "scout",
+    "web-scraper": "scout",
+    "scraper-engineer": "scout",
+    "data-miner": "curator",
+    "financial-collector": "scout",
+    "map-data-collector": "scout",
+    "ai-labeler": "curator",
+    "media-capturer": "scout",
+    "qa-engineer": "qa",
+    "a-b-tester": "qa",
+    "ecommerce-tester": "qa",
+    "form-tester": "qa",
+    "regression-tester": "qa",
+    "ui-tester": "qa",
+    "compat-tester": "qa",
+    "frontend-debugger": "investigator_python",
+    "ab-tester": "qa",
+    "i18n-localizer": "qa",
+    "spa-navigator": "qa",
+    "pwa-auditor": "qa",
+    "payment-tester": "qa",
+    "clipboard-tester": "qa",
+    "file-system-tester": "qa",
+    "screen-capture-tester": "qa",
+    "bluetooth-tester": "qa",
+    "graphql-tester": "qa",
+    "sse-listener": "qa",
+    "performance-analyst": "optimizer",
+    "performance-tester": "optimizer",
+    "lighthouse-auditor": "optimizer",
+    "http-cache-strategist": "optimizer",
+    "cdn-auditor": "optimizer",
+    "network-interceptor": "investigator_python",
+    "webgpu-detector": "investigator_senior",
+    "mutation-observer": "investigator_python",
+    "web-monitor": "maintainer",
+    "dashboard-creator": "maintainer",
+    "monitor-dashboard-manager": "maintainer",
+    "automation-engineer": "engineer",
+    "rpa-automator": "engineer",
+    "form-expert": "engineer",
+    "scheduler": "coordinator",
+    "social-media-manager": "coordinator",
+    "ci-cd-pipeline-manager": "devops",
+    "saas-configurator": "devops",
+    "seo-optimizer": "optimizer",
+    "seo-content-writer": "writer",
+    "ssr-detector": "investigator_python",
+    "seo-auditor": "optimizer",
+    "accessibility-auditor": "qa",
+    "sw-debugger": "investigator_python",
+    "webrtc-tester": "investigator_python",
+    "dom-differ": "investigator_python",
+    "websocket-debugger": "investigator_python",
+    "api-tester": "qa",
+    "pdf-extractor": "curator",
+    "indexeddb-manager": "curator",
+    "dead-link-scanner": "maintainer",
+    "consistency-scanner": "curator",
+    "penetration-tester": "security_auditor",
+    "captcha-handler": "engineer"
+  },
+  "routing_gaps": {
+    "coordinator": [
+      "scheduler",
+      "social-media-manager"
+    ],
+    "curator": [
+      "data-miner",
+      "ai-labeler",
+      "pdf-extractor",
+      "indexeddb-manager",
+      "consistency-scanner"
+    ],
+    "devops": [
+      "ci-cd-pipeline-manager",
+      "saas-configurator"
+    ],
+    "engineer": [
+      "automation-engineer",
+      "rpa-automator",
+      "form-expert",
+      "captcha-handler"
+    ],
+    "investigator_python": [
+      "frontend-debugger",
+      "network-interceptor",
+      "mutation-observer",
+      "ssr-detector",
+      "sw-debugger",
+      "webrtc-tester",
+      "dom-differ",
+      "websocket-debugger"
+    ],
+    "investigator_senior": [
+      "webgpu-detector"
+    ],
+    "maintainer": [
+      "web-monitor",
+      "dashboard-creator",
+      "monitor-dashboard-manager",
+      "dead-link-scanner"
+    ],
+    "optimizer": [
+      "performance-analyst",
+      "performance-tester",
+      "lighthouse-auditor",
+      "http-cache-strategist",
+      "cdn-auditor",
+      "seo-optimizer",
+      "seo-auditor"
+    ],
+    "qa": [
+      "qa-engineer",
+      "a-b-tester",
+      "ecommerce-tester",
+      "form-tester",
+      "regression-tester",
+      "ui-tester",
+      "compat-tester",
+      "ab-tester",
+      "i18n-localizer",
+      "spa-navigator",
+      "pwa-auditor",
+      "payment-tester",
+      "clipboard-tester",
+      "file-system-tester",
+      "screen-capture-tester",
+      "bluetooth-tester",
+      "graphql-tester",
+      "sse-listener",
+      "accessibility-auditor",
+      "api-tester"
+    ],
+    "scout": [
+      "data-collector",
+      "web-scraper",
+      "scraper-engineer",
+      "financial-collector",
+      "map-data-collector",
+      "media-capturer"
+    ],
+    "security_auditor": [
+      "security-auditor",
+      "password-auditor",
+      "cookie-manager",
+      "csp-auditor",
+      "storage-auditor",
+      "session-manager",
+      "webauthn-tester",
+      "penetration-tester"
+    ],
+    "writer": [
+      "seo-content-writer"
+    ]
+  }
+}

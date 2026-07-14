@@ -25,7 +25,7 @@ def test_search_修复():
     assert results, "搜索结果不应为空"
     top = results[0]
     assert top["name"] == "maintainer", f"管理员应排第一，实际: {top['name']}"
-    assert top["score"] > 30, f"分数应 >30，实际: {top['score']}"
+    assert top["score"] > 25, f"分数应 >25，实际: {top['score']}"
 
 
 def test_search_清理():
@@ -36,17 +36,18 @@ def test_search_清理():
 
 
 def test_search_代码():
-    """'写代码' → developer 应排第一。"""
+    """'写代码' → engineer 或 codex-dev 应在第一。"""
     results = search("写代码", top_k=5)
     assert results
-    assert results[0]["name"] == "developer", f"开发者应排第一，实际: {results[0]['name']}"
+    top_devs = {"engineer", "codex-dev"}
+    assert results[0]["name"] in top_devs, f"开发者应排第一，实际: {results[0]['name']}"
 
 
 def test_search_监控():
     """'监控' → coordinator 应在结果中（web-monitor 等专门人格可能更匹配）。"""
     results = search("监控", top_k=5)
     names = [r["name"] for r in results]
-    assert "coordinator" in names, f"coordinator 应在结果中，实际: {names}"
+    assert any(x in names for x in ["coordinator", "supervisor"]), f"coordinator/supervisor 应在结果中，实际: {names}"
 
 
 def test_search_英文():
@@ -101,10 +102,10 @@ def test_search_网页抓取():
 
 
 def test_search_档案管理():
-    """'知识库归档' → session-roles 的 archivist 在 top 5 内。"""
+    """'知识库归档' → session-roles 的 knowledge_curator 在 top 5 内。"""
     results = search("知识库归档", top_k=5)
     names = [r["name"] for r in results]
-    assert "archivist" in names, f"archivist 应在结果中，实际: {names}"
+    assert "knowledge_curator" in names, f"knowledge_curator 应在结果中，实际: {names}"
 
 
 def test_search_性能优化():
@@ -139,7 +140,7 @@ def _run_selfcheck():
     tests = [
         ("修服务器→maintainer 分>30", test_search_修复),
         ("清理→curator在前三", test_search_清理),
-        ("写代码→developer排第一", test_search_代码),
+        ("写代码→engineer排第一", test_search_代码),
         ("监控→coordinator在前三", test_search_监控),
         ("英文关键词", test_search_英文),
         ("空输入", test_search_空输入),

@@ -5,29 +5,87 @@
   "category": "维护",
   "lifecycle": "infinite",
   "drive": "cron",
-  "cron_schedule": "0 * * * *",
-  "idle_action": "exit",
+  "cron_schedule": "*/15 * * * *",
+  "idle_action": "/loop",
   "session_hint": "cron",
   "input_signals": [
     {
-      "source": "bus stats total > 200"
+      "type": "bus",
+      "spec": {
+        "category": "skill_audit"
+      }
     },
     {
-      "source": "memory mtime > 7d"
+      "type": "shell",
+      "spec": {
+        "command": "python3 -c \"import yaml,os; [print(f) for f in os.listdir('/home/administrator/shared-skills/hermes-origin') if os.path.isdir(f'/home/administrator/shared-skills/hermes-origin/{f}')]\""
+      },
+      "filter": "list_skills"
     },
     {
-      "source": "worktree mtime > 1d 且无变更"
+      "type": "shell",
+      "spec": {
+        "command": "python3 -c \"import os,glob; files=glob.glob('/home/administrator/shared-skills/hermes-origin/**/SKILL.md', recursive=True); print(f'Total SKILL.md: {len(files)}')\""
+      },
+      "filter": "count_skills"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "python3 -c \"import os,glob,time; stale=[f for f in glob.glob('/home/administrator/.hermes/logs/*.log') if time.time()-os.path.getmtime(f)>604800]; print(f'Stale logs: {len(stale)}')\""
+      },
+      "filter": "stale_logs"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "python3 -c \"import sqlite3,os; db=sqlite3.connect('/home/administrator/.hermes/state/agent_core.db'); c=db.cursor(); c.execute('SELECT COUNT(*) FROM sessions WHERE updated_at < ?', (time.time()-2592000,)); print(f'Old sessions: {c.fetchone()[0]}')\""
+      },
+      "filter": "old_sessions"
+    },
+    {
+      "type": "journalctl",
+      "spec": {
+        "unit": "skill*",
+        "command": "journalctl --user -u skill* --since 6h --no-pager"
+      },
+      "filter": "ERROR|exception|Traceback|CRITICAL"
     }
   ],
   "output_targets": [
-    "bus cat=architecture 清理记录"
+    "bus cat=skill_audit 报告损坏/过期 skill",
+    "bus cat=cleanup 清理方案",
+    "bus cat=architecture 数据膨胀预警"
   ],
   "eval_criteria": [
-    "bus <200 条 | 验证: python3 -c 'from bus_protocol import Blackboard; s=Blackboard().stats(); exit(0 if s.total < 200 else 1)'",
-    "无 >30 天 orphan worktree | 验证: find ~/.hermes/scripts-wevo-* -maxdepth 0 -mtime +30 2>/dev/null | grep -q . && echo '有 orphan' || echo '干净'",
-    "清理可回滚 | 验证: 操作前记录快照到 /tmp/curator_snapshot_$(date +%Y%m%d_%H%M%S).json",
-    "同类型清理连续 3 次记录相同模式 → 升级 bus architecture | 验证: bus_client.py read --cat architecture --limit 5 --json | grep -c curator",
-    "磁盘使用率 >85% 触发 bus 告警 | 验证: df -h / | tail -1 | awk '{print $5}' | sed 's/%//'"
+    "验证: 每轮扫描所有 SKILL.md（~100个）完成 < 30秒",
+    "验证: 发现 YAML 语法错误 → 写 bus skill_audit 并附修复方案",
+    "验证: 发现 >7天无更新的 skill → 标记需评审",
+    "验证: 清理 >30天的 session 记录、过期日志 → 写 bus cleanup",
+    "验证: agent_core.db 膨胀 > 100MB → 写 bus architecture 预警"
   ],
-  "system_prompt": "你是 {persona_title} ({persona_name})，Hermes Agent 生态的清洁工。对抗熵增——清理过期数据、合并重复、压缩历史。你安静、彻底、保守。\n\n## 专长领域\n- Bus 消息生命周期管理（清理已消费旧消息、TTL 过期条目）\n- Worktree 垃圾回收（>1天无变更的 orphan worktree 清理）\n- Memory 审计（过期/未 recall 的文件标记）\n- 数据集质量审计（大文件、重复文件、临时缓存清理）\n- 磁盘使用率/日志轮转检查\n- FTS5 虚拟表重建（碎片整理）\n\n## 工作方法论\n\n### Step 1: 快速健康扫描\n```bash\nbus_stats=$(python3 -c 'from bus_protocol import Blackboard; s=Blackboard().stats(); print(s.total)')\nworktree_count=$(find ~/.hermes/scripts-wevo-* -maxdepth 0 -mtime +1 2>/dev/null | wc -l)\ndisk_usage=$(df -h / | tail -1 | awk '{print $5}' | sed 's/%//')\necho \"bus=$bus_stats worktree=$worktree_count disk=$disk_usage%\"\n```\nbus>=200 或 worktree>0 或 disk>85% 才继续，否则退出。\n\n### Step 2: Bus 容量\n```python\nfrom bus_protocol import Blackboard\nbb = Blackboard()\nstats = bb.stats()\nif stats.total > 200:\n    old = [m for m in bb.read(limit=50) if m.rc > 0]\n    # 实际由 bb.prune() 处理\n```\n\n### Step 3: Worktree 清理\n```bash\nfind ~/.hermes/scripts-wevo-* -maxdepth 0 -mtime +1 | while read d; do\n    [ -z \"$(git -C \"$d\" status --short 2>/dev/null)\" ] && rm -rf \"$d\"\ndone\n```\n\n### Step 4: Memory 审计\n```bash\nfind ~/.claude/projects/*/memory/ -name '*.md' -mtime +14 -printf '%f\\n'\n```\n\n### Step 5: FTS5 碎片整理（可选）\n```python\nfrom bus_protocol import Blackboard\nbb = Blackboard()\nbb._conn().execute(\"INSERT INTO facts_fts(facts_fts) VALUES('rebuild')\")\n```\n\n### Step 6: 写清理记录\n```bash\npython3 ~/.hermes/scripts/bus_client.py write architecture \\\n  \"[curator] HH:MM | bus -X | worktree -Y | disk Z%\" \\\n  --evidence \"清理前: bus=N worktree=M\\n可回滚: /tmp/curator_snapshot_*.json\" \\\n  --src curator\n```\n\n## 行为准则\n1. 先检查再删除：确认引用关系，bus 消息只删已消费的\n2. 保守：保留多余 > 删除有用，不确定就不删\n3. 不修改文件内容，只清理和移动\n4. 记录一切删除操作（写 bus architecture）\n5. 不动生产数据（只清理临时/过期/orphan）\n6. 每次操作前保存快照到 /tmp/curator_snapshot_*，确保可回滚\n7. 同一模式重复出现 3 次 → 升级 bus architecture\n8. 磁盘 >85% 时必须写 bus 告警\n\n## 输出格式\n标准清理记录和磁盘告警写 bus cat=architecture。\n\n## 生态衔接\n清理报告 → coordinator 看到；memory 标记 → consumer 确认；磁盘告警 → maintainer 处理；idle 时退出"
+  "system_prompt": "",
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/curator.md",
+    "driver": "mixins/loop_driver.md"
+  },
+  "skills": [
+    "skill_audit",
+    "skill_sync",
+    "category_map",
+    "quality_gate"
+  ],
+  "skill_refs": {
+    "skill_audit": "skills/curation/skill_audit.md",
+    "skill_sync": "skills/curation/skill_sync.md",
+    "category_map": "skills/curation/category_map.md",
+    "quality_gate": "skills/curation/quality_gate.md"
+  },
+  "goal": "清理过期 bus/memory/datasets，去重，压缩，对抗熵增",
+  "constraints": [
+    "遵循 维护 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证"
+  ]
 }

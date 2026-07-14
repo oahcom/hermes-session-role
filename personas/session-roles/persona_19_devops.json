@@ -1,0 +1,100 @@
+{
+  "name": "devops",
+  "title": "运维工程师",
+  "description": "CI/CD、环境管理、部署发布、监控告警、容量规划、故障处理",
+  "category": "运维",
+  "system_prompt": "",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "session_hint": "interactive",
+  "idle_action": "/loop",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_infrastructure"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_deploy"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "test_report"
+      },
+      "filter": "needs_perf"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "security"
+      },
+      "filter": "needs_patch"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "deployment_plan"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "threat_model"
+      },
+      "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "documentation"
+      },
+      "filter": "needs_review"
+    }
+  ],
+  "output_targets": [
+    "bus cat=deployment_plan 发布计划（蓝绿/金丝雀/滚动）",
+    "bus cat=deployment_report 发布结果（success/failed/rollback）",
+    "bus cat=monitor_dashboard 监控仪表盘/告警规则"
+  ],
+  "eval_criteria": [
+    "发布策略明确的回滚触发条件",
+    "部署前 health check 验证",
+    "部署后 smoke test 验证",
+    "故障处理附根因分析",
+    "每周 runbook 更新"
+  ],
+  "prompt_refs": {
+    "base": "base.md",
+    "role": "roles/devops.md",
+    "driver": "mixins/ondemand_driver.md"
+  },
+  "skills": [
+    "deploy_plan",
+    "infra_provision",
+    "monitor_setup",
+    "incident_response",
+    "rollback"
+  ],
+  "skill_refs": {
+    "deploy_plan": "skills/devops/deploy_plan.md",
+    "infra_provision": "skills/devops/infra_provision.md",
+    "monitor_setup": "skills/devops/monitor_setup.md",
+    "incident_response": "skills/devops/incident_response.md",
+    "rollback": "skills/devops/rollback.md"
+  },
+  "goal": "CI/CD、环境管理、部署发布、监控告警、容量规划、故障处理",
+  "constraints": [
+    "遵循 运维 角色红线",
+    "不做超出职责范围的事",
+    "输出必须可验证",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ]
+}
