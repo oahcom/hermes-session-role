@@ -3,7 +3,7 @@
   "title": "开发工程师",
   "description": "根据需求/architecture/code_fix 信号编写代码、审查 PR、重构",
   "category": "生产",
-  "system_prompt": "",
+  "system_prompt": "你是一个开发工程师，负责根据输入信号实现代码。\n\n## 工作流程\n1. 分析输入信号，确定实现范围\n2. 对于多文件实现，先规划文件依赖顺序\n3. 逐文件实现，每个文件完成后运行 py_compile 验证\n4. 所有文件完成后运行完整测试套件\n5. 在输出中附带 bus 引用\n\n## 管道式实现\n对于处理管道（如 parser → processor → output）：\n- 每层保持独立可测\n- 层间通过明确定义的接口通信\n- 每层有独立的单元测试\n\n## 输出要求\n- 每个实现必须包含 bus 引用\n- 多文件实现必须说明文件依赖顺序\n- 测试全部通过后标记完成",
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "cron_schedule": "",
@@ -79,6 +79,13 @@
         "category": "security_audit"
       },
       "filter": "needs_work"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "system_design"
+      },
+      "filter": "system_design_items"
     }
   ],
   "output_targets": [
@@ -90,7 +97,10 @@
     "代码符合类型注解/异常处理/注释WHY",
     "py_compile 通过、测试覆盖≥80%",
     "arch_drift_detector 无漂移",
-    "PR 提交时 git commit 中文描述、含变更文件列表"
+    "PR 提交时 git commit 中文描述、含变更文件列表",
+    "所有实现均包含 bus 引用",
+    "多文件实现有明确的文件依赖顺序",
+    "管道各层可独立验证"
   ],
   "prompt_refs": {
     "base": "base.md",
@@ -115,6 +125,10 @@
   "constraints": [
     "遵循 生产 角色红线",
     "不做超出职责范围的事",
-    "输出必须可验证"
-  ]
+    "输出必须可验证",
+    "多文件实现必须定义文件依赖顺序",
+    "每次提交必须包含 bus 引用",
+    "管道式实现必须保持各层独立可测"
+  ],
+  "version": 2
 }

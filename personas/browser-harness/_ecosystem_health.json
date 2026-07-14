@@ -1,67 +1,103 @@
 {
   "meta": {
-    "generated_at": 1784042411.4200625,
-    "source": "autonomous-loop-round-6"
+    "generated_at": 1784043840.0,
+    "source": "autonomous-loop-round-3"
   },
   "bus_db": {
     "healthy": true,
-    "facts": 4673,
+    "facts": 4033,
     "by_category": {
-      "task_spec": 3523,
-      "workflow": 531,
-      "code_fix": 155,
-      "architecture": 123,
-      "blocker": 100,
-      "notice": 68,
-      "performance": 37,
-      "reflexion_lesson": 24,
-      "prd": 19,
-      "security": 19,
-      "product_design": 18,
-      "system_design": 18,
-      "design_issue": 17,
-      "research": 17,
-      "cleanup": 3
+      "task_spec": 2664,
+      "architecture": 640,
+      "workflow": 307,
+      "notice": 116,
+      "code_fix": 78,
+      "blocker": 63,
+      "reflexion_lesson": 55,
+      "performance": 21,
+      "design_issue": 11,
+      "prd": 11,
+      "product_design": 11,
+      "system_design": 11,
+      "security": 10,
+      "monitor_audit": 9,
+      "research": 8,
+      "optimization": 7,
+      "cleanup": 4,
+      "evolution_report": 2,
+      "knowledge_distill": 2,
+      "ccs_health": 1,
+      "memory_store": 1,
+      "scheduler": 1
     },
     "integrity_check": "ok",
-    "size_mb": 1.18
+    "size_mb": 1.12
   },
   "routing": {
-    "roles": 26,
+    "roles": 25,
     "empty_consume": [],
-    "empty_produce": []
+    "empty_produce": [],
+    "produce_consume_consistent": true,
+    "orphan_consumers": ["closer", "knowledge_curator", "investigator_senior", "investigator_general", "consumer"]
   },
   "projects": {
     "session-launcher": {
-      "py_files": 33,
+      "py_files": 34,
       "compile_errors": 0,
-      "git_dirty_files": 2,
-      "lines": 7738
+      "git_dirty_files": 1,
+      "lines": 7980,
+      "tests": 324,
+      "test_pass": 324,
+      "test_skip": 1,
+      "health_check_items": 35
     },
     "session-pipeline": {
       "py_files": 14,
       "compile_errors": 0,
       "git_dirty_files": 1,
-      "lines": 4077
+      "lines": 4140,
+      "tests": 133,
+      "test_pass": 133,
+      "health_check_items": 35
     },
     "hermes-session-roles": {
       "py_files": 10,
       "compile_errors": 0,
       "git_dirty_files": 1,
-      "lines": 1752
+      "lines": 1780,
+      "tests": 24,
+      "test_pass": 24
     }
   },
-  "services": {
-    "sister-agent-ssk": "active",
-    "sister-agent-dkk": "active",
-    "cron-worker": "inactive"
+  "browser_harness": {
+    "bh_profiles": 68,
+    "sr_mapped": 12,
+    "mapping_ok": true,
+    "category_consistency": true,
+    "qa_subpersonas": {
+      "qa-tester": {"sr": "qa", "file": "persona_qa_qa-tester.json"},
+      "test-automator": {"sr": "qa", "file": "persona_qa_test-automator.json"},
+      "security-tester": {"sr": "security_auditor", "file": "persona_qa_security-tester.json"}
+    },
+    "routing_gap_roles": 12,
+    "routing_gap_profiles": 68
   },
-  "sentinels": {
-    "total": 12,
-    "stale": 0,
-    "alive_ratio": "12/12"
+  "ccs_sentinels": {
+    "total": 14,
+    "role_list": ["maintainer", "consumer", "curator", "devops", "engineer", "knowledge_curator",
+                   "lr", "pg", "pm", "product_architect", "reviewer", "security_auditor", "writer", "closer"],
+    "alive_ratio": "14/14"
+  },
+  "tests": {
+    "total": 481,
+    "passed": 481,
+    "failed": 0,
+    "skipped": 1,
+    "source": "launcher=324pipeline=133roles=24"
   },
   "memory": {
-    "entries": 112
-  }
+    "entries": 116
+  },
+  "last_upgrade": "2026-07-15T03:42:00.000000",
+  "signature": "round3-clean-481t-14ccs"
 }

@@ -11,6 +11,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -22,6 +30,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -33,6 +49,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -44,6 +68,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -55,6 +87,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -66,6 +106,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -77,6 +125,14 @@
         "produce": [
           "security_audit",
           "vuln_report"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "安全",
@@ -88,6 +144,13 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "数据",
@@ -99,6 +162,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "",
@@ -110,6 +180,13 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "数据",
@@ -121,6 +198,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "research",
+          "knowledge_distill",
+          "user_story",
+          "task_spec",
+          "reflexion_lesson",
+          "documentation"
         ]
       },
       "category": "",
@@ -132,6 +217,13 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "数据",
@@ -143,6 +235,13 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "数据",
@@ -154,6 +253,14 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "research",
+          "knowledge_distill",
+          "user_story",
+          "task_spec",
+          "reflexion_lesson",
+          "documentation"
         ]
       },
       "category": "数据",
@@ -165,6 +272,13 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "research",
+          "evolution_report",
+          "architecture",
+          "performance"
         ]
       },
       "category": "数据",
@@ -176,6 +290,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -187,6 +308,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -198,6 +326,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -209,6 +344,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -220,6 +362,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -231,6 +380,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -242,6 +398,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -253,6 +416,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "测试",
@@ -264,6 +434,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -275,6 +452,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -286,6 +470,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -297,6 +488,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -308,6 +506,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -319,6 +524,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -330,6 +542,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -341,6 +560,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -352,6 +578,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -363,6 +596,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -374,6 +614,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -385,6 +632,12 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
+          "architecture"
         ]
       },
       "category": "性能",
@@ -395,6 +648,12 @@
       "route": {
         "produce": [
           "report",
+          "architecture"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
           "architecture"
         ]
       },
@@ -407,6 +666,12 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
+          "architecture"
         ]
       },
       "category": "",
@@ -418,6 +683,12 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
+          "architecture"
         ]
       },
       "category": "性能",
@@ -429,6 +700,12 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
+          "architecture"
         ]
       },
       "category": "性能",
@@ -440,6 +717,13 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "性能",
@@ -451,6 +735,13 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "root_cause_analysis",
+          "architecture",
+          "bug_report",
+          "design_issue",
+          "blocker"
         ]
       },
       "category": "性能",
@@ -462,6 +753,13 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "性能",
@@ -473,6 +771,14 @@
         "produce": [
           "notice",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "ccs_health",
+          "cleanup",
+          "architecture",
+          "code_fix",
+          "performance"
         ]
       },
       "category": "监控",
@@ -484,6 +790,14 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "ccs_health",
+          "cleanup",
+          "architecture",
+          "code_fix",
+          "performance"
         ]
       },
       "category": "数据",
@@ -495,6 +809,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "notice",
+          "ccs_health",
+          "cleanup",
+          "architecture",
+          "code_fix",
+          "performance"
         ]
       },
       "category": "",
@@ -506,6 +828,18 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "code_review",
+          "security_audit",
+          "bug_report",
+          "test_report",
+          "documentation",
+          "system_design",
+          "architecture",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -517,6 +851,18 @@
         "produce": [
           "code_fix",
           "report"
+        ],
+        "consume": [
+          "code_review",
+          "security_audit",
+          "bug_report",
+          "test_report",
+          "documentation",
+          "system_design",
+          "architecture",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "自动化",
@@ -528,6 +874,18 @@
         "produce": [
           "code_fix",
           "report"
+        ],
+        "consume": [
+          "code_review",
+          "security_audit",
+          "bug_report",
+          "test_report",
+          "documentation",
+          "system_design",
+          "architecture",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "自动化",
@@ -539,6 +897,21 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "scheduler",
+          "deployment_report",
+          "security_audit",
+          "test_report",
+          "bug_report",
+          "changelog",
+          "deployment_plan",
+          "ccs_health",
+          "workflow",
+          "evolution_report",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -550,6 +923,21 @@
         "produce": [
           "code_fix",
           "report"
+        ],
+        "consume": [
+          "scheduler",
+          "deployment_report",
+          "security_audit",
+          "test_report",
+          "bug_report",
+          "changelog",
+          "deployment_plan",
+          "ccs_health",
+          "workflow",
+          "evolution_report",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "自动化",
@@ -561,6 +949,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "notice",
+          "security",
+          "deployment_report",
+          "deployment_plan",
+          "blocker",
+          "ops"
         ]
       },
       "category": "",
@@ -572,6 +968,14 @@
         "produce": [
           "code_fix",
           "report"
+        ],
+        "consume": [
+          "notice",
+          "security",
+          "deployment_report",
+          "deployment_plan",
+          "blocker",
+          "ops"
         ]
       },
       "category": "自动化",
@@ -583,6 +987,12 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
+          "architecture"
         ]
       },
       "category": "SEO",
@@ -594,6 +1004,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "user_story",
+          "task_spec",
+          "documentation",
+          "changelog"
         ]
       },
       "category": "",
@@ -605,6 +1022,13 @@
         "produce": [
           "performance",
           "report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "SEO",
@@ -615,6 +1039,12 @@
       "route": {
         "produce": [
           "report",
+          "architecture"
+        ],
+        "consume": [
+          "code_fix",
+          "performance",
+          "cleanup",
           "architecture"
         ]
       },
@@ -627,6 +1057,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "测试",
@@ -638,6 +1075,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "测试",
@@ -649,6 +1093,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "测试",
@@ -660,6 +1111,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "测试",
@@ -671,6 +1129,13 @@
         "produce": [
           "test_report",
           "bug_report"
+        ],
+        "consume": [
+          "security",
+          "root_cause_analysis",
+          "code_fix",
+          "bug_report",
+          "performance"
         ]
       },
       "category": "测试",
@@ -682,6 +1147,13 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "prd",
+          "code_fix",
+          "bug_report",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "",
@@ -693,6 +1165,14 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "research",
+          "knowledge_distill",
+          "user_story",
+          "task_spec",
+          "reflexion_lesson",
+          "documentation"
         ]
       },
       "category": "数据",
@@ -704,6 +1184,14 @@
         "produce": [
           "architecture",
           "report"
+        ],
+        "consume": [
+          "research",
+          "knowledge_distill",
+          "user_story",
+          "task_spec",
+          "reflexion_lesson",
+          "documentation"
         ]
       },
       "category": "数据",
@@ -715,6 +1203,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "notice",
+          "ccs_health",
+          "cleanup",
+          "architecture",
+          "code_fix",
+          "performance"
         ]
       },
       "category": "",
@@ -726,6 +1222,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "research",
+          "knowledge_distill",
+          "user_story",
+          "task_spec",
+          "reflexion_lesson",
+          "documentation"
         ]
       },
       "category": "",
@@ -737,6 +1241,14 @@
         "produce": [
           "report",
           "architecture"
+        ],
+        "consume": [
+          "security",
+          "code_fix",
+          "deployment_plan",
+          "threat_model",
+          "security_audit",
+          "blocker"
         ]
       },
       "category": "",
@@ -748,10 +1260,64 @@
         "produce": [
           "code_fix",
           "report"
+        ],
+        "consume": [
+          "code_review",
+          "security_audit",
+          "bug_report",
+          "test_report",
+          "documentation",
+          "system_design",
+          "architecture",
+          "user_story",
+          "test_plan",
+          "task_spec"
         ]
       },
       "category": "自动化",
       "enabled": true
+    },
+    "qa-tester": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_plan",
+          "test_report",
+          "bug_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "test-automator": {
+      "sr_mapping": "qa",
+      "route": {
+        "produce": [
+          "test_plan",
+          "code_review",
+          "test_report"
+        ]
+      },
+      "category": "测试",
+      "enabled": true
+    },
+    "security-tester": {
+      "sr_mapping": "security_auditor",
+      "route": {
+        "produce": [
+          "security_audit",
+          "threat_model",
+          "bug_report"
+        ]
+      },
+      "category": "安全",
+      "enabled": true
     }
-  }
+  },
+  "qa_personas": [
+    "qa-tester",
+    "test-automator",
+    "security-tester"
+  ],
+  "updated_at": "2026-07-15T01:44:00.000000"
 }

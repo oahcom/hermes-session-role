@@ -65,6 +65,9 @@ def load_all(base_dir: str | None = None) -> int:
                     raw = f.read()
                 data = json.loads(raw)
                 items = data if isinstance(data, list) else [data]
+                # Handle browser-harness profiles format: {profiles: {name: {...}}}
+                if isinstance(data, dict) and 'profiles' in data and isinstance(data['profiles'], dict):
+                    items = list(data['profiles'].values())
                 for item in items:
                     if item.get("category") == "测试":
                         continue

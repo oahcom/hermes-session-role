@@ -104,31 +104,30 @@ tests/
 | maintainer | 运维者 | infinite | cron (15m) | code_fix, architecture | security |
 | scout | 侦察兵 | infinite | loop | architecture, evolution_report | architecture |
 | consumer | 信息消费者 | infinite | cron (10m) | reflexion_lesson | * |
-| curator | 信息维护者 | infinite | cron (hourly) | skill_audit, cleanup, architecture | skill_audit |
-| coordinator | 管理者 | infinite | loop | scheduler, architecture, ccs_health | task_spec, workflow, user_story, test_plan, bug_report, security_audit |
-| engineer | 开发工程师 | ondemand | ondemand | code_fix, code_review, architecture | architecture, task_spec, user_story, code_review, bug_report |
-| closer | 闭环者 | ondemand | ondemand | architecture | * |
-| optimizer | 性能优化师 | infinite | cron | architecture, optimization | — |
+| curator | 信息维护者 | infinite | cron (hourly) | skill_audit, cleanup, architecture | skill_audit, architecture, code_fix, performance |
+| coordinator | 管理者 | infinite | loop | scheduler, architecture, ccs_health | task_spec, workflow, user_story, test_plan, deployment_plan, deployment_report, test_report, bug_report, security_audit, evolution_report, changelog, ccs_health |
+| engineer | 开发工程师 | ondemand | ondemand | code_fix, code_review, architecture | architecture, task_spec, user_story, code_review, bug_report, test_report, test_plan, documentation, security_audit, system_design |
+| closer | 闭环者 | ondemand | ondemand | architecture | *, knowledge_distill, memory_store, system_design |
+| optimizer | 性能优化师 | infinite | cron | architecture, optimization | architecture, performance, bug_report, code_review |
 | codex-dev | Codex 开发者 | infinite | goal | code_review, code_fix | code_fix, architecture, optimization |
-| ccs-monitor | Session 监控者 | infinite | loop | notice | — |
+| ccs-monitor | Session 监控者 | infinite | loop | architecture, notice | architecture, notice, blocker, code_fix |
 | debate_verifier | 正方验证者 | infinite | loop | debate, verification | debate, task_spec |
-| product_architect | 产品架构师 | ondemand | ondemand | prd, system_design, task_spec | architecture, code_fix, product_design, blocker |
-| knowledge_curator | 知识策展人 | infinite | cron | architecture, code_fix, knowledge_distill, memory_store | *, session_log |
-| security_auditor | 安全审计员 | ondemand | ondemand | security_audit, code_fix, architecture | security, blocker, code_fix, threat_model |
-| pm | 产品经理 | ondemand | ondemand | user_story, feedback | prd, architecture, test_report, bug_report |
-| reviewer | 代码审查者 | ondemand | ondemand | code_review, architecture | code_review, security |
-| qa | 测试工程师 | ondemand | ondemand | test_plan, test_report, bug_report | task_spec, code_fix, prd |
-| devops | 运维工程师 | ondemand | ondemand | deployment_plan, deployment_report, monitor_dashboard | architecture, code_fix, security |
-| writer | 技术写手 | ondemand | ondemand | documentation, changelog | code_fix, architecture |
+| product_architect | 产品架构师 | ondemand | ondemand | prd, system_design, task_spec | architecture, code_fix, product_design, blocker, design_issue, threat_model, security_audit |
+| knowledge_curator | 知识策展人 | infinite | cron | architecture, code_fix, cleanup, knowledge_distill, memory_store | *, session_log |
+| security_auditor | 安全审计员 | ondemand | ondemand | security_audit, code_fix, architecture | security, blocker, code_fix, threat_model, deployment_plan |
+| pm | 产品经理 | ondemand | ondemand | user_story, feedback | prd, architecture, test_report, deployment_report, feedback, bug_report, documentation |
+| reviewer | 代码审查者 | ondemand | ondemand | code_review, architecture | code_review, architecture, security |
+| qa | 测试工程师 | ondemand | ondemand | test_plan, test_report, bug_report | task_spec, code_fix, prd, test_plan, bug_report |
+| devops | 运维工程师 | ondemand | ondemand | deployment_plan, deployment_report, monitor_dashboard | architecture, code_fix, security, test_report, threat_model, deployment_plan, documentation |
+| writer | 技术写手 | ondemand | ondemand | documentation, changelog | code_fix, architecture, deployment_plan, deployment_report, documentation |
 | lr | 技术负责人 | ondemand | ondemand | tech_decision, architecture | task_spec, architecture, root_cause_analysis |
-| pg | 程序实现员 | ondemand | ondemand | code_fix, code_review | task_spec, tech_decision, root_cause_analysis, bug_report |
+| pg | 程序实现员 | ondemand | ondemand | code_fix, code_review | task_spec, tech_decision, root_cause_analysis, bug_report, system_design, verification |
 | investigator_python | 刑侦员 (Python) | ondemand | ondemand | root_cause_analysis | code_fix, architecture |
 | investigator_senior | 刑侦员 (全栈) | ondemand | ondemand | root_cause_analysis | * |
 | investigator_general | 刑侦员 (杂) | ondemand | ondemand | root_cause_analysis | * |
-| test-qa | 测试 QA | infinite | cron | test_report | task_spec |
-| test-pg | 测试程序实现员 | infinite | cron | code_fix | code_fix, architecture |
+| archivist | 档案管理员 | infinite | cron | architecture | reflexion_lesson, cleanup |
 
-> 2026 年 7 月统计：25 角色全部定义完整，验证通过零错误。
+> 2026 年 7 月统计：24 角色全部定义完整，验证通过零错误。
 
 ---
 

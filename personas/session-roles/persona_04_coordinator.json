@@ -112,6 +112,34 @@
         "category": "security_audit"
       },
       "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "evolution_report"
+      },
+      "filter": "evolution_report_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "changelog"
+      },
+      "filter": "changelog_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "scheduler"
+      },
+      "filter": "scheduler_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "ccs_health"
+      },
+      "filter": "ccs_health_items"
     }
   ],
   "output_targets": [

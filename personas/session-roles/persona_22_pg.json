@@ -36,6 +36,20 @@
         "category": "bug_report"
       },
       "filter": "needs_fix"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "system_design"
+      },
+      "filter": "system_design_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "verification"
+      },
+      "filter": "verification_items"
     }
   ],
   "output_targets": [

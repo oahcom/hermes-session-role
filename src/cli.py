@@ -7,14 +7,16 @@ import argparse
 import json
 import sys
 import os
+from typing import Any
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from paths import ensure_paths
+ensure_paths()
 
 from registry import load_all, get, list_roles, list_personas, list_categories
 from search import search as semantic_search
 
 
-def cmd_list(args):
+def cmd_list(args: Any) -> int:
     """List all personas/roles."""
     load_all()
     cats = list_categories()
@@ -39,7 +41,7 @@ def cmd_list(args):
         print(f"  {p.name:<30} {p.title:<15} {p.description}")
 
 
-def cmd_show(args):
+def cmd_show(args: Any) -> int:
     """Show details of a persona/role."""
     load_all()
     obj = get(args.name)
@@ -49,7 +51,7 @@ def cmd_show(args):
     print(json.dumps(obj.to_dict(), ensure_ascii=False, indent=2))
 
 
-def cmd_search(args):
+def cmd_search(args: Any) -> int:
     """Semantic search for personas/roles."""
     load_all()
     results = semantic_search(args.query, top_k=args.top)
@@ -63,7 +65,7 @@ def cmd_search(args):
         print(f"  {i}. [{t}] {hit['name']:<25} {hit['score']:5.1f}分  {hit['description']}")
 
 
-def cmd_load(args):
+def cmd_load(args: Any) -> int:
     """Load a persona — output system prompt."""
     load_all()
     obj = get(args.name)
@@ -89,7 +91,7 @@ def cmd_load(args):
         print(prompt)
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(description="Session Roles CLI")
     sub = parser.add_subparsers(dest="command")
 

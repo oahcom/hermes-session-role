@@ -26,6 +26,27 @@
       "spec": {
         "description": "ps aux python >2h 无输出变化"
       }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "knowledge_distill"
+      },
+      "filter": "knowledge_distill_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "memory_store"
+      },
+      "filter": "memory_store_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "system_design"
+      },
+      "filter": "system_design_items"
     }
   ],
   "output_targets": [

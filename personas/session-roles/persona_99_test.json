@@ -28,6 +28,13 @@
     "auto_fix",
     "verify_fix"
   ],
+  "eval_criteria": [
+    "验证: 三项目 health check 全部通过",
+    "验证: ccs.py start/stop/status/send 基础命令无报错",
+    "验证: WorkflowClient check_task/complete/fail 基本操作可用",
+    "验证: bus notification 写/读 正常工作",
+    "验证: 每次 session 至少完成一个闭环操作"
+  ],
   "goal": "验证三项目 API + 产出排查工具 + 维护系统健康",
   "constraints": [
     "输出必须可验证",

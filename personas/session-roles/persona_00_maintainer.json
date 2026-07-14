@@ -34,6 +34,13 @@
       "spec": {
         "category": "security"
       }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "monitor_dashboard"
+      },
+      "filter": "monitor_dashboard_items"
     }
   ],
   "output_targets": [

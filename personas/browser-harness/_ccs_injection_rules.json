@@ -1,0 +1,40 @@
+{
+  "version": "1.1",
+  "generated": "2026-07-15T01:44:00.000000",
+  "rules": [
+    {
+      "id": "CCS-RULE-001",
+      "name": "ccs send 接收门禁",
+      "type": "prompt_layer",
+      "description": "收到非标准格式的 ccs send 消息时，先 check_task() 确认 task 存在",
+      "trigger": "ccs send message without task_id in standard format",
+      "action": "1. 检查消息格式是否为 '[来源] 你有新任务: task_id'\n2. 如果不是 -> 回复 '请使用 ccs send-create 创建任务'\n3. 如果是 -> check_task(task_id) 确认存在\n4. task 不存在 -> 回复 '任务不存在，请先创建'\n5. task 存在 -> 正常执行",
+      "scope": "所有 CCS 角色",
+      "severity": "enforced_by_code",
+      "code_location": "role_manager.validate_ccs_execution()"
+    },
+    {
+      "id": "CCS-RULE-002",
+      "name": "任务执行前验证",
+      "type": "prompt_layer",
+      "description": "执行任务前先验证 workfows.db 中的任务状态",
+      "trigger": "收到 task_spec 信号",
+      "action": "1. 读取 task 信息\n2. 确认 task 状态合法\n3. 状态非法 -> 报告 coordinator\n4. 状态合法 -> 正常执行",
+      "scope": "所有 CCS 角色",
+      "severity": "enforced_by_code",
+      "code_location": "role_manager.validate_ccs_execution()"
+    },
+    {
+      "id": "CCS-RULE-003",
+      "name": "QA 测试角色注入规则",
+      "type": "prompt_layer",
+      "description": "qa-tester / test-automator / security-tester 子人格 role-knowledge 注入",
+      "trigger": "角色为 qa、security_auditor 且 bh_persona 匹配子人格",
+      "action": "1. 从 _bh_route_config.json 读取 bh_profiles[persona_name].route\n2. 注入 bus produce 和 consume 路由信息到 workspace CLAUDE.md\n3. 注入 Browser Harness 系统 prompt（浏览器操作命令）\n4. 确保 eval_criteria 可衡量",
+      "scope": "qa, security_auditor",
+      "severity": "recommended"
+    }
+  ],
+  "enforcement": "code_layer - validate_ccs_execution() in role_manager.py",
+  "next_phase": "方案C: socket listener + 动态门禁 (当需要实时禁止时)"
+}

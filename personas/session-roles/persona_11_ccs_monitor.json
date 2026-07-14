@@ -7,7 +7,36 @@
   "drive": "loop",
   "idle_action": "sleep 30",
   "session_hint": "loop",
-  "input_signals": [],
+  "input_signals": [
+    {
+      "type": "shell",
+      "spec": {
+        "command": "tmux ls 2>/dev/null | grep ccs- | cut -d: -f1"
+      },
+      "filter": "ccs_sessions"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "ls /tmp/ccs-sentinels/ 2>/dev/null"
+      },
+      "filter": "sentinels"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "for s in $(tmux ls 2>/dev/null | grep ccs- | cut -d: -f1); do echo \"=== $s ===\"; tmux capture-pane -t \"$s\" -p 2>/dev/null | tail -3; done"
+      },
+      "filter": "session_tail"
+    },
+    {
+      "type": "shell",
+      "spec": {
+        "command": "ps aux | grep -E 'claude.*ccs-' | grep -v grep | head -20"
+      },
+      "filter": "ccs_processes"
+    }
+  ],
   "output_targets": [
     "bus cat=notice session 卡住通知"
   ],
