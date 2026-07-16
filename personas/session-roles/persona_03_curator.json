@@ -66,7 +66,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/curator.md",
     "driver": "mixins/loop_driver.md"
   },

@@ -26,7 +26,6 @@
     "需处理跨栈关联分析"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/investigator_senior.md",
     "driver": "mixins/ondemand_driver.md"
   },

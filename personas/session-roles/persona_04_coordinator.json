@@ -160,7 +160,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/coordinator.md",
     "driver": "mixins/ondemand_driver.md"
   },

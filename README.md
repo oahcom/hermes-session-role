@@ -13,13 +13,13 @@ Session 生态的**定义层**——每个 CCS（Claude Code Session）是谁、
 │  ┌──────────────────────────────────────────────────────────────┐      │
 │  │  hermes-session-roles  ← 本项目（定义层）                     │      │
 │  │                                                               │      │
-│  │  personas/session-roles/*.json    → 25 基础设施角色            │      │
+│  │  personas/session-roles/*.json    → 26 基础设施角色            │      │
 │  │  personas/browser-harness/*.json  → 57 浏览器自动化人格        │      │
 │  │  prompts/roles/*.md               → 角色专业 prompt 模板       │      │
 │  │                                                               │      │
 │  │  src/cli.py          → list/show/load/search CLI              │      │
 │  │  src/search.py       → 中文语义搜索引擎                        │      │
-│  │  src/validate_roles.py → 25 角色全量校验                       │      │
+│  │  src/validate_roles.py → 26 角色全量校验                       │      │
 │  │  src/role_assembler.py → 动态组装 system prompt                │      │
 │  └──────────────────────────┬───────────────────────────────────┘      │
 │                              │                                          │
@@ -82,7 +82,7 @@ src/
   models.py               → PersonaDef + RoleDef dataclass
   registry.py             → load_all/get/list_*/register 注册表
   search.py               → 中文语义搜索（bigram + 同义词 + 字段加权）
-  validate_roles.py       → 25 角色全量校验
+  validate_roles.py       → 26 角色全量校验
   role_assembler.py       → 动态组装 system prompt
   role_relations.py       → 角色关系图谱（生产者→消费者矩阵）
   inject_skills.py        → 技能注入工具
@@ -97,7 +97,7 @@ tests/
 
 ---
 
-## 角色清单（25 基础设施角色）
+## 角色清单（26 基础设施角色）
 
 | 角色 | 标题 | 生命周期 | 驱动 | 产出分类 | 消费分类 |
 |------|------|----------|------|----------|----------|
@@ -127,7 +127,7 @@ tests/
 | investigator_general | 刑侦员 (杂) | ondemand | ondemand | root_cause_analysis | * |
 | archivist | 档案管理员 | infinite | cron | architecture | reflexion_lesson, cleanup |
 
-> 2026 年 7 月统计：24 角色全部定义完整，验证通过零错误。
+> 2026 年 7 月统计：26 角色全部定义完整，验证通过零错误。
 
 ---
 
@@ -175,7 +175,7 @@ Browser Harness 是一个独立的浏览器自动化人格库，包含 57 个人
 
 ```bash
 # 列出角色
-python3 src/cli.py list --roles                    # 全部 25 角色
+python3 src/cli.py list --roles                    # 全部 26 角色
 python3 src/cli.py list --category 维护            # 按分类筛选
 
 # 显示详情
@@ -202,7 +202,7 @@ python3 src/role_assembler.py maintainer --output prompt.md
 ```bash
 # 全量角色校验
 python3 src/validate_roles.py
-# 输出: 文件数: 25, 角色数: 25, 错误数: 0, 所有角色验证通过
+# 输出: 文件数: 26, 角色数: 26, 错误数: 0, 所有角色验证通过
 
 # 语义搜索回归（15 场景）
 python3 tests/test_search.py
@@ -225,6 +225,23 @@ python3 src/cli.py search "性能" --top 3
 - [ ] `output_targets` 格式 `bus cat=<分类> <描述>`
 - [ ] 文件命名 `persona_XX_name.json`，XX 两位数序号
 - [ ] `## 参考来源` 章节在 prompts 文件中有外部 URL
+- [ ] `prompt_refs` 包含 base + role + driver 三层
+- [ ] `skills` 非空数组
+- [ ] `skill_refs` 覆盖全部 skills 且文件存在
+
+---
+
+## Prompt 规范
+
+AGENTS.md 包含完整的三层 prompt 架构规范（2026-07-15 版），涵盖：
+
+- 三层架构（base.md → roles/*.md → mixins/*.md）及各层内容边界
+- 各类指令的正确归属表（"永不停止"在哪、"自审查"在哪）
+- 角色 prompt 文件的结构标准
+- eval_criteria 规范
+- 常见问题自查表
+
+**修改 prompt 前必须阅读 `AGENTS.md` 的 Prompt 规范章节。**
 
 ---
 

@@ -12,7 +12,7 @@
     {
       "type": "shell",
       "spec": {
-        "command": "systemctl --user is-active sister-agent-dkk.service sister-agent-ssk.service cron-worker.service"
+        "command": "systemctl --user is-active sister-agent-dkk.service sister-agent-ssk.service"
       }
     },
     {
@@ -41,6 +41,36 @@
         "category": "monitor_dashboard"
       },
       "filter": "monitor_dashboard_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "notice"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "task_spec"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "scheduler"
+      }
     }
   ],
   "output_targets": [
@@ -48,15 +78,16 @@
     "bus cat=architecture 架构异常"
   ],
   "eval_criteria": [
-    "所有核心服务 active | 验证: bash -c 'for s in sister-agent-dkk.service sister-agent-ssk.service cron-worker.service; do systemctl --user is-active $s; done' 全部返回 active",
+    "所有核心服务 active | 验证: bash -c 'for s in sister-agent-dkk.service sister-agent-ssk.service; do systemctl --user is-active $s; done' 全部返回 active; cron-worker is timer-triggered oneshot — verify via 'systemctl --user status cron-worker.service --no-pager 2>&1 | tail -5 | grep -q success'",
     "控制面板和路由端口可达 | 验证: bash -c 'curl -sf -o /dev/null http://localhost:8890 && curl -sf -o /dev/null http://localhost:20128 && echo OK || echo FAIL' 输出 OK",
     "近 1 小时无 ERROR/Traceback 日志 | 验证: journalctl --user -u sister-agent-dkk -u sister-agent-ssk --since 1h --no-pager 2>&1 | grep -ciE 'ERROR|Traceback|CRITICAL' 输出 0",
     "最近修复的 MTTR < 5 分钟 | 验证: bash -c 'last_fix=$(python3 ~/.hermes/scripts/bus_client.py read --cat code_fix --limit 1 --json 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d[0][\\\"timestamp\\\"] if d else \\\"\\\")\" 2>/dev/null); [ -n \"$last_fix\" ] && echo \"last_fix=$last_fix\" || echo \"no_recent_fix\"' 确认最近一次修复记录在 5 分钟内",
-    "同一问题连续出现 3 次才升级到 bus architecture | 验证: python3 ~/.hermes/scripts/bus_client.py search 'maintainer' --limit 10 --json 2>/dev/null | python3 -c \"import sys,json; items=json.load(sys.stdin); dupes=[i for i in items if i.get('category')=='code_fix']; print(f'code_fix_count={len(dupes)}')\" 输出 code_fix_count < 3 表示未触发误升级"
+    "同一问题连续出现 3 次才升级到 bus architecture | 验证: python3 ~/.hermes/scripts/bus_client.py search 'maintainer' --limit 10 --json 2>/dev/null | python3 -c \"import sys,json; items=json.load(sys.stdin); dupes=[i for i in items if i.get('category')=='code_fix']; print(f'code_fix_count={len(dupes)}')\" 输出 code_fix_count < 3 表示未触发误升级",
+    "磁盘/内存资源健康 | 验证: df -h / | tail -1 | awk '{print $5}' | sed 's/%//' 输出 < 90; free -m | awk 'NR==2{print $3/$2 * 100.0}' 输出 < 90",
+    "无 duplicate daemon 进程 | 验证: ps aux | grep sister_agent_daemon.py | grep -v grep | awk '{print $NF}' | sort | uniq -d | wc -l 输出 0"
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/maintainer.md",
     "driver": "mixins/cron_driver.md"
   },

@@ -54,7 +54,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/knowledge_curator.md",
     "driver": "mixins/cron_driver.md"
   },

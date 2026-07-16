@@ -63,7 +63,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/closer.md",
     "driver": "mixins/cron_driver.md"
   },

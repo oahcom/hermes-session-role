@@ -78,7 +78,6 @@
     "依赖关系在 BACKLOG.md 中标注"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/pm.md",
     "driver": "mixins/ondemand_driver.md"
   },
@@ -96,9 +95,10 @@
   },
   "goal": "用户需求分析、用户故事拆分、优先级排序、验收确认",
   "constraints": [
-    "遵循 管理 角色红线",
-    "不做超出职责范围的事",
-    "输出必须可验证",
-    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+    "用户故事输出必须通过 bus_write 写入 cat=user_story，不得仅回复在对话中",
+    "验收结论必须附带实际执行的验证步骤和命令输出，不得空口声称\"已验证\"",
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行",
+    "跨角色协作必须使用 partner.py 工具，不得直接 tmux send 到其他 session",
+    "禁止操作：跑测试、改配置、部署、启动 CCS、改 persona JSON"
   ]
 }

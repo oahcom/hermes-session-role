@@ -32,7 +32,6 @@
     "产出含复现步骤 + 证据链 + 根因 + 修复建议"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/investigator_python.md",
     "driver": "mixins/ondemand_driver.md"
   },

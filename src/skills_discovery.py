@@ -19,6 +19,14 @@ _SKILLS_BASE = Path(os.environ.get(
 ))
 
 
+def _skill_exists(skill_ref: str) -> bool:
+    """检查 skill 文件是否存在，兼容 .md 和 SKILL.md 双格式。"""
+    if not skill_ref:
+        return False
+    return (_SKILLS_BASE / skill_ref).exists() or \
+           (_SKILLS_BASE / skill_ref.replace(".md", "") / "SKILL.md").exists()
+
+
 def discover_skills() -> dict[str, list[dict]]:
     """扫描所有角色 JSON，返回 {role: [skill_names]}"""
     result: dict[str, list[dict]] = {}
@@ -31,7 +39,7 @@ def discover_skills() -> dict[str, list[dict]]:
             skills = data.get("skills", [])
             skill_refs = data.get("skill_refs", {})
             result[name] = [
-                {"name": s, "ref": skill_refs.get(s, ""), "exists": ( _SKILLS_BASE / skill_refs.get(s, "") ).exists() if skill_refs.get(s) else False}
+                {"name": s, "ref": skill_refs.get(s, ""), "exists": _skill_exists(skill_refs.get(s, "")) if skill_refs.get(s) else False}
                 for s in skills
             ]
         except (json.JSONDecodeError, KeyError):

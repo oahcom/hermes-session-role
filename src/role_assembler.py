@@ -22,17 +22,38 @@ def load_role_json(role_name: str) -> dict[str, Any]:
 
 
 def read_skill(skill_path: str) -> str:
+    """读取 skill 内容，兼容 .md 和 SKILL.md 两种路径格式。"""
+    # 优先 SKILL.md 目录格式
+    full = SKILLS_ROOT / skill_path.replace(".md", "") / "SKILL.md"
+    if full.exists():
+        return full.read_text()
+    # 回退原 .md 格式（过渡期兼容）
     full = SKILLS_ROOT / skill_path
     if full.exists():
         return full.read_text()
-    fallback = PROMPTS_DIR / 'skills' / skill_path
-    if fallback.exists():
-        return fallback.read_text()
-    # 直接查 prompts/ 根目录（prompt_refs.base = "base.md"）
-    root_fallback = PROMPTS_DIR / skill_path
-    if root_fallback.exists():
-        return root_fallback.read_text()
+    # prompts 目录回退
+    for fallback in [PROMPTS_DIR / 'skills' / skill_path, PROMPTS_DIR / skill_path]:
+        if fallback.exists():
+            return fallback.read_text()
+    # 第 4 条回退路径（仅限 base.md 悬挂引用修复）
+    if skill_path == "base.md":
+        ws_base = Path.home() / "ccs-workspaces" / "base.md"
+        if ws_base.exists():
+            return ws_base.read_text()
     return f'[SKILL NOT FOUND: {skill_path}]'
+
+
+# 行为约束 skill 清单（仅这些会注入 KNOWLEDGE 块，其余通过原生 SKILL.md 按需加载）
+_BEHAVIORAL_SKILLS = {
+    "pg": {"redline_enforce", "decision_ladder"},
+    "coordinator": {"cluster_monitor"},
+    "lr": {"redline_check"},
+    # 其余角色无行为约束 skill → KNOWLEDGE 块不含技能全文
+}
+
+
+def is_behavioral(role_name: str, skill_name: str) -> bool:
+    return skill_name in _BEHAVIORAL_SKILLS.get(role_name, set())
 
 
 def assemble_role_prompt(role_name: str) -> str:
@@ -43,9 +64,10 @@ def assemble_role_prompt(role_name: str) -> str:
     parts.append(f"## 定位\n{role.get('description', '')}")
 
     prompt_refs = role.get('prompt_refs', {})
+    # base.md 修复：read_skill 已有第4回退路径
     if prompt_refs.get('base'):
         base_content = read_skill(prompt_refs['base'])
-        if base_content:
+        if base_content and "[SKILL NOT FOUND" not in base_content:
             parts.append("## 通用红线\n" + base_content)
 
     if role.get('goal'):
@@ -55,14 +77,16 @@ def assemble_role_prompt(role_name: str) -> str:
     if constraints:
         parts.append("## 红线约束\n" + "\n".join(f"- {c}" for c in constraints))
 
+    # 仅注入行为约束 skill，其余通过原生 SKILL.md 按需加载
     skills = role.get('skills', [])
     skill_refs = role.get('skill_refs', {})
-    if skills:
+    behavioral_skills = [s for s in skills if is_behavioral(role_name, s)]
+    if behavioral_skills:
         skill_parts = []
-        for skill in skills:
+        for skill in behavioral_skills:
             skill_doc = read_skill(skill_refs.get(skill, f'skills/{skill}.md'))
             skill_parts.append(f"### 技能: {skill}\n{skill_doc}")
-        parts.append("## 技能库\n" + "\n\n".join(skill_parts))
+        parts.append("## 行为约束\n" + "\n\n".join(skill_parts))
 
     input_sigs = role.get('input_signals', [])
     if input_sigs:

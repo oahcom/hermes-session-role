@@ -45,7 +45,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/ccs_monitor.md",
     "driver": "mixins/loop_driver.md"
   },

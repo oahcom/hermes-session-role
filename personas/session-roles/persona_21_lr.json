@@ -43,7 +43,6 @@
     "有 scout 发现必须引用"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/lr.md",
     "driver": "mixins/ondemand_driver.md"
   },

@@ -61,12 +61,27 @@ def render_prompt_from_refs(
     - driver: mixins/xxx_driver.md 的相对路径
 
     拼接顺序：base -> role -> driver
+
+    当 prompts/ 目录不存在时（迁移后），回退到 role_assembler 组装。
     """
     if not prompt_refs:
         return ""
 
     if base_dir is None:
         base_dir = os.path.join(os.path.dirname(__file__), "..", "prompts")
+
+    # prompts/ 不可用时回退到 role_assembler
+    if not os.path.isdir(base_dir):
+        try:
+            from role_assembler import assemble_role_prompt
+            name = kwargs.get("persona_name", "")
+            if name:
+                prompt = assemble_role_prompt(name)
+                if prompt:
+                    return prompt
+        except Exception:
+            pass
+        return ""
 
     # 默认占位符：persona_name/persona_title/cron_schedule + 源角色
     defaults = {

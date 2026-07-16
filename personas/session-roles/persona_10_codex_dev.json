@@ -49,7 +49,6 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/codex_dev.md",
     "driver": "mixins/ondemand_driver.md"
   },

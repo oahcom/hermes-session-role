@@ -43,6 +43,24 @@
         "category": "documentation"
       },
       "filter": "needs_review"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "notice"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "scheduler"
+      }
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "task_spec"
+      }
     }
   ],
   "output_targets": [
@@ -57,7 +75,6 @@
     "删除过期文档"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/writer.md",
     "driver": "mixins/ondemand_driver.md"
   },

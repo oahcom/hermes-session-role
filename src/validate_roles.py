@@ -140,12 +140,13 @@ def main() -> int:
                 elif not looks_like_shell_command(criteria):
                     errors.append(f"{fname}: eval_criteria[{i}]='{criteria[:60]}...' 看起来不是可执行的 shell 命令（需以 bash/python/curl/git 等开头或包含管道/重定向）")
 
-            # P1: prompt_refs 引用的文件必须存在
+            # P1: prompt_refs 引用的文件必须存在（仅当 prompts/ 目录存在时检查）
             prompts_dir = os.path.join(os.path.dirname(__file__), "..", "prompts")
-            for ref_key, ref_path in data.get("prompt_refs", {}).items():
-                full_path = os.path.join(prompts_dir, ref_path)
-                if not os.path.exists(full_path):
-                    errors.append(f"{fname}: prompt_refs.{ref_key}='{ref_path}' 文件不存在 ({full_path})")
+            if os.path.isdir(prompts_dir):
+                for ref_key, ref_path in data.get("prompt_refs", {}).items():
+                    full_path = os.path.join(prompts_dir, ref_path)
+                    if not os.path.exists(full_path):
+                        errors.append(f"{fname}: prompt_refs.{ref_key}='{ref_path}' 文件不存在 ({full_path})")
 
             # ── P2: skills / skill_refs / goal / constraints 校验 ──────────
             # skills 必须是非空数组

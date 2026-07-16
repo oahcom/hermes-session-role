@@ -46,7 +46,6 @@
     "每条审查意见附带文件+行号"
   ],
   "prompt_refs": {
-    "base": "base.md",
     "role": "roles/reviewer.md",
     "driver": "mixins/ondemand_driver.md"
   },
