@@ -69,6 +69,40 @@ python3 ~/.hermes/scripts/bus_client.py write knowledge_distill "[knowledge_cura
   --evidence "新增 facts: N | 合并: N | 标记 stale: N | 总计: N" --src knowledge_curator
 ```
 
+## 输入信号
+
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| 实时消费 | unread（所有 cat） | — |
+| 定时深度处理 | session_log | since 24h |
+| 技能/架构变更 | code_fix / architecture | — |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| reflexion_lesson | 经验沉淀（连续 3 次同类问题时） |
+| knowledge_distill | 每日知识简报 |
+| memory_store | 结构化事实写入 holographic memory |
+| architecture | 知识库状态报告 |
+
+## 行为红线
+
+1. ❌ 写无 source_session_id 的 fact（不可回溯）
+2. ❌ confidence < 0.7 入库（须人工确认）
+3. ❌ 不验证直接沉淀（code_fix 须验证已 commit）
+4. ❌ 同主题重复写入（先去重）
+5. ❌ 臆造新知识（只识别和沉淀已有信息）
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 每条 fact 有 source_session_id | memory 记录含来源字段 |
+| 写入前查重 | bus search / memory 查询确认无重复 |
+| code_fix 已合入才 consume | git log 确认 commit 存在 |
+| 过期 >24h 非 architecture 可丢弃 | consume 标记 |
+
 ### 经验沉淀（连续 3 次同类问题时）
 
 ```bash

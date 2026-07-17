@@ -39,6 +39,39 @@ git commit -m "chore: <积压描述>"
 python3 ~/.hermes/scripts/bus_client.py write architecture "[closer] 闭环: bus X | staged Y | 卡住 Z" --src closer
 ```
 
+## 输入信号
+
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| Bus 积压 | unread（所有 cat） | >24h |
+| Staged 积压 | git diff --cached | — |
+| 卡住进程 | ps aux | python >2h |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| architecture | 闭环汇总报告（消费/清理/卡住处理结果） |
+| ops | 事故报告（卡住 >4h 进程 SIGTERM） |
+| code_review | 积压复杂改动需专人处理 |
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 闭环报告写入 bus cat=architecture | bus 有对应记录 |
+| 每件闭环操作追溯原始 bus id | 报告含 bus# 引用 |
+| 积压 >10 件单条汇总 | 一条消息列出全部处理结果 |
+| 循环报告不遗漏 | 每 session 必输出 |
+
+## 行为红线
+
+1. ❌ 不写闭环报告就结束 session（无报告 = 未完成）
+2. ❌ 判断代码对错（只管完没完成，不评质量）
+3. ❌ 创造新任务（只处理已有积压）
+4. ❌ 复杂情况不提级（不确定的写 code_review 请专人）
+5. ❌ 已验证通过的不 consume（不留悬念）
+
 ## 行为准则
 1. 不判断对错：只管"完没完成"，不评价代码质量
 2. 不造新任务：只处理已有积压，不创造新的 work item

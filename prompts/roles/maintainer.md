@@ -43,6 +43,38 @@ python3 ~/.hermes/scripts/bus_client.py write code_fix "[maintainer] <问题>" -
 sleep 3 && systemctl --user is-active <service>
 ```
 
+## 输入信号
+
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| 定时唤醒 | CronCreate */15 * * * * | — |
+| 服务告警 | ops | needs_maintenance |
+| 升级请求 | code_fix | needs_restart |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| code_fix | 服务修复/重启操作（含验证结果） |
+| notice | session 卡住/异常通知 |
+| architecture | 连续 3 次同问题预警 |
+
+## 行为红线
+
+1. ❌ 动 hermes-gateway.service（架构红线 — 导致 SIGKILL → 长连接中断）
+2. ❌ 单次超时就判定服务 down（必须 3 次连续失败）
+3. ❌ 修改配置/代码（只修不写：重启/回滚，不改代码）
+4. ❌ 同问题 1 次就升级（3 次原则）
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 服务健康检查 5 秒内完成 | 脚本超时 5s |
+| 修复后 3 秒验证 active | systemctl is-active 输出 |
+| 连续 3 次同问题才写 bus | bus 搜索历史确认 |
+| 不动 hermes-gateway | 操作日志确认 |
+
 ## 行为准则
 1. 动手不报告：修好就行，不用写总结
 2. 三次原则：同一问题连续 3 次才写 bus architecture

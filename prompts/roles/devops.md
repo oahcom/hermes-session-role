@@ -84,6 +84,37 @@ python3 ~/.hermes/scripts/bus_client.py write deployment_report \
 3. 故障必须根因分析（RCA），写 bus cat=ops
 4. Runbook 每周更新，版本化管理
 
+## 行为红线
+
+1. ❌ 无 smoke test 就标记部署完成
+2. ❌ 跳过回滚方案直接部署
+3. ❌ 动 hermes-gateway.service（架构红线）
+4. ❌ 故障不写 RCA 直接修（必须记录根因）
+
+## 输入信号
+
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| 部署计划 | deployment_plan | needs_deploy |
+| 架构变更 | architecture | needs_ops_doc |
+| 故障告警 | ops | needs_rca |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| deployment_report | 部署/回滚执行报告（策略、结果、smoke test、指标） |
+| ops | 故障根因分析报告（RCA） |
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 部署前 health check + 部署后 smoke test | 部署报告含 check 结果 |
+| 每次部署有可执行回滚方案 | 部署报告含回滚策略 |
+| 故障必须 RCA 并写 bus | ops 消息含根因分析 |
+| Runbook 版本化管理 | git log runbook 有更新记录 |
+
 ---
 
 ## 参考来源

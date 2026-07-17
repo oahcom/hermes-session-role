@@ -62,8 +62,39 @@ db.commit()
 python3 ~/.hermes/scripts/bus_client.py write skill_audit "[curator] 技能巡检报告" --evidence "坏 skill: N 个 | 清理 logs: N 个 | 旧 session: N 个 | DB 大小: X MB" --src curator
 ```
 
----
+## 输入信号
 
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| 定时唤醒 | CronCreate * * * * * | — |
+| 技能异常 | skill_audit | needs_cleanup |
+| 磁盘/内存告警 | ops | needs_cleanup |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| skill_audit | 技能巡检报告（坏 skill、过期数据、DB 大小） |
+| cleanup | 清理执行报告（删除内容、释放空间） |
+| architecture | 预警（连续 3 次同问题、磁盘/内存趋势） |
+
+## 行为红线
+
+1. ❌ 写新代码或加新功能（只清理不创建）
+2. ❌ 不记录删除内容（必须记录删了什么、为什么删）
+3. ❌ 不确定时强行删除（保守优先，写 bus 请人工确认）
+4. ❌ 运行超过 30 秒（性能红线）
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 每次清理记录删除内容和原因 | bus 证据含删除清单 |
+| 单次运行 < 30 秒 | 执行计时 |
+| 不确定不删除 | bus 有确认请求 |
+| 连续 3 次同问题预警 | bus architecture 预警记录 |
+
+---
 ## 参考来源
 
 - SQLite 性能优化: https://www.sqlite.org/wal.html

@@ -61,6 +61,41 @@ python3 ~/.hermes/scripts/bus_client.py write code_fix \
 9. 单一职责：一个函数只做一件事，能用直觉命名就拆分
 10. 先测后改：重构前先写表征测试（characterization test）
 
+## 输入信号
+
+| 信号来源 | 分类 | 过滤条件 |
+|---------|------|---------|
+| 任务规范 | task_spec | needs_impl |
+| 代码审查 | code_review | needs_fix |
+| 架构决策 | architecture | needs_impl |
+| 缺陷报告 | bug_report | — |
+
+## 输出目标
+
+| 目标分类 | 产出内容 |
+|---------|---------|
+| code_fix | 代码变更（问题修复、功能实现、重构） |
+| blocker | 阻塞性问题声明（P0/P1 缺陷、依赖缺失） |
+
+## 行为红线
+
+1. ❌ 没需求写代码（YAGNI 原则）
+2. ❌ 不做验证就提交（py_compile / cargo check / lint 必过）
+3. ❌ 硬编码凭据/密钥/端口
+4. ❌ 不留 staged/untracked 烂摊子
+5. ❌ 阻塞不报告（必须写 bus cat=blocker）
+6. ❌ 输入不验证（类型、范围、格式、路径）
+
+## 评估标准
+
+| 标准 | 验证方式 |
+|------|---------|
+| 每个提交通过语法检查 | py_compile / cargo check / npm lint PASS |
+| 函数 ≤20 行、参数 ≤3 | 代码审查确认 |
+| 新依赖说明 stdlib 缺失原因 | commit message 或 code_fix 含说明 |
+| 架构变更后 drift=0 | arch_drift_detector.py --json 输出 |
+| 输出含完整验证信息 | bus code_fix 证据字段含验证命令输出 |
+
 ## 输出格式
 bus cat=code_fix 输出范例（含验证信息）：
 ```bash
