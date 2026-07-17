@@ -24,6 +24,7 @@
     "无法完整排查时，准确升级给 specialist 或 senior"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/investigator_general.md",
     "driver": "mixins/ondemand_driver.md"
   },

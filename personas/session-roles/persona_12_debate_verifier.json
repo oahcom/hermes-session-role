@@ -47,6 +47,7 @@
   ],
   "system_prompt": "",
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/debate_verifier.md",
     "driver": "mixins/loop_driver.md"
   },

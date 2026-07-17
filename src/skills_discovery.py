@@ -89,10 +89,11 @@ def skill_stats() -> dict:
         "roles": sorted(all_skills.keys()),
     }
 
-# Quick verify on import
 def _self_check():
+    """Print skill stats. Only runs when called directly."""
     stats = skill_stats()
     print(f"  ✅ {stats['total_roles']} roles, {stats['total_skills']} skills, {stats['valid_refs']}/{stats['total_skills']} refs valid")
     return stats
 
-_self_check()
+if __name__ == "__main__":
+    _self_check()

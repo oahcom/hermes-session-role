@@ -22,16 +22,10 @@ def load_role_json(role_name: str) -> dict[str, Any]:
 
 
 def read_skill(skill_path: str) -> str:
-    """读取 skill 内容，兼容 .md 和 SKILL.md 两种路径格式。"""
-    # 优先 SKILL.md 目录格式
-    full = SKILLS_ROOT / skill_path.replace(".md", "") / "SKILL.md"
-    if full.exists():
-        return full.read_text()
-    # 回退原 .md 格式（过渡期兼容）
+    """读取 skill 内容。"""
     full = SKILLS_ROOT / skill_path
     if full.exists():
         return full.read_text()
-    # prompts 目录回退
     for fallback in [PROMPTS_DIR / 'skills' / skill_path, PROMPTS_DIR / skill_path]:
         if fallback.exists():
             return fallback.read_text()

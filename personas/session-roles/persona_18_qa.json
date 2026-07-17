@@ -58,6 +58,7 @@
     "P0 缺陷阻塞发布门禁"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/qa.md",
     "driver": "mixins/ondemand_driver.md"
   },

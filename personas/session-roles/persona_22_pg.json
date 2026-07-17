@@ -63,6 +63,7 @@
     "不提未经 LR 审核的技术选型"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/pg.md",
     "driver": "mixins/ondemand_driver.md"
   },

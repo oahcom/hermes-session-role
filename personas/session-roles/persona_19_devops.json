@@ -72,6 +72,7 @@
     "每周 runbook 更新"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/devops.md",
     "driver": "mixins/ondemand_driver.md"
   },

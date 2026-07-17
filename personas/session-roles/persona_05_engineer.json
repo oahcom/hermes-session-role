@@ -115,6 +115,7 @@
     "管道各层可独立验证"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/engineer.md",
     "driver": "mixins/ondemand_driver.md"
   },

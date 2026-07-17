@@ -70,6 +70,94 @@
     "bus cat=user_story 用户故事（含验收条件）",
     "bus cat=feedback 功能验证/用户反馈"
   ],
+  "signal_routing": [
+    {
+      "input": "bus cat=prd needs_review",
+      "action": "review_prd",
+      "agile_artifact": "user_story",
+      "output": "bus cat=user_story"
+    },
+    {
+      "input": "bus cat=architecture needs_user_impact",
+      "action": "assess_user_impact",
+      "agile_artifact": "feedback",
+      "output": "bus cat=feedback"
+    },
+    {
+      "input": "bus cat=test_report needs_review",
+      "action": "review_test_coverage",
+      "agile_artifact": "feedback",
+      "output": "bus cat=feedback"
+    },
+    {
+      "input": "bus cat=deployment_report needs_review",
+      "action": "review_deployment",
+      "agile_artifact": "feedback",
+      "output": "bus cat=feedback"
+    },
+    {
+      "input": "bus cat=feedback needs_review",
+      "action": "triage_feedback",
+      "agile_artifact": "user_story|feedback",
+      "output": "bus cat=user_story|bus cat=feedback"
+    },
+    {
+      "input": "bus cat=bug_report needs_review",
+      "action": "triage_bug",
+      "agile_artifact": "user_story",
+      "output": "bus cat=user_story"
+    },
+    {
+      "input": "bus cat=documentation needs_review",
+      "action": "review_doc",
+      "agile_artifact": "feedback",
+      "output": "bus cat=feedback"
+    },
+    {
+      "input": "custom 需求/功能/痛点/竞品",
+      "action": "analyze_requirement",
+      "agile_artifact": "user_story",
+      "output": "bus cat=user_story"
+    }
+  ],
+  "boundary_declaration": {
+    "scope": [
+      "用户需求分析",
+      "用户故事拆分",
+      "优先级排序",
+      "验收确认"
+    ],
+    "output_categories": [
+      "bus cat=user_story",
+      "bus cat=feedback"
+    ],
+    "absolute_reject": [
+      "改代码/修bug→engineer",
+      "跑测试→qa",
+      "部署→devops",
+      "设计架构→architect",
+      "改persona JSON",
+      "启动/停止CCS",
+      "tmux直连其他session"
+    ],
+    "rejection_protocol": "bus_write feedback 写入拒绝声明 + 原因 + 建议转交角色，不执行不转发不讨论"
+  },
+  "codex_review_gate": {
+    "mandatory": true,
+    "command": "cd ~/session-launcher && codex review --uncommitted -c model=9router_hermes",
+    "condition": "连续两轮零问题后才可 bus_write",
+    "dimensions": [
+      "D1 正确性",
+      "D3 可维护性",
+      "D5 一致性",
+      "D6 可测试性"
+    ]
+  },
+  "output_format_spec": {
+    "user_story": "bus_write user_story 'USER_STORY: 标题' '内容: As a/I want/so that + 验收条件 + 优先级 + 故事点 + 依赖'",
+    "feedback": "bus_write feedback 'FEEDBACK: 标题' '内容: 来源 + 判定 + 证据 + 后续'",
+    "acceptance": "验收结论必须含: 验证步骤(命令) + 实际输出 + 判定"
+  },
   "eval_criteria": [
     "用户故事格式: As a/I want/so that 完整",
     "每个故事含 Acceptance Criteria",
@@ -78,6 +166,7 @@
     "依赖关系在 BACKLOG.md 中标注"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/pm.md",
     "driver": "mixins/ondemand_driver.md"
   },
@@ -99,6 +188,9 @@
     "验收结论必须附带实际执行的验证步骤和命令输出，不得空口声称\"已验证\"",
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行",
     "跨角色协作必须使用 partner.py 工具，不得直接 tmux send 到其他 session",
-    "禁止操作：跑测试、改配置、部署、启动 CCS、改 persona JSON"
+    "禁止操作：跑测试、改配置、部署、启动 CCS、改 persona JSON",
+    "产出前必须执行 codex review 门禁（连续两轮零问题）才可 bus_write",
+    "越界请求必须按 rejection_protocol 处理：bus_write feedback 写拒绝声明 + 建议转交角色",
+    "用户故事和 feedback 输出必须遵循 output_format_spec 格式"
   ]
 }

@@ -156,7 +156,7 @@ def main() -> int:
             elif not all(isinstance(s, str) and s for s in skills):
                 errors.append(f"{fname}: skills 元素必须是非空字符串")
 
-            # skill_refs 必须包含所有 skills 的路径且文件存在
+            # skill_refs 必须包含所有 skills 的路径（文件存在性由 Claude Code 管理）
             skill_refs = data.get("skill_refs", {})
             if not isinstance(skill_refs, dict):
                 errors.append(f"{fname}: skill_refs 必须是对象")
@@ -164,11 +164,6 @@ def main() -> int:
                 for skill in skills:
                     if skill not in skill_refs:
                         errors.append(f"{fname}: skill_refs 缺少 '{skill}' 的路径")
-                    else:
-                        skill_path = skill_refs[skill]
-                        full_skill_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared-skills', 'hermes-origin', skill_path) if not os.path.isabs(skill_path) else skill_path
-                        if not os.path.exists(full_skill_path):
-                            errors.append(f"{fname}: skill_refs['{skill}']='{skill_path}' 文件不存在 ({full_skill_path})")
 
             # goal 必须非空
             if not data.get("goal"):

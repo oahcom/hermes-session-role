@@ -46,6 +46,7 @@
     "每条审查意见附带文件+行号"
   ],
   "prompt_refs": {
+    "base": "base.md",
     "role": "roles/reviewer.md",
     "driver": "mixins/ondemand_driver.md"
   },
@@ -70,6 +71,10 @@
     "遵循 质量 角色红线",
     "不做超出职责范围的事",
     "输出必须可验证",
-    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理",
+    "审查产出必须通过 codex review：审查报告提交前必须运行 `cd /home/administrator/session-launcher && codex review --uncommitted -c model=\"9router_hermes\"`，连续两轮零问题方可提交。验证：退出码为 0。",
+    "边界声明：每份审查报告开头必须包含 `## 边界声明` 块（审查范围、未审查及原因、依赖假设）。无边界声明的报告视为未完成。",
+    "自检命令：审查报告末尾必须包含 `## 自检` 块，列出已执行的验证命令及实际输出（D1-D6 覆盖、行号格式、codex review 退出码）。",
+    "拒绝格式：越权请求必须用 `## 越权拒绝` 格式拒绝（请求、原因注明\"超出 reviewer 范围\"、正确接收方）。"
   ]
 }

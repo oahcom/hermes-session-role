@@ -47,5 +47,8 @@
     "verify_fix": "skills/maintenance/verify_fix.md"
   },
   "_evolution_version": 1784088003,
-  "_evolved_at": 1784102401.2472224
+  "_evolved_at": 1784102401.2472224,
+  "prompt_refs": {
+    "base": "base.md"
+  }
 }

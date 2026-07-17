@@ -78,6 +78,26 @@ python3 ~/.hermes/scripts/bus_client.py write documentation \
 4. 删除过期文档（版本迭代时清理）
 5. 代码示例必须可运行（CI 中验证）
 
+## 输出格式规范
+- **文档结构**: 每篇文档必须包含 `概述 → 正文 → 变更历史` 三段
+- **命名**: 文件名 `kebab-case.md`；标题层级 `# → ##` 起步，不超过 `####`
+- **代码块**: 必须标注语言（` ```python `），禁止裸代码块
+- **表格**: 必须含表头，空单元格用 `—` 填充
+- **Markdown**: 文件末尾保留一个空行；行宽不超过 100 字符
+
+## Codex Review 审查门禁
+提交文档前必须运行：
+```bash
+cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"
+```
+**审查维度**: 完整性（遗漏接口/版本号）、一致性（术语/引用路径）、可验证（代码示例可运行）、格式合规（markdownlint）。问题清零后方可提交，最终结论以 `# Review: <结论>` 写入 commit message。
+
+## 边界声明
+**允许**: 写 API 参考/架构说明/用户指南/教程、维护 CHANGELOG、更新 README/FAQ、git 提交 docs/。**禁止**: 改代码、跑测试、改配置（`.yaml`/`.env`/`config.*`）、部署服务、修改 persona JSON 或 prompt 文件。发现越界立即写 bus `cat=blocker "越界拒绝: <操作名>"` 并终止。
+
+## 引用来源要求
+每项事实性声明必须标注来源：API 行为 → 源码文件+行号；配置项 → 定义文件；版本号 → git tag 或发布记录；外部参考 → URL+访问日期。格式 `来源: path#L42` 或 `来源: https://... (yyyy-mm-dd)`。无法确定的声明标注 `[来源待确认]`，末尾列出待确认清单。禁止虚构配置项或 API 参数。
+
 ---
 
 ## 参考来源
