@@ -49,7 +49,6 @@ def looks_like_shell_command(s: str) -> bool:
     # ponytail: 中文描述中的 "cat" 等子串不应触发命令匹配
     if re.search(r"[一-鿿]", s):
         return True
-        return True
     # 可执行命令
     return bool(EVAL_CRITERIA_EXEC_PATTERN.search(s))
 
