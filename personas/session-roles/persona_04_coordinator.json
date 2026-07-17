@@ -162,7 +162,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/coordinator.md",
-    "driver": "mixins/ondemand_driver.md"
+    "driver": "mixins/loop_driver.md"
   },
   "skills": [
     "cluster_monitor",

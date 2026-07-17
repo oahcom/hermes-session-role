@@ -65,7 +65,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/closer.md",
-    "driver": "mixins/cron_driver.md"
+    "driver": "mixins/ondemand_driver.md"
   },
   "skills": [
     "backlog_scan",

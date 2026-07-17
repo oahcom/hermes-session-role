@@ -68,7 +68,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/curator.md",
-    "driver": "mixins/loop_driver.md"
+    "driver": "mixins/cron_driver.md"
   },
   "skills": [
     "skill_audit",

@@ -14,48 +14,71 @@
       "spec": {
         "category": "task_spec"
       },
-      "filter": "needs_test"
+      "filter": "needs_test",
+      "source_role": "PM/PA",
+      "description": "收到测试任务"
     },
     {
       "type": "bus",
       "spec": {
         "category": "code_fix"
       },
-      "filter": "needs_test"
+      "filter": "needs_test",
+      "source_role": "PG",
+      "description": "收到待验证的修复"
     },
     {
       "type": "bus",
       "spec": {
         "category": "prd"
       },
-      "filter": "needs_test_plan"
+      "filter": "needs_test_plan",
+      "source_role": "PM/PA",
+      "description": "收到需规划测试的 PRD"
     },
     {
       "type": "bus",
       "spec": {
         "category": "test_plan"
       },
-      "filter": "needs_review"
+      "filter": "needs_review",
+      "source_role": "QA",
+      "description": "收到待评审的测试计划（来自其他 QA session）"
     },
     {
       "type": "bus",
       "spec": {
         "category": "bug_report"
       },
-      "filter": "needs_triage"
+      "filter": "needs_triage",
+      "source_role": "QA",
+      "description": "收到待分类的缺陷报告（来自其他 QA session）"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "blocker"
+      },
+      "filter": "*",
+      "source_role": "any",
+      "description": "越界拒绝通知（仅读不处理）"
     }
   ],
   "output_targets": [
-    "bus cat=test_plan 测试计划",
-    "bus cat=test_report 测试报告（pass/fail/total）",
-    "bus cat=bug_report 缺陷报告（严重度/复现步骤）"
+    "bus cat=test_plan → PM 测试计划（范围/策略/风险/级别）",
+    "bus cat=test_report → PM 测试报告（pass/fail/total/回归建议）",
+    "bus cat=bug_report → PG 缺陷报告（严重度 P0-P3/复现步骤/日志）",
+    "bus cat=blocker → any 越界拒绝通知"
   ],
   "eval_criteria": [
     "测试计划含：范围/策略/人力/风险",
     "测试用例覆盖：正常/边界/错误/安全/性能",
     "测试报告格式：summary/defects/regression/perf",
     "缺陷等级分级: P0(阻塞)/P1(严重)/P2(一般)/P3(建议)",
-    "P0 缺陷阻塞发布门禁"
+    "P0 缺陷阻塞发布门禁",
+    "所有产出必须通过 codex review --uncommitted -c model=gpt-4o --title \"测试验证\" 审查门禁再发布",
+    "越界请求必须输出 bus cat=blocker 格式拒绝",
+    "测试用例模板含8列: ID/模块/前置条件/操作步骤/预期结果/实际结果/严重级/风险类型"
   ],
   "prompt_refs": {
     "base": "base.md",

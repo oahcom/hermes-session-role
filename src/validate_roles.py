@@ -45,8 +45,10 @@ def looks_like_shell_command(s: str) -> bool:
     # 描述性验收标准：以 "验证:" "验收:" "标准:" "检查:" "确保:" 开头
     if EVAL_CRITERIA_DESC_PATTERN.search(s):
         return True
-    # 纯中文描述且无命令关键字 -> 视为描述性标准
-    if re.search(r"[一-鿿]", s) and not re.search(r"(python3|bash|sh|curl|git|systemctl|journalctl|grep|awk|wc|test|cat|head|tail|find|stat|date|ps|df|du|free|top|kill|pkill|pgrep|systemctl|journalctl)", s):
+    # 纯中文描述（含中文即视为描述性验收标准，不要求可执行）
+    # ponytail: 中文描述中的 "cat" 等子串不应触发命令匹配
+    if re.search(r"[一-鿿]", s):
+        return True
         return True
     # 可执行命令
     return bool(EVAL_CRITERIA_EXEC_PATTERN.search(s))

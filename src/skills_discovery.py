@@ -20,11 +20,10 @@ _SKILLS_BASE = Path(os.environ.get(
 
 
 def _skill_exists(skill_ref: str) -> bool:
-    """检查 skill 文件是否存在，兼容 .md 和 SKILL.md 双格式。"""
+    """检查 skill 文件是否存在。"""
     if not skill_ref:
         return False
-    return (_SKILLS_BASE / skill_ref).exists() or \
-           (_SKILLS_BASE / skill_ref.replace(".md", "") / "SKILL.md").exists()
+    return (_SKILLS_BASE / skill_ref).exists()
 
 
 def discover_skills() -> dict[str, list[dict]]:
