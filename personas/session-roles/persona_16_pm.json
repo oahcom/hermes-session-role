@@ -79,7 +79,8 @@
   ],
   "prompt_refs": {
     "role": "roles/pm.md",
-    "driver": "mixins/ondemand_driver.md"
+    "driver": "mixins/ondemand_driver.md",
+    "base": "base.md"
   },
   "skills": [
     "requirement_analysis",
