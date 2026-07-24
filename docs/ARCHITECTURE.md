@@ -50,7 +50,7 @@ class RoleDef(PersonaDef):
     lifecycle: str        # "infinite" | "ondemand"
     drive: str            # "cron" | "loop" | "ondemand"
     cron_schedule: str    # e.g. "*/15 * * * *"
-    idle_action: str      # "exit" | "继续下一轮扫描"
+    idle_action: str      # "exit" | "continue" (已废弃，由 daemon 驱动)
     input_signals: list   # [{"source": "...", "filter": "..."}]
     output_targets: list  # ["bus cat=code_fix 修复方案", ...]
     session_hint: str     # "cron" | "interactive" | "background"

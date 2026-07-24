@@ -97,13 +97,13 @@ tests/
 
 ---
 
-## 角色清单（26 基础设施角色）
+## 角色清单（23 基础设施角色，2 缺失：consumer, archivist）
 
 | 角色 | 标题 | 生命周期 | 驱动 | 产出分类 | 消费分类 |
 |------|------|----------|------|----------|----------|
 | maintainer | 运维者 | infinite | cron (15m) | code_fix, architecture | security |
 | scout | 侦察兵 | infinite | loop | architecture, evolution_report | architecture |
-| consumer | 信息消费者 | infinite | cron (10m) | reflexion_lesson | * |
+| consumer | 信息消费者 (缺失) | infinite | cron (10m) | reflexion_lesson | * |
 | curator | 信息维护者 | infinite | cron (hourly) | skill_audit, cleanup, architecture | skill_audit, architecture, code_fix, performance |
 | coordinator | 管理者 | infinite | loop | scheduler, architecture, ccs_health | task_spec, workflow, user_story, test_plan, deployment_plan, deployment_report, test_report, bug_report, security_audit, evolution_report, changelog, ccs_health |
 | engineer | 开发工程师 | ondemand | ondemand | code_fix, code_review, architecture | architecture, task_spec, user_story, code_review, bug_report, test_report, test_plan, documentation, security_audit, system_design |
@@ -125,9 +125,9 @@ tests/
 | investigator_python | 刑侦员 (Python) | ondemand | ondemand | root_cause_analysis | code_fix, architecture |
 | investigator_senior | 刑侦员 (全栈) | ondemand | ondemand | root_cause_analysis | * |
 | investigator_general | 刑侦员 (杂) | ondemand | ondemand | root_cause_analysis | * |
-| archivist | 档案管理员 | infinite | cron | architecture | reflexion_lesson, cleanup |
+| archivist | 档案管理员 (缺失) | infinite | cron | architecture | reflexion_lesson, cleanup |
 
-> 2026 年 7 月统计：26 角色全部定义完整，验证通过零错误。
+> 2026 年 7 月统计：23 角色定义完整，2 缺失（consumer, archivist）。验证通过零错误。
 
 ---
 

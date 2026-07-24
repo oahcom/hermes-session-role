@@ -6,7 +6,6 @@
   "lifecycle": "infinite",
   "drive": "cron",
   "cron_schedule": "*/15 * * * *",
-  "idle_action": "/loop",
   "session_hint": "cron",
   "input_signals": [
     {
@@ -87,5 +86,9 @@
     "遵循 维护 角色红线",
     "不做超出职责范围的事",
     "输出必须可验证"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr"
   ]
 }

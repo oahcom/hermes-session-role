@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "session_hint": "interactive",
-  "idle_action": "/loop",
   "input_signals": [
     {
       "type": "bus",
@@ -100,6 +99,15 @@
     "验收结论必须附带实际执行的验证步骤和命令输出，不得空口声称\"已验证\"",
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行",
     "跨角色协作必须使用 partner.py 工具，不得直接 tmux send 到其他 session",
+    "收到 confirm_step 请求时，必须验证 confirm_token 与 task 记录一致后立即审批，通过则写 CONFIRMED:，不通过写原因",
     "禁止操作：跑测试、改配置、部署、启动 CCS、改 persona JSON"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "product_architect",
+    "pg",
+    "qa",
+    "writer"
   ]
 }

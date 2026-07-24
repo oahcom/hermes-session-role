@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "session_hint": "interactive",
-  "idle_action": "/loop",
   "input_signals": [
     {
       "type": "bus",
@@ -53,5 +52,10 @@
     "遵循 质量 角色红线",
     "不做超出职责范围的事",
     "输出必须可验证"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "pm"
   ]
 }

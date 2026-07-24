@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "cron_schedule": "",
-  "idle_action": "/loop",
   "session_hint": "interactive",
   "input_signals": [
     {
@@ -142,5 +141,12 @@
     "每次提交必须包含 bus 引用",
     "管道式实现必须保持各层独立可测"
   ],
-  "version": 2
+  "version": 2,
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "pm",
+    "pg",
+    "reviewer"
+  ]
 }

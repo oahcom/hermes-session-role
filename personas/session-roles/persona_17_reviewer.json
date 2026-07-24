@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "session_hint": "interactive",
-  "idle_action": "/loop",
   "input_signals": [
     {
       "type": "bus",
@@ -76,5 +75,13 @@
     "边界声明：每份审查报告开头必须包含 `## 边界声明` 块（审查范围、未审查及原因、依赖假设）。无边界声明的报告视为未完成。",
     "自检命令：审查报告末尾必须包含 `## 自检` 块，列出已执行的验证命令及实际输出（D1-D6 覆盖、行号格式、codex review 退出码）。",
     "拒绝格式：越权请求必须用 `## 越权拒绝` 格式拒绝（请求、原因注明\"超出 reviewer 范围\"、正确接收方）。"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "pm",
+    "product_architect",
+    "pg",
+    "qa"
   ]
 }

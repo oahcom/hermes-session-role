@@ -6,7 +6,6 @@
   "lifecycle": "infinite",
   "drive": "loop",
   "cron_schedule": "",
-  "idle_action": "/loop",
   "session_hint": "loop",
   "input_signals": [
     {
@@ -50,5 +49,10 @@
   "_evolved_at": 1784102401.2472224,
   "prompt_refs": {
     "base": "base.md"
-  }
+  },
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "pm"
+  ]
 }

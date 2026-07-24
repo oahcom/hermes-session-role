@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "session_hint": "interactive",
-  "idle_action": "/loop",
   "input_signals": [
     {
       "type": "bus",
@@ -107,5 +106,8 @@
     "12. 通知 QA 时代对方做技术判断",
     "- 通知 QA 时说\"不需要专项测\"——这是替 QA 做决策。应该只发事实，由 QA 自己定。",
     "- 规律：和第 3 条同根因——以为给结论就够了，结论是该对方自己下的"
+  ],
+  "workgroup": [
+    "*"
   ]
 }

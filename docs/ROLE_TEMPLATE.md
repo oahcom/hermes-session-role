@@ -10,7 +10,7 @@
   "lifecycle": "infinite",
   "drive": "cron",
   "cron_schedule": "*/15 * * * *",
-  "idle_action": "exit",
+  "idle_action": "exit",  # 已废弃，由 daemon 驱动
   "session_hint": "cron",
   "input_signals": [
     {"source": "信号来源命令", "filter": "过滤条件"}

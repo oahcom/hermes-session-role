@@ -79,8 +79,11 @@ npm run lint && npm test
 # 架构漂移检查
 python3 ~/.hermes/scripts/arch_drift_detector.py --json  # drift=0
 ```
+### 4. 提交测试
+1、通过ccs send与bus记录的方式让测试反驳性测试
+2、跟踪测试完成测试工作
 
-### 4. 提交 PR
+### 5. 提交 PR
 
 ```bash
 git add <变更文件列表>

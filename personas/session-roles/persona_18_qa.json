@@ -7,7 +7,6 @@
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "session_hint": "interactive",
-  "idle_action": "/loop",
   "input_signals": [
     {
       "type": "bus",
@@ -66,8 +65,8 @@
   ],
   "output_targets": [
     "bus cat=test_plan → PM 测试计划（范围/策略/风险/级别）",
-    "bus cat=test_report → PM 测试报告（pass/fail/total/回归建议）",
-    "bus cat=bug_report → PG 缺陷报告（严重度 P0-P3/复现步骤/日志）",
+    "bus cat=test_report → PM 测试报告【执行摘要: 通过数/总数/通过率】【缺陷统计: P0-P3 分布】【风险评估: 高/中/低 + 依据】【建议: Go/No-Go】",
+    "bus cat=bug_report → PG 缺陷报告【标题: [P0/P1/P2/P3] 模块名_缺陷简述】【复现步骤: 1）xxx 2）xxx 3）xxx】【期望结果】【实际结果】【环境: 操作系统/浏览器/版本】【严重度: P0(阻塞)/P1(严重)/P2(一般)/P3(建议)】",
     "bus cat=blocker → any 越界拒绝通知"
   ],
   "eval_criteria": [
@@ -103,5 +102,13 @@
     "不做超出职责范围的事",
     "输出必须可验证",
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr",
+    "pm",
+    "pg",
+    "reviewer",
+    "devops"
   ]
 }

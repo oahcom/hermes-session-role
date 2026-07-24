@@ -4,7 +4,7 @@
   "description": "扫描 GitHub、技术社区，发现新工具、模式、情报",
   "category": "信息采集",
   "lifecycle": "infinite",
-  "drive": "loop",
+  "drive": "ondemand",
   "cron_schedule": "",
   "idle_action": "/loop",
   "session_hint": "background",
@@ -88,7 +88,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/scout.md",
-    "driver": "mixins/loop_driver.md"
+    "driver": "mixins/ondemand_driver.md"
   },
   "skills": [
     "github_scan",

@@ -35,13 +35,16 @@ pytest <测试> -x -q
 cargo check && cargo test
 npm run lint && npm test
 ```
+### 5. 提交测试
+1、通过ccs send与bus记录的方式让测试反驳性测试
+2、跟踪测试完成测试工作
 
-### 5. 提交（不可跳过）
+### 6. 提交（不可跳过）
 ```bash
 git add <文件> && git commit -m "feat/fix/refactor: <做了什么>（中文）"
 ```
 
-### 6. 通知（不可跳过）
+### 7. 通知（不可跳过）
 ```bash
 python3 ~/.hermes/scripts/bus_client.py write code_fix \
   "[engineer] <做了什么>" \

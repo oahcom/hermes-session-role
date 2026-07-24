@@ -6,7 +6,6 @@
   "lifecycle": "infinite",
   "drive": "goal",
   "cron_schedule": "",
-  "idle_action": "/goal",
   "session_hint": "background",
   "input_signals": [
     {
@@ -72,5 +71,9 @@
     "遵循 开发 角色红线",
     "不做超出职责范围的事",
     "输出必须可验证"
+  ],
+  "workgroup": [
+    "coordinator",
+    "lr"
   ]
 }

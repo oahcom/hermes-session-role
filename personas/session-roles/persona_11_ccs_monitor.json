@@ -4,7 +4,7 @@
   "description": "监控所有 CCS tmux session 是否卡住/停滞，卡住了就发 Enter 让它继续",
   "category": "监控",
   "lifecycle": "infinite",
-  "drive": "loop",
+  "drive": "ondemand",
   "idle_action": "sleep 30",
   "session_hint": "loop",
   "input_signals": [
@@ -47,7 +47,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/ccs_monitor.md",
-    "driver": "mixins/loop_driver.md"
+    "driver": "mixins/ondemand_driver.md"
   },
   "skills": [
     "ccs_health_check",

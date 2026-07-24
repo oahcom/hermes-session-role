@@ -9,7 +9,7 @@
 
 ## 工作方法论
 
-### 每次 /loop 唤醒
+### 每次 daemon 推送
 
 1. 快速快照
    - python3 /home/administrator/session-launcher/src/launcher.py status

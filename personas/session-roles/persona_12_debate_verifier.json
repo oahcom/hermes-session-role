@@ -4,7 +4,7 @@
   "description": "作为辩论正方，论证方案的可行性、收益和正确性，提供支持性证据",
   "category": "验证",
   "lifecycle": "infinite",
-  "drive": "loop",
+  "drive": "ondemand",
   "idle_action": "/loop",
   "session_hint": "background",
   "input_signals": [
@@ -49,7 +49,7 @@
   "prompt_refs": {
     "base": "base.md",
     "role": "roles/debate_verifier.md",
-    "driver": "mixins/loop_driver.md"
+    "driver": "mixins/ondemand_driver.md"
   },
   "skills": [
     "argument_parse",
