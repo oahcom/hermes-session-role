@@ -6,10 +6,7 @@ import json, os, subprocess, sys
 from pathlib import Path
 from typing import Any
 
-SKILLS_ROOT = Path(os.environ.get('HERMES_SKILLS_ROOT',
-    str(Path.home() / 'shared-skills' / 'hermes-origin')))
-PERSONAS_DIR = Path(os.environ.get('SESSION_ROLES_ROOT', str(Path.home() / 'hermes-session-roles'))) / 'personas' / 'session-roles'
-PROMPTS_DIR = Path(os.environ.get('SESSION_ROLES_ROOT', str(Path.home() / 'hermes-session-roles'))) / 'prompts'
+from paths import SESSION_ROLES_PERSONAS as PERSONAS_DIR, PROMPTS_DIR, SKILLS_ROOT
 
 
 def load_role_json(role_name: str) -> dict[str, Any]:

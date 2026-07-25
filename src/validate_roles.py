@@ -6,7 +6,9 @@ import os
 import re
 import sys
 
-ROLES_DIR = os.path.join(os.path.dirname(__file__), "..", "personas", "session-roles")
+import paths
+
+ROLES_DIR = str(paths.SESSION_ROLES_PERSONAS)
 
 REQUIRED_FIELDS = {
     "name", "title", "description", "category", "system_prompt",

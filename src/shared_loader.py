@@ -113,7 +113,8 @@ def load_roles() -> list[dict]:
         try:
             with open(f) as fp:
                 roles.append(json.load(fp))
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"  [shared_loader] WARNING: 跳过 {f}: {e}", file=sys.stderr)
             continue
     return roles
 

@@ -12,11 +12,9 @@ import os
 from pathlib import Path
 from typing import Optional
 
-_SESSION_ROLES_DIR = Path(__file__).resolve().parent.parent / "personas" / "session-roles"
-_SKILLS_BASE = Path(os.environ.get(
-    "HERMES_SKILLS_ROOT",
-    str(Path.home() / "shared-skills" / "hermes-origin")
-))
+import sys
+
+from paths import SESSION_ROLES_PERSONAS as _SESSION_ROLES_DIR, SKILLS_ROOT as _SKILLS_BASE
 
 
 def _skill_exists(skill_ref: str) -> bool:
@@ -41,8 +39,8 @@ def discover_skills() -> dict[str, list[dict]]:
                 {"name": s, "ref": skill_refs.get(s, ""), "exists": _skill_exists(skill_refs.get(s, "")) if skill_refs.get(s) else False}
                 for s in skills
             ]
-        except (json.JSONDecodeError, KeyError):
-            pass
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"  [skills_discovery] WARNING: 跳过 {f}: {e}", file=sys.stderr)
     return result
 
 

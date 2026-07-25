@@ -7,6 +7,7 @@ Persona/Role 注册表 — load_all, get, list_*, register。
 from __future__ import annotations
 import json
 import os
+import sys
 from typing import Any
 
 from models import PersonaDef, RoleDef, render_prompt_from_refs
@@ -95,5 +96,5 @@ def load_all(base_dir: str | None = None) -> int:
             except (OSError, IOError) as e:
                 print(f"  [registry] 文件读写失败 {fname}: {e}")
             except Exception as e:
-                print(f"  [registry] 未知错误加载 {fname}: {type(e).__name__}: {e}")
+                print(f"  [registry] 未知错误加载 {fname}: {type(e).__name__}: {e}", file=sys.stderr)
     return count

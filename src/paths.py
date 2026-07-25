@@ -50,6 +50,13 @@ CODEX_SENTINEL_DIR = Path("/tmp/cdx-sentinels")
 # ── 角色目录 ──
 SESSION_ROLES_PERSONAS = SESSION_ROLES_ROOT / "personas" / "session-roles"
 
+# ── Prompt 模板目录 ──
+PROMPTS_DIR = SESSION_ROLES_ROOT / "prompts"
+
+# ── 技能根目录 ──
+SKILLS_ROOT = Path(os.environ.get('HERMES_SKILLS_ROOT',
+    str(Path.home() / 'shared-skills' / 'hermes-origin')))
+
 # ── Hermes 工作流 ──
 HERMES_WORKFLOWS = _HOME / ".hermes" / "workflows"
 HERMES_WORKFLOW_CHAINS = HERMES_WORKFLOWS / "chains"
