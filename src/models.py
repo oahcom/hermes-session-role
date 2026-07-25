@@ -25,12 +25,19 @@ class PersonaDef:
     skill_refs: dict[str, str] = field(default_factory=dict)  # 技能引用路径
     goal: str = ""  # 角色目标
     constraints: list[str] = field(default_factory=list)  # 红线约束
+    mcp_servers: list[str] = field(default_factory=list)  # 角色需要的 MCP server
+    mcp_tools: dict[str, list] = field(default_factory=dict)  # 角色能用的具体工具
+    mcp_permissions: dict[str, list] = field(default_factory=dict)  # MCP 操作权限
+    sla_seconds: int = 0  # 消息响应超时秒数，0=未设置
+    auto_send_messages: list[str] = field(default_factory=list)  # 自动发送消息列表
 
     def to_dict(self) -> dict[str, Any]:
         return {k: getattr(self, k) for k in (
             "name", "title", "description", "category",
             "system_prompt", "config_overrides", "eval_criteria",
             "prompt_refs", "skills", "skill_refs", "goal", "constraints",
+            "mcp_servers", "mcp_tools", "mcp_permissions",
+            "sla_seconds", "auto_send_messages",
         )}
 
     @classmethod

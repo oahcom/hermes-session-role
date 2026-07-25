@@ -7,6 +7,7 @@ Persona/Role 注册表 — load_all, get, list_*, register。
 from __future__ import annotations
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -18,11 +19,35 @@ _ROLES: dict[str, RoleDef] = {}
 _PERSONAS: dict[str, PersonaDef] = {}
 
 
+def _notify_bus_contract_change(name: str, obj_type: str) -> None:
+    """契约变更时写 bus 通知，失败静默。"""
+    try:
+        from paths import BUS_CLIENT
+        bus_py = os.fspath(BUS_CLIENT)
+        if os.path.isfile(bus_py):
+            subprocess.run(
+                [sys.executable, bus_py, "write", "architecture",
+                 f"\u5951\u7ea6\u53d8\u66f4: {name} \u88ab\u8986\u76d6",
+                 "--evidence", f"\u7c7b\u522b={obj_type}",
+                 "--src", "registry"],
+                timeout=10, capture_output=True,
+            )
+    except Exception:
+        pass
+
+
 def register(obj: PersonaDef | RoleDef) -> None:
     """注册一个人格/角色。"""
+    conflict = False
     if isinstance(obj, RoleDef):
+        if obj.name in _ROLES:
+            conflict = True
         _ROLES[obj.name] = obj
+    if obj.name in _PERSONAS:
+        conflict = True
     _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
+    if conflict:
+        _notify_bus_contract_change(obj.name, type(obj).__name__)
 
 
 def get(name: str) -> PersonaDef | RoleDef | None:

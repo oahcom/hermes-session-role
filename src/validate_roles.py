@@ -7,6 +7,7 @@ import re
 import sys
 
 import paths
+from shared_loader import _parse_produce_categories, _parse_consume_categories
 
 ROLES_DIR = str(paths.SESSION_ROLES_PERSONAS)
 
@@ -16,6 +17,18 @@ REQUIRED_FIELDS = {
 }
 VALID_LIFECYCLES = {"infinite", "ondemand"}
 VALID_DRIVES = {"cron", "loop", "ondemand", "goal"}
+# 从所有角色 output_targets/input_signals 汇总的 40 个已注册 bus 分类
+VALID_BUS_CATEGORIES = {
+    "approval", "architecture", "blocker", "bug_report", "ccs_health",
+    "changelog", "cleanup", "code_fix", "code_review", "debate",
+    "deployment_plan", "deployment_report", "design_issue", "documentation",
+    "evolution_report", "feedback", "knowledge_distill", "memory_store",
+    "monitor_dashboard", "notice", "optimization", "prd", "product_design",
+    "research", "root_cause_analysis", "scheduler", "security",
+    "security_audit", "session_log", "skill_audit", "system",
+    "system_design", "task_spec", "tech_decision", "test_plan",
+    "test_report", "threat_model", "user_story", "verification", "workflow",
+}
 OUTPUT_TARGET_PATTERNS = [
     re.compile(r"^bus cat=\S+"),
     re.compile(r"^bus consume"),
@@ -155,7 +168,37 @@ def main() -> int:
                     if not os.path.exists(full_path):
                         errors.append(f"{fname}: prompt_refs.{ref_key}='{ref_path}' 文件不存在 ({full_path})")
 
-            # ── P2: skills / skill_refs / goal / constraints 校验 ──────────
+            # ── P2: 新增校验 ────────────────────────────────────────────────
+
+            # mcp_servers 非空时，mcp_tools 也必须非空
+            mcp_servers = data.get("mcp_servers", {})
+            mcp_tools = data.get("mcp_tools", {})
+            if mcp_servers and not mcp_tools:
+                errors.append(f"{fname}: mcp_servers 非空但 mcp_tools 为空")
+            elif not isinstance(mcp_servers, dict):
+                errors.append(f"{fname}: mcp_servers 必须是对象")
+            elif not isinstance(mcp_tools, dict):
+                errors.append(f"{fname}: mcp_tools 必须是对象")
+
+            # produce/consume 分类注册表校验
+            produce_cats = _parse_produce_categories(data.get("output_targets", []))
+            consume_cats = _parse_consume_categories(data.get("input_signals", []))
+            for cat in produce_cats:
+                if cat not in VALID_BUS_CATEGORIES:
+                    errors.append(f"{fname}: bus 产出分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+            for cat in consume_cats:
+                if cat == "*":
+                    continue  # 通配符无需注册
+                if cat not in VALID_BUS_CATEGORIES:
+                    errors.append(f"{fname}: bus 消费分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+
+            # 对于 RoleDef 角色，至少要有 input_signals 或 drive 之一
+            has_input_signals = bool(data.get("input_signals"))
+            has_drive = bool(data.get("drive"))
+            if not has_input_signals and not has_drive:
+                errors.append(f"{fname}: RoleDef 角色缺少 input_signals 和 drive，必须至少有一个")
+
+            # ── P3: skills / skill_refs / goal / constraints 校验 ──────────
             # skills 必须是非空数组
             skills = data.get("skills", [])
             if not isinstance(skills, list) or len(skills) == 0:
