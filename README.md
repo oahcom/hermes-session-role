@@ -84,7 +84,7 @@ src/
   search.py               → 中文语义搜索（bigram + 同义词 + 字段加权）
   validate_roles.py       → 31 角色全量校验
   role_assembler.py       → 动态组装 system prompt
-  role_relations.py       → 角色关系图谱（生产者→消费者矩阵）
+  # role_relations.py     → [已删除] 角色关系图谱（迁移至 Router API）
   inject_skills.py        → 技能注入工具
   create_skill_library.py → 技能库创建工具
 tests/
@@ -294,4 +294,4 @@ AGENTS.md 包含完整的三层 prompt 架构规范（2026-07-15 版），涵盖
 |------|------|------|
 | 生态架构全景 | `session-launcher/HERMES_SESSION_ARCHITECTURE.md` | 三项目整体架构 + 角色社会隐喻 |
 | 健康检查 | `session-launcher/src/ecosystem_health.py` | 跨三项目统一健康检查 |
-| 角色关系图谱 | `src/role_relations.py` | 生产者→消费者数据流矩阵 |
+| 角色关系图谱 | ~~`src/role_relations.py`~~ (已删除) → Router API | 生产者→消费者数据流矩阵 (动态推导) |

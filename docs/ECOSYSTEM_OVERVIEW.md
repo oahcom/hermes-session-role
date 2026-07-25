@@ -52,7 +52,7 @@
 | 数据流 | 角色 → launcher 注入知识 | workspace CLAUDE.md | Bus → 消费者路由 |
 | 生命周期 | lifecycle + drive 字段 | start/stop/watchdog | 消息 TTL |
 | 通信 | — | send / send-direct / send-safe | Bus poll + priority |
-| 协作 | role_relations 矩阵 | partner_client (Layer 1-3) | 消费联动 |
+| 协作 | ~~role_relations 矩阵~~ (已删除) → 注册表元数据 | partner_client (Layer 1-3) | 消费联动 |
 | 健康 | 角色 JSON 验证 | ecosystem_health.py | CCS 哨兵实时派生 |
 
 ## 数据流全景

@@ -195,26 +195,24 @@ session-pipeline ──→ session-launcher
 
 ---
 
-### F9 role_relations.py — 硬编码矩阵 vs 角色 JSON 自动推导
+### F9 registry.py (role loading consolidated) — 硬编码矩阵 vs 角色 JSON 自动推导
 
 **严重度: 中 | 类别: 职责错误**
 
-`hermes-session-roles/src/role_relations.py` 维护一份硬编码的 producer→consumer 矩阵（18 个角色关系）。
+`hermes-session-roles/src/registry.py (role loading consolidated)` 维护一份硬编码的 producer→consumer 矩阵（18 个角色关系）。
 
 而 session-pipeline 的 `routing/router.py` 已经从相同角色的 JSON 文件自动推导 produce/consume 关系。
 
-两份映射（硬编码 + 自动推导）可能不同步。修改角色 JSON 后容易忘记更新 role_relations.py。
+两份映射（硬编码 + 自动推导）可能不同步。修改角色 JSON 后容易忘记更新 registry.py (role loading consolidated)。
 
 **建议:** 废弃硬编码矩阵，改为调用 pipeline 的 Router API 动态获取：
 
 ```python
-# 替代 role_relations.get_relations("scout")
+# 替代已删除的 role_relations.get_relations("scout")
 from router import get_router
 router = get_router()
-router.get_consumers("architecture")  # 自动推导结果
+router.get_consumers("architecture")  # Router API 动态推导
 ```
-
-或保留 role_relations 但改为从 JSON 实时构建的自动生成代码。
 
 ---
 

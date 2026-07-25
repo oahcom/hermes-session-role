@@ -10,6 +10,16 @@ from paths import SESSION_ROLES_PERSONAS as PERSONAS_DIR, PROMPTS_DIR, SKILLS_RO
 
 
 def load_role_json(role_name: str) -> dict[str, Any]:
+    """按名称加载角色 JSON（委托 registry.get + shared_loader 实现）。"""
+    # 优先通过 registry 获取，避免重复 IO
+    try:
+        from registry import get
+        obj = get(role_name)
+        if obj is not None:
+            return obj.to_dict()
+    except Exception:
+        pass
+    # fallback: 直接读文件
     for f in sorted(PERSONAS_DIR.glob('*.json')):
         if f.name.startswith('_'): continue
         data = json.loads(f.read_text())
@@ -23,6 +33,10 @@ def read_skill(skill_path: str) -> str:
     full = SKILLS_ROOT / skill_path
     if full.exists():
         return full.read_text()
+    # skills 实际存储为 dir/SKILL.md 而非 dir.md
+    alt = SKILLS_ROOT / skill_path.replace(".md", "") / "SKILL.md"
+    if alt.exists():
+        return alt.read_text()
     for fallback in [PROMPTS_DIR / 'skills' / skill_path, PROMPTS_DIR / skill_path]:
         if fallback.exists():
             return fallback.read_text()
@@ -68,7 +82,6 @@ def assemble_role_prompt(role_name: str) -> str:
     if constraints:
         parts.append("## 红线约束\n" + "\n".join(f"- {c}" for c in constraints))
 
-    # 仅注入行为约束 skill，其余通过原生 SKILL.md 按需加载
     skills = role.get('skills', [])
     skill_refs = role.get('skill_refs', {})
     behavioral_skills = [s for s in skills if is_behavioral(role_name, s)]
