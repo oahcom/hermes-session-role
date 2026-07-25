@@ -39,7 +39,10 @@
     "analysis"
   ],
   "skill_refs": {
-    "debate": "./skills/debate.json",
-    "analysis": "./skills/analysis.json"
+    "debate": "skills/debate/argument_parse.md",
+    "analysis": "skills/debate/evidence_check.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

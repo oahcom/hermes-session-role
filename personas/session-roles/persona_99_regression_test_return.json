@@ -39,7 +39,10 @@
     "reporting"
   ],
   "skill_refs": {
-    "testing": "./skills/testing.json",
-    "reporting": "./skills/reporting.json"
+    "testing": "skills/qa/test_plan.md",
+    "reporting": "skills/qa/test_report.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

@@ -46,7 +46,10 @@
     "monitor"
   ],
   "skill_refs": {
-    "ccs_ops": "./skills/ccs_ops.json",
-    "monitor": "./skills/monitor.json"
+    "ccs_ops": "skills/coordination/cluster_monitor.md",
+    "monitor": "skills/monitor/ccs_health_check.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

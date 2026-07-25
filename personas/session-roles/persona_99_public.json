@@ -39,7 +39,10 @@
     "routing"
   ],
   "skill_refs": {
-    "communication": "./skills/communication.json",
-    "routing": "./skills/routing.json"
+    "communication": "skills/coordination/brief_write.md",
+    "routing": "skills/coordination/cross_role_dispatch.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

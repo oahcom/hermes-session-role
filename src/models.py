@@ -79,7 +79,7 @@ def render_prompt_from_refs(
                 prompt = assemble_role_prompt(name)
                 if prompt:
                     return prompt
-        except Exception:
+        except (FileNotFoundError, ImportError):
             pass
         return ""
 

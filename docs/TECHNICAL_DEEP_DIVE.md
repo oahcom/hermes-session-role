@@ -83,7 +83,7 @@ hermes-session-roles/
 │   ├── cli.py                # CLI 入口: list / show / load / search
 │   ├── validate_roles.py     # 26 角色全量校验（P0/P1/P2 三级检查）
 │   ├── role_assembler.py     # 动态组装 system prompt（MetaGPT 模式）
-│   ├── role_relations.py     # 角色关系图谱（生产者→消费者矩阵）
+│   ├── registry.py (role loading consolidated)     # 角色关系图谱（生产者→消费者矩阵）
 │   ├── paths.py              # 统一路径管理
 │   └── skills_discovery.py   # Skill 发现工具
 ├── tests/
@@ -181,18 +181,18 @@ python3 src/cli.py search "修服务器" --top 5
 - `lr`: redline_check
 - 其余角色的 skill 通过原生 SKILL.md 按需加载，不在 prompt 中全文注入
 
-### 4.5 role_relations.py — 角色关系图谱
+### 4.5 registry.py (role loading consolidated) — 角色关系图谱
 
 硬编码的生产者→消费者矩阵，18 个角色间的数据流关系。
 
 核心 API:
 ```python
-get_relations(role)       # 角色产出关系
-get_downstream(role)      # 下游消费者列表
-get_upstream(role)        # 上游生产者列表
-get_data_flow(role)       # 完整数据流
-get_all_roles()           # 全部有定义的角色的列表
-get_data_categories()     # 按数据分类列出参与角色
+load_all(base_dir=None)    # 从目录加载所有人格/角色定义
+list_roles()               # 列出所有 Session 角色
+list_personas(category=None) # 列出人格（可筛选分类）
+get(name)                  # 按名称获取
+list_categories()          # 返回 {分类: 数量} 统计
+register(obj)              # 注册一个人格/角色
 ```
 
 ## 5. CLI API
@@ -227,7 +227,7 @@ persona_XX_*.json ──→ session-launcher/role_manager.py
 persona_XX_*.json ──→ session-pipeline/routing/router.py
                      └─→ 自动推导 produce/consume 关系
 
-role_relations.py  ──→ ecosystem_health.py
+registry.py (role loading consolidated)  ──→ ecosystem_health.py
                      └─→ 关系一致性检查
 ```
 

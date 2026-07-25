@@ -53,7 +53,7 @@ src/
   registry.py          # 注册表（load_all/get/list_*/register）
   search.py            # 中文语义搜索（bigram + 同义词 + 字段加权）
   role_assembler.py    # 动态组装 system prompt
-  role_relations.py    # 角色关系图谱（生产者→消费者矩阵）
+  registry.py (role loading consolidated)    # 角色关系图谱（生产者→消费者矩阵）
   cli.py               # CLI: list/show/load/search
 prompts/
   base.md              # Layer 0: 全体角色共享（红线、协作协议）

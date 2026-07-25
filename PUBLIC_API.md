@@ -14,42 +14,46 @@ session-pipeline → session-launcher → **hermes-session-roles** (最底层，
 
 hermes-session-roles **不引用** session-launcher 或 session-pipeline。零违反。
 
-## RoleAssembler (`role_assembler.py`)
-
-| 函数 | 参数 | 返回 |
-|------|------|------|
-| `assemble_role(role_name)` | str | `dict` (system_prompt + skills + signals) |
-| `list_roles()` | — | `list[str]` |
-
 ## Registry (`registry.py`)
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
-| `register_role(role_name, config)` | str, dict | `bool` |
-| `get_role(role_name)` | str | `Optional[dict]` |
-| `deregister_role(role_name)` | str | `bool` |
-| `list_all_roles()` | — | `list[dict]` |
+| `register(obj)` | `PersonaDef \| RoleDef` | `None` |
+| `get(name)` | `str` | `Optional[PersonaDef \| RoleDef]` |
+| `list_roles()` | — | `list[RoleDef]` |
+| `list_personas(category)` | `Optional[str]` | `list[PersonaDef]` |
+| `list_categories()` | — | `dict[str, int]` |
+| `load_all(base_dir)` | `Optional[str]` | `int` (loaded count) |
 
-## RoleRelations (`role_relations.py`)
+## RoleAssembler (`role_assembler.py`)
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
-| `get_relations(role_name)` | str | `list[dict]` |
-| `get_downstream(role_name)` | str | `list[str]` |
+| `assemble_role_prompt(role_name)` | `str` | `str` (assembled prompt text) |
+| `load_role_json(role_name)` | `str` | `dict[str, Any]` (delegates to registry.get) |
 
 ## ValidateRoles (`validate_roles.py`)
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
 | `validate_all()` | — | `list[str]` (错误列表, 空=通过) |
-| `validate_role(role_name)` | str | `list[str]` |
+| `validate_role(role_name)` | `str` | `list[str]` |
 
 ## Search (`search.py`)
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
-| `search_roles(query)` | str | `list[dict]` |
-| `search_skills(query)` | str | `list[dict]` |
+| `search(query, top_k)` | `str, int` | `list[dict]` |
+
+## SharedLoader (`shared_loader.py`)
+
+| 函数 | 参数 | 返回 |
+|------|------|------|
+| `load_roles(roles_dir)` | `Optional[Path \| str]` | `list[dict]` |
+| `load_role(name)` | `str` | `Optional[dict]` |
+| `export_all()` | — | `list[dict]` |
+| `export_role(role)` | `dict` | `RoleExport` |
+| `write_export()` | — | `str` (输出路径) |
 
 ## CLI (`cli.py`)
 
@@ -58,7 +62,8 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 | `list` | 列出所有角色 |
 | `info <role>` | 查角色详情 |
 | `validate [role]` | 校验角色 |
+| `search <query>` | 语义搜索 |
 
 ## Models (`models.py`)
 
-定义了 `RoleConfig`, `SkillDefinition`, `SignalMapping` 等数据模型。所有类型均为 `dataclass`。
+定义了 `PersonaDef`, `RoleDef`, `render_prompt_from_refs` 等数据模型和工具函数。所有类型均为 `dataclass`。

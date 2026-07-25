@@ -46,7 +46,10 @@
     "scheduler"
   ],
   "skill_refs": {
-    "shell_scripts": "./skills/shell_scripts.json",
-    "scheduler": "./skills/scheduler.json"
+    "shell_scripts": "skills/maintenance/auto_fix.md",
+    "scheduler": "skills/coordination/escalation.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

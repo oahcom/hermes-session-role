@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 from models import PersonaDef, RoleDef, render_prompt_from_refs
@@ -49,6 +50,25 @@ def list_categories() -> dict[str, int]:
     return cats
 
 
+def _load_roles_json(roles_dir: Path) -> list[dict]:
+    """从目录加载角色 JSON（单一权威路径同 shared_loader）。"""
+    if not roles_dir.exists():
+        return []
+    result: list[dict] = []
+    for f in sorted(roles_dir.glob("persona_*.json")):
+        try:
+            with open(f, encoding="utf-8") as fp:
+                data = json.load(fp)
+                if isinstance(data, list):
+                    result.extend(data)
+                else:
+                    result.append(data)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"  [registry] WARNING: 跳过 {f}: {e}", file=sys.stderr)
+            continue
+    return result
+
+
 def load_all(base_dir: str | None = None) -> int:
     """从目录加载所有人格/角色定义文件，返回加载的数量。"""
     if base_dir is None:
@@ -56,28 +76,29 @@ def load_all(base_dir: str | None = None) -> int:
 
     count = 0
     prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
-    for root, _, files in os.walk(base_dir):
-        for fname in sorted(files):
-            if not fname.startswith("persona_") or not fname.endswith(".json"):
-                continue
-            path = os.path.join(root, fname)
-            try:
-                with open(path, encoding="utf-8") as f:
-                    raw = f.read()
-                data = json.loads(raw)
-                items = data if isinstance(data, list) else [data]
-                # Handle browser-harness profiles format: {profiles: {name: {...}}}
-                if isinstance(data, dict) and 'profiles' in data and isinstance(data['profiles'], dict):
-                    items = list(data['profiles'].values())
-                for item in items:
-                    if item.get("category") == "测试":
-                        continue
-                    if "lifecycle" in item or "input_signals" in item:
-                        obj = RoleDef.from_dict(item)
-                    else:
-                        obj = PersonaDef.from_dict(item)
 
-                    # 渲染 prompt_refs → system_prompt（若 system_prompt 为空）
+    for roles_subdir in ("personas/session-roles", "personas/browser-harness"):
+        roles_path = os.path.join(base_dir, roles_subdir)
+        if not os.path.isdir(roles_path):
+            continue
+        raw_items = _load_roles_json(Path(roles_path))
+        for item in raw_items:
+            # 兼容 browser-harness profiles 格式
+            if isinstance(item, dict) and 'profiles' in item and isinstance(item['profiles'], dict):
+                items = list(item['profiles'].values())
+            else:
+                items = [item] if isinstance(item, dict) else item
+            for subitem in items:
+                if subitem.get("category") == "测试":
+                    continue
+                try:
+                    if "lifecycle" in subitem or "input_signals" in subitem:
+                        obj = RoleDef.from_dict(subitem)
+                    else:
+                        obj = PersonaDef.from_dict(subitem)
+
+                    # 渲染 prompt_refs → system_prompt（若为空）
+                    # 先 render 再 register：render 失败时不注册（防空 system_prompt）
                     if not obj.system_prompt and obj.prompt_refs:
                         render_kwargs = {
                             "persona_name": obj.name,
@@ -91,10 +112,8 @@ def load_all(base_dir: str | None = None) -> int:
 
                     register(obj)
                     count += 1
-            except json.JSONDecodeError as e:
-                print(f"  [registry] JSON 解析失败 {fname}: {e}")
-            except (OSError, IOError) as e:
-                print(f"  [registry] 文件读写失败 {fname}: {e}")
-            except Exception as e:
-                print(f"  [registry] 未知错误加载 {fname}: {type(e).__name__}: {e}", file=sys.stderr)
+                except (json.JSONDecodeError, OSError, KeyError) as e:
+                    print(f"  [registry] 加载失败 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
+                except Exception as e:
+                    print(f"  [registry] 加载异常 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
     return count

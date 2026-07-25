@@ -39,7 +39,10 @@
     "workflow"
   ],
   "skill_refs": {
-    "bus_ops": "./skills/bus_ops.json",
-    "workflow": "./skills/workflow.json"
+    "bus_ops": "skills/coordination/cross_role_dispatch.md",
+    "workflow": "skills/pm/requirement_analysis.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }

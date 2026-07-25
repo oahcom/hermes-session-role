@@ -39,7 +39,10 @@
     "writing"
   ],
   "skill_refs": {
-    "research": "./skills/research.json",
-    "writing": "./skills/writing.json"
+    "research": "skills/research/github_scan.md",
+    "writing": "skills/writer/changelog_write.md"
+  },
+  "prompt_refs": {
+    "base": "base.md"
   }
 }
