@@ -13,13 +13,13 @@ Session 生态的**定义层**——每个 CCS（Claude Code Session）是谁、
 │  ┌──────────────────────────────────────────────────────────────┐      │
 │  │  hermes-session-roles  ← 本项目（定义层）                     │      │
 │  │                                                               │      │
-│  │  personas/session-roles/*.json    → 26 基础设施角色            │      │
+│  │  personas/session-roles/*.json    → 31 基础设施角色            │      │
 │  │  personas/browser-harness/*.json  → 57 浏览器自动化人格        │      │
 │  │  prompts/roles/*.md               → 角色专业 prompt 模板       │      │
 │  │                                                               │      │
 │  │  src/cli.py          → list/show/load/search CLI              │      │
 │  │  src/search.py       → 中文语义搜索引擎                        │      │
-│  │  src/validate_roles.py → 26 角色全量校验                       │      │
+│  │  src/validate_roles.py → 31 角色全量校验                       │      │
 │  │  src/role_assembler.py → 动态组装 system prompt                │      │
 │  └──────────────────────────┬───────────────────────────────────┘      │
 │                              │                                          │
@@ -82,7 +82,7 @@ src/
   models.py               → PersonaDef + RoleDef dataclass
   registry.py             → load_all/get/list_*/register 注册表
   search.py               → 中文语义搜索（bigram + 同义词 + 字段加权）
-  validate_roles.py       → 26 角色全量校验
+  validate_roles.py       → 31 角色全量校验
   role_assembler.py       → 动态组装 system prompt
   role_relations.py       → 角色关系图谱（生产者→消费者矩阵）
   inject_skills.py        → 技能注入工具
@@ -97,13 +97,13 @@ tests/
 
 ---
 
-## 角色清单（23 基础设施角色，2 缺失：consumer, archivist）
+## 角色清单（23 编号角色 + 8 非编号角色）
 
 | 角色 | 标题 | 生命周期 | 驱动 | 产出分类 | 消费分类 |
 |------|------|----------|------|----------|----------|
 | maintainer | 运维者 | infinite | cron (15m) | code_fix, architecture | security |
 | scout | 侦察兵 | infinite | loop | architecture, evolution_report | architecture |
-| consumer | 信息消费者 (缺失) | infinite | cron (10m) | reflexion_lesson | * |
+| consumer | 信息消费者 | ondemand | ondemand | reflexion_lesson | * |
 | curator | 信息维护者 | infinite | cron (hourly) | skill_audit, cleanup, architecture | skill_audit, architecture, code_fix, performance |
 | coordinator | 管理者 | infinite | loop | scheduler, architecture, ccs_health | task_spec, workflow, user_story, test_plan, deployment_plan, deployment_report, test_report, bug_report, security_audit, evolution_report, changelog, ccs_health |
 | engineer | 开发工程师 | ondemand | ondemand | code_fix, code_review, architecture | architecture, task_spec, user_story, code_review, bug_report, test_report, test_plan, documentation, security_audit, system_design |
@@ -125,9 +125,9 @@ tests/
 | investigator_python | 刑侦员 (Python) | ondemand | ondemand | root_cause_analysis | code_fix, architecture |
 | investigator_senior | 刑侦员 (全栈) | ondemand | ondemand | root_cause_analysis | * |
 | investigator_general | 刑侦员 (杂) | ondemand | ondemand | root_cause_analysis | * |
-| archivist | 档案管理员 (缺失) | infinite | cron | architecture | reflexion_lesson, cleanup |
+| archivist | 档案管理员 | ondemand | ondemand | architecture | reflexion_lesson, cleanup |
 
-> 2026 年 7 月统计：23 角色定义完整，2 缺失（consumer, archivist）。验证通过零错误。
+> 2026 年 7 月统计：31 角色全部定义完整，验证通过零错误。
 
 ---
 
@@ -175,7 +175,7 @@ Browser Harness 是一个独立的浏览器自动化人格库，包含 57 个人
 
 ```bash
 # 列出角色
-python3 src/cli.py list --roles                    # 全部 26 角色
+python3 src/cli.py list --roles                    # 全部 31 角色
 python3 src/cli.py list --category 维护            # 按分类筛选
 
 # 显示详情
@@ -202,7 +202,7 @@ python3 src/role_assembler.py maintainer --output prompt.md
 ```bash
 # 全量角色校验
 python3 src/validate_roles.py
-# 输出: 文件数: 26, 角色数: 26, 错误数: 0, 所有角色验证通过
+# 输出: 文件数: 31, 角色数: 31, 错误数: 0, 所有角色验证通过
 
 # 语义搜索回归（15 场景）
 python3 tests/test_search.py
