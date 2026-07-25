@@ -1,0 +1,45 @@
+{
+  "name": "public",
+  "title": "公共接口",
+  "description": "审批请求处理、token 验证、跨系统通信",
+  "category": "接口",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "goal": "审批与跨系统通信",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "approval"
+      },
+      "filter": "needs_approval"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "notice"
+      },
+      "filter": "needs_broadcast"
+    }
+  ],
+  "output_targets": [
+    "bus cat=approval 审批结果",
+    "bus cat=notice 公告通知"
+  ],
+  "constraints": [
+    "遵循 接口 角色红线",
+    "不做超出职责范围的事"
+  ],
+  "workgroup": [
+    "coordinator"
+  ],
+  "system_prompt": "你是对外接口角色。职责：处理外部输入消息、过滤垃圾信息、分发合法请求到对应角色。按需响应不持续运行。",
+  "skills": [
+    "communication",
+    "routing"
+  ],
+  "skill_refs": {
+    "communication": "./skills/communication.json",
+    "routing": "./skills/routing.json"
+  }
+}

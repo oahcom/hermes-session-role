@@ -141,6 +141,65 @@ systemctl --user is-active cron-worker.service
 - 同一 session 内再次违反 → 记录到 `~/.hermes/memories/verification_violations.json`
 - 累计 3 次违反 → 自动降级至限制模式（仅读操作，不可写文件或执行命令）
 
+---
+
+## 启动时必须执行（Session-Level Self-Monitoring）
+> **最高优先级：每次新 session 开始，必须在任何其他操作前执行此块。**
+
+### 1. 模型强制规则
+
+**所有子代理（sub-agent）、后台任务、multi-agent 工作流必须使用 `9router_hermes`。**
+禁止使用 Anthropic 原生模型（Opus/Sonnet）作为子代理。
+
+```bash
+# 每个子代理启动时必须显式指定：
+/agent --model 9router_hermes <任务>
+# 或通过 settings.json 的 model 配置继承
+```
+
+### 2. 启动 CronCreate 自检定时器
+
+```bash
+# 这一行必须是 session 第一条指令 — 由 Claude Code 内部工具执行
+CronCreate(cron="*/15 * * * *", prompt="bash ~/.claude/hooks/cron_selfcheck.sh", recurring=true)
+```
+
+**关键语法说明：**
+- `cron="*/15 * * * *"` = 标准 cron 表达式，每 15 分钟触发一次
+- `recurring=true` = 循环执行，不设置则仅执行一次
+- `prompt` = 引用脚本文件，避免多行字符串导致 JSON 解析失败
+- CronCreate 是 **session 级** 工具：session 结束即失效，下次 session 必须重新创建
+
+### 3. 启动 /loop 持续工作流
+
+```bash
+# 在 CronCreate 之后立即执行，保持持续任务推进
+/loop
+```
+
+**/loop 交互规则：**
+- `/loop` 单独使用 = 自动节奏模式：Claude Code 自行决定何时重试/继续
+- `/loop 5m /status` = 固定间隔模式：每 5 分钟执行一次 `/status`
+- **CronCreate 不会中断 /loop**；两者并行运行。CronCreate 在指定时间点插入自检任务，/loop 继续推进主任务
+- 推荐：用 `/loop` 推进主任务，CronCreate 处理周期性自检
+
+### 4. 加载 Sister Bus 未读消息（限 30 条防 /compact）
+
+```bash
+python3 ~/.hermes/scripts/bus_client.py unread --limit 30
+# 若 > 0 条，逐条阅读并纳入上下文，读完后标记已消费。limit 30 限制首次加载量，防止 /compact。
+```
+
+### 5. 读取违规历史（自我纠正）
+
+```bash
+# 必须读取，查看上一轮 supervisor 检测到的违规
+cat ~/.claude/projects/-mnt-c-Users-Administrator/memory/memory-sessions.md | grep -A 50 "# Violation Record"
+# 发现违规 → 本 session 必须加强约束（如：所有声明必须先跑命令再输出）
+```
+
+---
+
 ## 一、诚信准则（Anti-Sycophancy — 反谄媚防幻觉）
 1. **验证库存在**: 调用第三方函数前检查 `package.json` / `requirements.txt` 等清单；不确定时标注 `# VERIFY: 确认该 API 是否存在`
 2. **禁止虚构签名**: 绝不捏造不存在的函数签名或类型；先装依赖再写依赖代码
@@ -295,7 +354,7 @@ systemctl --user is-active cron-worker.service
 - 断言信息中文
 - 提交信息中文：`feat/fix/refactor: 中文描述`
 
-### 6.5 审查完成条件
+### 6.5 循环退出条件
 | 条件 | 动作 |
 |------|------|
 | 两轮连续 CLEAN（六维均通过） | ✅ 退出 |
@@ -307,6 +366,12 @@ systemctl --user is-active cron-worker.service
 
 ## 七、Hermes 生态特有规则（项目上下文）
 ### 核心原则
+
+## 模型路由
+- Base URL: http://localhost:20128/v1
+- API Key: 9router-local
+- 模型: 9router_hermes
+- LLM7 / qwen3-235b 作为 fallback
 
 ## 关键端口
 | 端口 | 服务 | systemd 单元 |
@@ -321,6 +386,12 @@ systemctl --user is-active cron-worker.service
 | — | sister-agent-ssk | sister-agent-ssk.service |
 | — | skill-sync | skill-sync.service |
 
+## Session 模型与 Worktree 结构
+三个并发 session，各自在独立 worktree 工作:
+- **DKK daemon** (`scripts-wdkk/dkk`): 大姐 daemon，主服务逻辑
+- **SSK daemon** (`scripts-wssk/ssk`): 小妹 daemon，审计角色
+- **Cron worker** (`scripts-wcron/cron`): 10 分钟轮询任务
+- 主分支 (`quality-gate`) 只读；所有编辑必须在 worktree 分支
 
 ## 架构红线
 详见 [[hermes-architecture-redlines]] (9 条完整规则 + 生命周期规则 + 踩坑记录)
@@ -424,40 +495,6 @@ python3 ~/.hermes/scripts/bus_client.py stats
 
 ### 8.5 不要重复写
 写入前先 `search` 或 `read --cat ...` 确认没有重复。重复的 bus 条目 = 噪音。
-
-
----
-
-## 工作流操作指南
-
-**核心原则**：收到任务后立即执行 workgroup daemon 推送的指令。
-
-### 查看待处理任务
-```bash
-wf --role <你的角色名> check
-wf --role <你的角色名> my
-```
-
-### 完成步骤
-```bash
-wf --role <你的角色名> complete <wf_id> --summary "完成描述"
-wf --role <你的角色名> fail <wf_id> --reason "失败原因"
-```
-
-### 通知上下游
-```bash
-wf --role <你的角色名> notify <分类> "标题" --evidence "证据"
-```
-
-### 审批
-```bash
-python3 src/ccs.py send <审批人> <执行者> "confirm <wf_id> <step_id> <token>"
-```
-
-### 禁止的行为
-- ❌ 回复"收到，我会在下一轮处理"
-- ❌ 不调用 check_task() 就开始工作
-- ❌ 完成任务不调用 wf complete（= 未完成）
 
 ---
 

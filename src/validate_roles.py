@@ -16,8 +16,12 @@ VALID_LIFECYCLES = {"infinite", "ondemand"}
 VALID_DRIVES = {"cron", "loop", "ondemand", "goal"}
 OUTPUT_TARGET_PATTERNS = [
     re.compile(r"^bus cat=\S+"),
-    re.compile(r"^git commit"),
     re.compile(r"^bus consume"),
+    re.compile(r"^bb write"),
+    re.compile(r"^git commit"),
+    re.compile(r"^svn commit"),
+    re.compile(r"^codex\b"),
+    re.compile(r"^ccs\b"),
 ]
 
 # eval_criteria 支持两种格式：

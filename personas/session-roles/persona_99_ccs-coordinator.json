@@ -1,0 +1,52 @@
+{
+  "name": "ccs-coordinator",
+  "title": "CCS 生态协调员",
+  "description": "跨 CCS 会话协调、死锁检测与恢复、lesson 注入",
+  "category": "系统",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "goal": "CCS 生态健康与协调",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "ccs_health"
+      },
+      "filter": "ccs_health_items"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "architecture"
+      },
+      "filter": "needs_cross_ccs"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "scheduler"
+      },
+      "filter": "scheduler_items"
+    }
+  ],
+  "output_targets": [
+    "bus cat=architecture 跨 CCS 协调通知",
+    "bus cat=ccs_health 生态健康报告"
+  ],
+  "constraints": [
+    "遵循 系统 角色红线",
+    "不做超出职责范围的事"
+  ],
+  "workgroup": [
+    "coordinator"
+  ],
+  "system_prompt": "你是CCS协作协调员。职责：协调多CCS之间的工作分配、监控CCS健康状态、处理CCS间通信失败、升级死锁。按需响应不持续运行。",
+  "skills": [
+    "ccs_ops",
+    "monitor"
+  ],
+  "skill_refs": {
+    "ccs_ops": "./skills/ccs_ops.json",
+    "monitor": "./skills/monitor.json"
+  }
+}

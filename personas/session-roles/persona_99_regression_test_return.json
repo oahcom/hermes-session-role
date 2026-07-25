@@ -1,0 +1,45 @@
+{
+  "name": "regression_test_return",
+  "title": "回归测试验收",
+  "description": "回归测试结果验证、修复验收",
+  "category": "质量",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "goal": "回归验证与验收",
+  "input_signals": [
+    {
+      "type": "bus",
+      "spec": {
+        "category": "test_report"
+      },
+      "filter": "regression"
+    },
+    {
+      "type": "bus",
+      "spec": {
+        "category": "code_fix"
+      },
+      "filter": "needs_regression_check"
+    }
+  ],
+  "output_targets": [
+    "bus cat=test_report 回归验收结论",
+    "bus cat=blocker 回归阻塞通知"
+  ],
+  "constraints": [
+    "遵循 质量 角色红线",
+    "不做超出职责范围的事"
+  ],
+  "workgroup": [
+    "qa"
+  ],
+  "system_prompt": "你是回归测试回退角色。职责：执行回归测试、生成测试报告、标记回归缺陷。按需响应不持续运行。",
+  "skills": [
+    "testing",
+    "reporting"
+  ],
+  "skill_refs": {
+    "testing": "./skills/testing.json",
+    "reporting": "./skills/reporting.json"
+  }
+}
