@@ -171,6 +171,6 @@
     ]
   },
   "qa_tester": "persona_18_qa",
-  "test_automator": "persona_99_test_qa",
+  "test_automator": "persona_99_test",
   "security_tester": "persona_15_security_auditor"
 }

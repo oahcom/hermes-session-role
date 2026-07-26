@@ -6,9 +6,13 @@ Session 生态的**定义层**——声明每个 CCS 的身份、专长、输入
 
 ## 整体架构
 ```
-hermes-session-roles  →  session-launcher  →  session-pipeline
-  (定义层)              (执行层)              (路由层)
+hermes-session-roles (定义层 — 本项目)       ← 最底层，不引用其他两项目
+  ├──→ session-launcher (执行层)             ← 读 persona JSON 启动 CCS + 注入 prompt
+  └──→ session-pipeline (路由+执行层)         ← 读 roles_export.json 构建路由表 + 执行工作流
+         └──→ launcher/ccs.py send           ← 唯一跨项目调用（subprocess）
 ```
+
+**注意：这不是三层流水线。session-roles 同时被 launcher 和 pipeline 独立消费。pipeline 和 launcher 不直接通信。**
 
 **铁律：修改角色 JSON 时必须同时考虑上下游影响。**
 

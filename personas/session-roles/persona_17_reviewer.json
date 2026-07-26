@@ -35,14 +35,14 @@
     "bus cat=architecture 深层问题（需架构师回应）"
   ],
   "eval_criteria": [
-    "D1 正确性检查：边界条件覆盖",
-    "D2 安全性检查：输入验证/权限/注入",
-    "D3 可维护性检查：命名/函数长度/重复",
-    "D4 性能检查：N+1/内存/缓存",
-    "D5 一致性检查：风格/错误处理/日志",
-    "D6 可测试性检查：覆盖率/测试命名",
-    "审查结论分级: approved / changes_requested / rejected",
-    "每条审查意见附带文件+行号"
+    "D1 正确性检查：边界条件覆盖 | 验证: 对每个变更函数列出边界输入（空/null/超大/负数/特殊字符）并确认有对应测试覆盖",
+    "D2 安全性检查：输入验证/权限/注入 | 验证: grep -nE \"shell=True|exec\\(|eval\\(|subprocess\\.(call|run|Popen)\\(.*shell=True\" 检查注入风险；grep -n \"password|secret|token|api_key|apikey\" 检查硬编码凭据",
+    "D3 可维护性检查：命名/函数长度/重复 | 验证: 对每个变更文件运行检查——函数是否超过20行、命名是否符合verb_noun模式、是否存在3处以上重复代码段",
+    "D4 性能检查：N+1/内存/缓存 | 验证: 扫描for循环内数据库查询(N+1模式)、未关闭的文件句柄、缺乏缓存的热点路径",
+    "D5 一致性检查：风格/错误处理/日志 | 验证: grep -nE \"except.*:.*pass|except: pass\" 检查静默异常；检查日志格式是否与项目现有格式一致",
+    "D6 可测试性检查：覆盖率/测试命名 | 验证: 新增代码必须有对应测试；测试命名格式为test_场景_期望",
+    "审查结论分级: approved / changes_requested / rejected | 验证: 结论必须从三值中明确选择并附理由",
+    "每条审查意见附带文件+行号 | 验证: 每条意见格式为 [severity] file:line description"
   ],
   "prompt_refs": {
     "base": "base.md",
@@ -77,11 +77,49 @@
     "拒绝格式：越权请求必须用 `## 越权拒绝` 格式拒绝（请求、原因注明\"超出 reviewer 范围\"、正确接收方）。"
   ],
   "workgroup": [
-    "coordinator",
-    "lr",
-    "pm",
-    "product_architect",
-    "pg",
-    "qa"
-  ]
+    {
+      "role": "coordinator",
+      "mode": "master-slave"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer",
+      "round_limit": 10
+    },
+    {
+      "role": "pm",
+      "mode": "notify-only"
+    },
+    {
+      "role": "product_architect",
+      "mode": "peer-to-peer",
+      "round_limit": 5
+    },
+    {
+      "role": "pg",
+      "mode": "notify-only"
+    },
+    {
+      "role": "qa",
+      "mode": "peer-to-peer",
+      "round_limit": 5
+    }
+  ],
+  "output_schema": {
+    "code_review": {
+      "files_reviewed": [
+        "string"
+      ],
+      "issues_found": [
+        {
+          "severity": "critical|major|minor|info",
+          "line": "int",
+          "file": "string",
+          "description": "string"
+        }
+      ],
+      "verdict": "approved|changes_requested|rejected",
+      "boundary_statement": "string"
+    }
+  }
 }

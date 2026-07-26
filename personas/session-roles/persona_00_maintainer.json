@@ -110,11 +110,25 @@
     "输出必须可验证",
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
+  "output_schema": {
+    "code_fix": {
+      "root_cause": "string",
+      "fix_summary": "string",
+      "affected_files": ["string"],
+      "verification": "string"
+    },
+    "architecture": {
+      "change": "string",
+      "rationale": "string",
+      "impact": "string",
+      "alternatives": ["string"]
+    }
+  },
   "workgroup": [
-    "coordinator",
-    "lr",
-    "pm",
-    "pg",
-    "devops"
+    {"role": "coordinator", "mode": "master-slave"},
+    {"role": "lr", "mode": "peer-to-peer", "round_limit": 10},
+    {"role": "pm", "mode": "notify-only"},
+    {"role": "pg", "mode": "peer-to-peer"},
+    {"role": "devops", "mode": "peer-to-peer"}
   ]
 }

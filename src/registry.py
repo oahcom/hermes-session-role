@@ -122,18 +122,23 @@ def load_all(base_dir: str | None = None) -> int:
                     else:
                         obj = PersonaDef.from_dict(subitem)
 
-                    # 渲染 prompt_refs → system_prompt（若为空）
-                    # 先 render 再 register：render 失败时不注册（防空 system_prompt）
-                    if not obj.system_prompt and obj.prompt_refs:
+                    # 渲染 prompt_refs → system_prompt
+                    # prompt_refs 是权威源，system_prompt 是缓存
+                    # 两者都存在时仍以 prompt_refs 为准，并告警
+                    if obj.prompt_refs:
                         render_kwargs = {
                             "persona_name": obj.name,
                             "persona_title": obj.title,
                         }
                         if isinstance(obj, RoleDef):
                             render_kwargs["cron_schedule"] = obj.cron_schedule
-                        obj.system_prompt = render_prompt_from_refs(
+                        rendered = render_prompt_from_refs(
                             obj.prompt_refs, prompts_dir, **render_kwargs
                         )
+                        if rendered:
+                            if obj.system_prompt and obj.system_prompt != rendered:
+                                print(f"  [registry] WARNING: {obj.name} 同时有 system_prompt 和 prompt_refs，以 prompt_refs 为准", file=sys.stderr)
+                            obj.system_prompt = rendered
 
                     register(obj)
                     count += 1
