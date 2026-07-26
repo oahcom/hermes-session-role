@@ -202,5 +202,24 @@
       "rounds_stalled": "integer, 卡住轮次",
       "impact": "string, 影响范围"
     }
-  }
+  },
+  "workgroup": [
+    {
+      "role": "lr",
+      "mode": "peer-to-peer",
+      "round_limit": 10
+    },
+    {
+      "role": "pm",
+      "mode": "notify-only"
+    },
+    {
+      "role": "pg",
+      "mode": "notify-only"
+    },
+    {
+      "role": "devops",
+      "mode": "notify-only"
+    }
+  ]
 }
