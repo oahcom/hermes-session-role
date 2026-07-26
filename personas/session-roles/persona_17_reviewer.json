@@ -11,21 +11,24 @@
     {
       "type": "bus",
       "spec": {
-        "category": "code_review"
+        "category": "code_review",
+        "min_priority": "P2"
       },
       "filter": "needs_review"
     },
     {
       "type": "bus",
       "spec": {
-        "category": "architecture"
+        "category": "architecture",
+        "min_priority": "P2"
       },
       "filter": "needs_review"
     },
     {
       "type": "bus",
       "spec": {
-        "category": "security"
+        "category": "security",
+        "min_priority": "P2"
       },
       "filter": "needs_review"
     }
@@ -121,5 +124,16 @@
       "verdict": "approved|changes_requested|rejected",
       "boundary_statement": "string"
     }
+  },
+  "mcp_servers": [
+    "hex-line"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ]
   }
 }

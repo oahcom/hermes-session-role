@@ -19,7 +19,8 @@
     {
       "type": "bus",
       "spec": {
-        "category": "architecture"
+        "category": "architecture",
+        "min_priority": "P2"
       },
       "filter": "needs_implementation"
     },
@@ -89,7 +90,8 @@
     {
       "type": "bus",
       "spec": {
-        "category": "code_fix"
+        "category": "code_fix",
+        "min_priority": "P2"
       }
     },
     {
@@ -169,10 +171,39 @@
   ],
   "version": 3,
   "workgroup": [
-    {"role": "coordinator", "mode": "master-slave"},
-    {"role": "lr", "mode": "peer-to-peer", "round_limit": 10},
-    {"role": "pm", "mode": "notify-only"},
-    {"role": "pg", "mode": "peer-to-peer", "round_limit": 5},
-    {"role": "reviewer", "mode": "peer-to-peer", "round_limit": 3}
-  ]
+    {
+      "role": "coordinator",
+      "mode": "master-slave"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer",
+      "round_limit": 10
+    },
+    {
+      "role": "pm",
+      "mode": "notify-only"
+    },
+    {
+      "role": "pg",
+      "mode": "peer-to-peer",
+      "round_limit": 5
+    },
+    {
+      "role": "reviewer",
+      "mode": "peer-to-peer",
+      "round_limit": 3
+    }
+  ],
+  "mcp_servers": [
+    "hex-line"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ]
+  }
 }

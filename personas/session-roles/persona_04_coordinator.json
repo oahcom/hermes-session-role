@@ -130,14 +130,16 @@
     {
       "type": "bus",
       "spec": {
-        "category": "scheduler"
+        "category": "scheduler",
+        "min_priority": "P2"
       },
       "filter": "scheduler_items"
     },
     {
       "type": "bus",
       "spec": {
-        "category": "ccs_health"
+        "category": "ccs_health",
+        "min_priority": "P2"
       },
       "filter": "ccs_health_items"
     }
@@ -221,5 +223,16 @@
       "role": "devops",
       "mode": "notify-only"
     }
-  ]
+  ],
+  "mcp_servers": [
+    "hex-line"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ]
+  }
 }

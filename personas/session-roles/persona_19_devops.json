@@ -101,5 +101,16 @@
     "lr",
     "pg",
     "qa"
-  ]
+  ],
+  "mcp_servers": [
+    "hex-line"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ]
+  }
 }

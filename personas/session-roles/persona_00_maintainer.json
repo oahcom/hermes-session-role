@@ -31,7 +31,9 @@
     {
       "type": "bus",
       "spec": {
-        "category": "security"
+        "category": "security",
+        "min_priority": "P1",
+        "max_unread": 3
       }
     },
     {
@@ -44,7 +46,8 @@
     {
       "type": "bus",
       "spec": {
-        "category": "architecture"
+        "category": "architecture",
+        "min_priority": "P1"
       }
     },
     {
@@ -62,7 +65,8 @@
     {
       "type": "bus",
       "spec": {
-        "category": "code_fix"
+        "category": "code_fix",
+        "min_priority": "P1"
       }
     },
     {
@@ -114,21 +118,52 @@
     "code_fix": {
       "root_cause": "string",
       "fix_summary": "string",
-      "affected_files": ["string"],
+      "affected_files": [
+        "string"
+      ],
       "verification": "string"
     },
     "architecture": {
       "change": "string",
       "rationale": "string",
       "impact": "string",
-      "alternatives": ["string"]
+      "alternatives": [
+        "string"
+      ]
     }
   },
   "workgroup": [
-    {"role": "coordinator", "mode": "master-slave"},
-    {"role": "lr", "mode": "peer-to-peer", "round_limit": 10},
-    {"role": "pm", "mode": "notify-only"},
-    {"role": "pg", "mode": "peer-to-peer"},
-    {"role": "devops", "mode": "peer-to-peer"}
-  ]
+    {
+      "role": "coordinator",
+      "mode": "master-slave"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer",
+      "round_limit": 10
+    },
+    {
+      "role": "pm",
+      "mode": "notify-only"
+    },
+    {
+      "role": "pg",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "devops",
+      "mode": "peer-to-peer"
+    }
+  ],
+  "mcp_servers": [
+    "hex-line"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ]
+  }
 }

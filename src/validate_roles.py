@@ -176,10 +176,19 @@ def main() -> int:
             mcp_tools = data.get("mcp_tools", {})
             if not isinstance(mcp_servers, list):
                 errors.append(f"{fname}: mcp_servers 必须是字符串列表")
-            elif mcp_servers and not mcp_tools:
-                errors.append(f"{fname}: mcp_servers 非空但 mcp_tools 为空")
+            elif not mcp_servers:
+                errors.append(f"{fname}: mcp_servers 为空——每个角色必须声明至少一个 MCP server")
             if not isinstance(mcp_tools, dict):
                 errors.append(f"{fname}: mcp_tools 必须是对象")
+            for srv in mcp_servers:
+                if srv not in mcp_tools:
+                    errors.append(f"{fname}: mcp_servers 含 '{srv}' 但 mcp_tools 中无对应键")
+                else:
+                    tools = mcp_tools[srv]
+                    if not isinstance(tools, list) or not all(isinstance(t, str) for t in tools):
+                        errors.append(f"{fname}: mcp_tools['{srv}'] 必须是字符串列表")
+                    elif not tools:
+                        errors.append(f"{fname}: mcp_tools['{srv}'] 不能为空")
 
             # produce/consume 分类注册表校验
             produce_cats = _parse_produce_categories(data.get("output_targets", []))

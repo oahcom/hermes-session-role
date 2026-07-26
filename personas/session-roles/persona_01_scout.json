@@ -110,5 +110,20 @@
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
   "_evolution_version": 1783887961,
-  "_evolved_at": 1784116801.4174633
+  "_evolved_at": 1784116801.4174633,
+  "mcp_servers": [
+    "hex-line",
+    "web-search"
+  ],
+  "mcp_tools": {
+    "hex-line": [
+      "read_file",
+      "edit_file",
+      "grep_search",
+      "inspect_path"
+    ],
+    "web-search": [
+      "web_search"
+    ]
+  }
 }
