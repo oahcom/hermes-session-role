@@ -170,14 +170,14 @@ def main() -> int:
 
             # ── P2: 新增校验 ────────────────────────────────────────────────
 
-            # mcp_servers 非空时，mcp_tools 也必须非空
-            mcp_servers = data.get("mcp_servers", {})
+            # mcp_servers: list[str]（models.py 定义），mcp_tools: dict
+            mcp_servers = data.get("mcp_servers", [])
             mcp_tools = data.get("mcp_tools", {})
-            if mcp_servers and not mcp_tools:
+            if not isinstance(mcp_servers, list):
+                errors.append(f"{fname}: mcp_servers 必须是字符串列表")
+            elif mcp_servers and not mcp_tools:
                 errors.append(f"{fname}: mcp_servers 非空但 mcp_tools 为空")
-            elif not isinstance(mcp_servers, dict):
-                errors.append(f"{fname}: mcp_servers 必须是对象")
-            elif not isinstance(mcp_tools, dict):
+            if not isinstance(mcp_tools, dict):
                 errors.append(f"{fname}: mcp_tools 必须是对象")
 
             # produce/consume 分类注册表校验
