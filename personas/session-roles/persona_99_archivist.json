@@ -38,7 +38,10 @@
     "不做超出职责范围的事"
   ],
   "workgroup": [
-    "coordinator"
+    {
+      "role": "coordinator",
+      "mode": "peer-to-peer"
+    }
   ],
   "system_prompt": "你是归档管理员。职责：监控磁盘使用、执行日志轮换、管理知识归档、实现数据生命周期管理。按需响应不持续运行。",
   "skills": [

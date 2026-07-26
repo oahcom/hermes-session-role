@@ -38,7 +38,10 @@
     "不做超出职责范围的事"
   ],
   "workgroup": [
-    "coordinator"
+    {
+      "role": "coordinator",
+      "mode": "peer-to-peer"
+    }
   ],
   "system_prompt": "你是CCS协作协调员。职责：协调多CCS之间的工作分配、监控CCS健康状态、处理CCS间通信失败、升级死锁。按需响应不持续运行。",
   "skills": [

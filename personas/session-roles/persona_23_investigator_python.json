@@ -54,9 +54,18 @@
     "输出必须可验证"
   ],
   "workgroup": [
-    "coordinator",
-    "lr",
-    "pm"
+    {
+      "role": "coordinator",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "pm",
+      "mode": "peer-to-peer"
+    }
   ],
   "mcp_servers": [
     "hex-line"

@@ -31,7 +31,10 @@
     "不做超出职责范围的事"
   ],
   "workgroup": [
-    "verifier"
+    {
+      "role": "verifier",
+      "mode": "peer-to-peer"
+    }
   ],
   "system_prompt": "你是辩论反方（rebutter）。职责：在辩论模式中提出反对意见、挑战假设、测试论证的稳健性。按需响应不持续运行。",
   "skills": [

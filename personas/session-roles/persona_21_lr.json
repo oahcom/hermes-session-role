@@ -108,7 +108,10 @@
     "- 规律：和第 3 条同根因——以为给结论就够了，结论是该对方自己下的"
   ],
   "workgroup": [
-    "*"
+    {
+      "role": "*",
+      "mode": "master-slave"
+    }
   ],
   "mcp_servers": [
     "hex-line"

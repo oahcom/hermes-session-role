@@ -88,8 +88,14 @@
     "输出必须可验证"
   ],
   "workgroup": [
-    "coordinator",
-    "lr"
+    {
+      "role": "coordinator",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer"
+    }
   ],
   "mcp_servers": [
     "hex-line"

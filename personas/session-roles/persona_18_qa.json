@@ -104,12 +104,30 @@
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
   "workgroup": [
-    "coordinator",
-    "lr",
-    "pm",
-    "pg",
-    "reviewer",
-    "devops"
+    {
+      "role": "coordinator",
+      "mode": "master-slave"
+    },
+    {
+      "role": "lr",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "pm",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "pg",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "reviewer",
+      "mode": "peer-to-peer"
+    },
+    {
+      "role": "devops",
+      "mode": "peer-to-peer"
+    }
   ],
   "mcp_servers": [
     "hex-line"

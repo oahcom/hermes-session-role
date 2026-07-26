@@ -103,12 +103,30 @@
     "禁止操作：跑测试、改配置、部署、启动 CCS、改 persona JSON"
   ],
   "workgroup": [
-    "coordinator",
-    "lr",
-    "product_architect",
-    "pg",
-    "qa",
-    "writer"
+    {
+      "role": "coordinator",
+      "mode": "notify-only"
+    },
+    {
+      "role": "lr",
+      "mode": "notify-only"
+    },
+    {
+      "role": "product_architect",
+      "mode": "notify-only"
+    },
+    {
+      "role": "pg",
+      "mode": "notify-only"
+    },
+    {
+      "role": "qa",
+      "mode": "notify-only"
+    },
+    {
+      "role": "writer",
+      "mode": "notify-only"
+    }
   ],
   "mcp_servers": [
     "hex-line"
