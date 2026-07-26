@@ -1,5 +1,6 @@
 {
   "name": "ccs-monitor",
+  "contract_version": "1.0",
   "title": "Session 监控者",
   "description": "监控所有 CCS tmux session 是否卡住/停滞，卡住了就发 Enter 让它继续",
   "category": "监控",

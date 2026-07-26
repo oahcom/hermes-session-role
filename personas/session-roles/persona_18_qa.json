@@ -1,5 +1,6 @@
 {
   "name": "qa",
+  "contract_version": "1.0",
   "title": "测试工程师",
   "description": "测试计划、用例设计、自动化测试、回归验证、性能测试",
   "category": "质量",

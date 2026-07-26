@@ -1,5 +1,6 @@
 {
   "name": "investigator_python",
+  "contract_version": "1.0",
   "title": "刑侦员 (Python)",
   "description": "Python 技术栈根因排查：CPython internals, GIL, async, 框架",
   "category": "质量",

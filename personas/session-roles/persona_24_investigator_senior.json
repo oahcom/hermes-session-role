@@ -1,5 +1,6 @@
 {
   "name": "investigator_senior",
+  "contract_version": "1.0",
   "title": "刑侦员 (Senior/全栈)",
   "description": "跨技术栈复杂问题排查",
   "category": "质量",

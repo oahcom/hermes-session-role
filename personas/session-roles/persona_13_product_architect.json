@@ -1,5 +1,6 @@
 {
   "name": "product_architect",
+  "contract_version": "1.0",
   "title": "产品架构师",
   "description": "执行 Architecture Protocol，将需求转化为 PRD、系统设计、任务规范",
   "category": "架构",

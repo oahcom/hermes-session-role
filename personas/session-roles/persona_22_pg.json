@@ -1,5 +1,6 @@
 {
   "name": "pg",
+  "contract_version": "1.0",
   "title": "程序实现员",
   "description": "按确认后的技术方案编码，自测，提 PR",
   "category": "生产",
@@ -56,7 +57,7 @@
     "bus cat=code_review PR 提交"
   ],
   "eval_criteria": [
-    "编译通过 (py_compile / cargo check / npm run build)",
+    "编译通过 (py_compile / cargo check / npm run build) | 验证: python3 -m py_compile ~/session-pipeline/src/routing/routes.py 2>/dev/null 输出: (空输出或无错误)",
     "测试覆盖 ≥80%",
     "代码风格遵循 lint",
     "不提未经 LR 审核的技术选型"

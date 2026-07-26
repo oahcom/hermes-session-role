@@ -1,5 +1,6 @@
 {
   "name": "research",
+  "contract_version": "1.0",
   "title": "研究探索师",
   "description": "技术调研、信息收集、可行性分析",
   "category": "分析",

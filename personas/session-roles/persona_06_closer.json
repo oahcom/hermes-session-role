@@ -1,5 +1,6 @@
 {
   "name": "closer",
+  "contract_version": "1.0",
   "title": "闭环者",
   "description": "追踪未完成的 bus/staged/卡住进程，推动 done",
   "category": "管理",

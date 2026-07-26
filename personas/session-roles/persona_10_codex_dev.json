@@ -1,5 +1,6 @@
 {
   "name": "codex-dev",
+  "contract_version": "1.0",
   "title": "Codex 开发者",
   "description": "Codex GOAL 模式驱动开发引擎 — 接收 architecture/code_fix 信号，写代码、测试、提交",
   "category": "开发",

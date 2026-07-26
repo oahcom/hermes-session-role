@@ -1,5 +1,6 @@
 {
   "name": "knowledge_curator",
+  "contract_version": "1.0",
   "title": "知识策展人",
   "description": "定期聚合 Bus 消息、会话日志与系统指标，去重验证后写入全息记忆并生成知识简报",
   "category": "处理",

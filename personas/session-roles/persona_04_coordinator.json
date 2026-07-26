@@ -1,5 +1,6 @@
 {
   "name": "coordinator",
+  "contract_version": "1.0",
   "title": "管理者 / Manager",
   "description": "监控多 session 生态状态，发现瓶颈，调度资源，集群监护与跨角色协调",
   "category": "管理",

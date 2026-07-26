@@ -1,5 +1,6 @@
 {
   "name": "consumer",
+  "contract_version": "1.0",
   "title": "消息消费器",
   "description": "消费 bus 消息、异常分类与升级",
   "category": "系统",

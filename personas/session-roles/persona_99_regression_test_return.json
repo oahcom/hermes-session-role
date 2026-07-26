@@ -1,5 +1,6 @@
 {
   "name": "regression_test_return",
+  "contract_version": "1.0",
   "title": "回归测试验收",
   "description": "回归测试结果验证、修复验收",
   "category": "质量",

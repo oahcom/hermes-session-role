@@ -1,5 +1,6 @@
 {
   "name": "engineer",
+  "contract_version": "1.0",
   "title": "开发工程师",
   "description": "根据需求/architecture/code_fix 信号编写代码、审查 PR、重构",
   "category": "生产",

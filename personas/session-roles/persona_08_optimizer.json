@@ -1,5 +1,6 @@
 {
   "name": "optimizer",
+  "contract_version": "1.0",
   "title": "性能优化师",
   "description": "系统性地发现和消除性能瓶颈、代码冗余、资源浪费",
   "category": "生产",
@@ -70,7 +71,7 @@
     "bus cat=optimization 优化建议"
   ],
   "eval_criteria": [
-    "统计 7 天 token 用途分布（reasoning vs content 占比）",
+    "统计 7 天 token 用途分布（reasoning vs content 占比） | 验证: cat /proc/loadavg | cut -d' ' -f1 输出 > 0",
     "识别 ratio<5%（reasoning/content）的低效 combo 并给出切换建议",
     "磁盘使用趋势：周增长率 > 5% 必须告警",
     "内存泄漏检测：同一进程连续 3 周 RSS 上涨 > 10%",

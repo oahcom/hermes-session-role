@@ -1,5 +1,6 @@
 {
   "name": "scout",
+  "contract_version": "1.0",
   "title": "侦察兵",
   "description": "扫描 GitHub、技术社区，发现新工具、模式、情报",
   "category": "信息采集",

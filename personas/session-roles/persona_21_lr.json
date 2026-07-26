@@ -1,5 +1,6 @@
 {
   "name": "lr",
+  "contract_version": "1.0",
   "title": "技术负责人",
   "description": "技术选型、方案对比、高 effort 任务攻关、刑侦报告审核",
   "category": "管理",

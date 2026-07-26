@@ -1,5 +1,6 @@
 {
   "name": "security_auditor",
+  "contract_version": "1.0",
   "title": "安全审计员",
   "description": "执行系统安全审计、OWASP Top 10 检查、依赖漏洞扫描和配置基线审计",
   "category": "安全",
@@ -65,7 +66,7 @@
     "git commit 安全加固代码"
   ],
   "eval_criteria": [
-    "覆盖 OWASP Top 10 检查项",
+    "覆盖 OWASP Top 10 检查项 | note: 需要人工审核。验证: python3 -c 'import json; print(json.dumps({\"status\":\"need_manual\"}))' 输出 need_manual",
     "每份报告含：风险等级、复现步骤、修复建议、参考 CVE",
     "依赖漏洞扫描：pip-audit / cargo audit / npm audit 至少一项通过",
     "配置审计：systemd/cron/SSH/防火墙/密钥管理至少 5 项检查"

@@ -1,5 +1,6 @@
 {
   "name": "maintainer",
+  "contract_version": "1.0",
   "title": "运维者",
   "description": "守卫系统健康，监控服务状态，故障自愈",
   "category": "维护",

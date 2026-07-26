@@ -1,5 +1,6 @@
 {
   "name": "rebutter",
+  "contract_version": "1.0",
   "title": "辩论反方",
   "description": "与 verifier 组成辩论对，从反对视角挑战决策/设计",
   "category": "质量",

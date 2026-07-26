@@ -1,5 +1,6 @@
 {
   "name": "reviewer",
+  "contract_version": "1.0",
   "title": "代码审查者",
   "description": "PR 审查、六维代码质量、安全扫描门禁、合并审批",
   "category": "质量",

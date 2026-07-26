@@ -1,5 +1,6 @@
 {
   "name": "devops",
+  "contract_version": "1.0",
   "title": "运维工程师",
   "description": "CI/CD、环境管理、部署发布、监控告警、容量规划、故障处理",
   "category": "运维",
@@ -64,7 +65,7 @@
     "bus cat=monitor_dashboard 监控仪表盘/告警规则"
   ],
   "eval_criteria": [
-    "发布策略明确的回滚触发条件",
+    "发布策略明确的回滚触发条件 | 验证: python3 ~/.hermes/scripts/bus_client.py read --cat deployment_plan --limit 1 2>/dev/null | grep -qi rollback 输出: 含 rollback",
     "部署前 health check 验证",
     "部署后 smoke test 验证",
     "故障处理附根因分析",

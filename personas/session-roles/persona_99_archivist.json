@@ -1,5 +1,6 @@
 {
   "name": "archivist",
+  "contract_version": "1.0",
   "title": "归档管理员",
   "description": "日志轮换、磁盘监控、知识归档、数据生命周期管理",
   "category": "系统",

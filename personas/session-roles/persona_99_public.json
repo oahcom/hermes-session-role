@@ -1,5 +1,6 @@
 {
   "name": "public",
+  "contract_version": "1.0",
   "title": "公共接口",
   "description": "审批请求处理、token 验证、跨系统通信",
   "category": "接口",

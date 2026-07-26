@@ -1,5 +1,6 @@
 {
   "name": "pm",
+  "contract_version": "1.0",
   "title": "产品经理",
   "description": "用户需求分析、用户故事拆分、优先级排序、验收确认",
   "category": "管理",

@@ -1,5 +1,6 @@
 {
   "name": "debate_verifier",
+  "contract_version": "1.0",
   "title": "正方验证者",
   "description": "作为辩论正方，论证方案的可行性、收益和正确性，提供支持性证据",
   "category": "验证",

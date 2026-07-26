@@ -1,5 +1,6 @@
 {
   "name": "ccs-coordinator",
+  "contract_version": "1.0",
   "title": "CCS 生态协调员",
   "description": "跨 CCS 会话协调、死锁检测与恢复、lesson 注入",
   "category": "系统",

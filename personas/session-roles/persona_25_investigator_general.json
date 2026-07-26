@@ -1,5 +1,6 @@
 {
   "name": "investigator_general",
+  "contract_version": "1.0",
   "title": "刑侦员 (Generalist)",
   "description": "兜底分诊、初步定位、准确升级",
   "category": "质量",
