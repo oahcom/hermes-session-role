@@ -166,5 +166,26 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(systemctl *)",
+      "Bash(curl *)",
+      "Bash(journalctl *)",
+      "Bash(df *)",
+      "Bash(free *)",
+      "Bash(ps *)",
+      "Bash(grep *)",
+      "Bash(awk *)",
+      "Bash(sort *)",
+      "Bash(wc *)",
+      "Bash(sed *)",
+      "Bash(uniq *)",
+      "Bash(python3 *)",
+      "Bash(echo *)",
+      "Bash(for *)",
+      "Bash(tail *)",
+      "Read(*)"
+    ]
   }
 }

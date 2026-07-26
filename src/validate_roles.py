@@ -72,6 +72,28 @@ def looks_like_shell_command(s: str) -> bool:
     return bool(EVAL_CRITERIA_EXEC_PATTERN.search(s))
 
 
+def _check_prompt_sizes(prompts_dir: str) -> None:
+    """检查 prompt 模板文件大小，超限输出 WARN。"""
+    candidates: list[tuple[str, str]] = []
+    base = os.path.join(prompts_dir, "base.md")
+    if os.path.isfile(base):
+        candidates.append(("base.md", base))
+    for subdir in ("roles", "mixins"):
+        d = os.path.join(prompts_dir, subdir)
+        if os.path.isdir(d):
+            for f in sorted(os.listdir(d)):
+                if f.endswith(".md"):
+                    candidates.append((f"{subdir}/{f}", os.path.join(d, f)))
+    total = 0
+    for display, path in candidates:
+        n = len(open(path).read().splitlines())
+        total += n
+        if n > 200:
+            print(f"  WARN: prompt 文件 '{display}' 共 {n} 行（超过 200 行限制）")
+    if total > 300:
+        print(f"  WARN: prompt 文件合计 {total} 行（超过 300 行限制）")
+
+
 def main() -> int:
     if not os.path.isdir(ROLES_DIR):
         print(f"  FAIL: 目录不存在 {ROLES_DIR}")
@@ -83,6 +105,7 @@ def main() -> int:
         return 1
 
     seen_names: set[str] = set()
+    _prompt_size_done = False
     errors: list[str] = []
     dead_warnings: list[str] = []
     checked = 0
@@ -189,6 +212,11 @@ def main() -> int:
                         errors.append(f"{fname}: mcp_tools['{srv}'] 必须是字符串列表")
                     elif not tools:
                         errors.append(f"{fname}: mcp_tools['{srv}'] 不能为空")
+
+            # prompt 模板文件大小门禁（仅执行一次）
+            if not _prompt_size_done:
+                _check_prompt_sizes(os.path.join(os.path.dirname(__file__), "..", "prompts"))
+                _prompt_size_done = True
 
             # produce/consume 分类注册表校验
             produce_cats = _parse_produce_categories(data.get("output_targets", []))

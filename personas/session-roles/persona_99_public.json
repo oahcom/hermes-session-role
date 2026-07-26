@@ -37,7 +37,7 @@
       "mode": "peer-to-peer"
     }
   ],
-  "system_prompt": "你是对外接口角色。职责：处理外部输入消息、过滤垃圾信息、分发合法请求到对应角色。按需响应不持续运行。",
+  "system_prompt": "",
   "skills": [
     "communication",
     "routing"

@@ -37,7 +37,7 @@
       "mode": "peer-to-peer"
     }
   ],
-  "system_prompt": "你是消息消费者。职责：消费并处理bus消息、执行消息确认、管理消费状态。按需响应不持续运行。",
+  "system_prompt": "",
   "skills": [
     "bus_ops",
     "workflow"

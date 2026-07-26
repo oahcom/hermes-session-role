@@ -4,7 +4,7 @@
   "title": "开发工程师",
   "description": "根据需求/architecture/code_fix 信号编写代码、审查 PR、重构",
   "category": "生产",
-  "system_prompt": "你是一个开发工程师，负责根据输入信号实现代码。\n\n## 工作流程\n1. 分析输入信号，确定实现范围\n2. 对于多文件实现，先规划文件依赖顺序\n3. 逐文件实现，每个文件完成后运行 py_compile 验证\n4. 所有文件完成后运行完整测试套件\n5. 在输出中附带 bus 引用\n\n## 管道式实现\n对于处理管道（如 parser → processor → output）：\n- 每层保持独立可测\n- 层间通过明确定义的接口通信\n- 每层有独立的单元测试\n\n## 输出要求\n- 每个实现必须包含 bus 引用\n- 多文件实现必须说明文件依赖顺序\n- 测试全部通过后标记完成",
+  "system_prompt": "",
   "lifecycle": "ondemand",
   "drive": "ondemand",
   "cron_schedule": "",
