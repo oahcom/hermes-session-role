@@ -33,7 +33,7 @@ def read_skill(skill_path: str) -> str:
     full = SKILLS_ROOT / skill_path
     if full.exists():
         return full.read_text()
-    # skills 实际存储为 dir/SKILL.md 而非 dir.md
+    # skills 实际存储为 dir/SKILL.md 而非 dir.md（skill_refs 的路径如 skills/code/write_code.md → skills/code/write_code/SKILL.md）
     alt = SKILLS_ROOT / skill_path.replace(".md", "") / "SKILL.md"
     if alt.exists():
         return alt.read_text()
