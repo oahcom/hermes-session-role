@@ -84,6 +84,7 @@ def main() -> int:
 
     seen_names: set[str] = set()
     errors: list[str] = []
+    dead_warnings: list[str] = []
     checked = 0
     role_count = 0
 
@@ -192,6 +193,14 @@ def main() -> int:
                 if cat not in VALID_BUS_CATEGORIES:
                     errors.append(f"{fname}: bus 消费分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
 
+            # Dead field warnings (not errors — schema compat)
+            # NOTE: constraints/goal/skill_refs 被 role_assembler.py 和本文件消费，不是死字段
+            DEAD_FIELDS = {"output_schema", "session_hint",
+                          "_evolution_version", "_evolved_at", "version"}
+            present = [f for f in DEAD_FIELDS if f in data]
+            if present:
+                dead_warnings.append(f"{fname}: 包含死字段(无代码消费): {', '.join(present)}")
+
             # 对于 RoleDef 角色，至少要有 input_signals 或 drive 之一
             has_input_signals = bool(data.get("input_signals"))
             has_drive = bool(data.get("drive"))
@@ -294,6 +303,9 @@ def main() -> int:
                                 break
         except Exception:
             pass
+
+    for w in dead_warnings:
+        print(f"  WARN: {w}")
 
     print(f"  文件数: {checked}")
     print(f"  角色数: {role_count}")

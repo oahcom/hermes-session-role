@@ -20,11 +20,11 @@ class PersonaDef:
     system_prompt: str
     config_overrides: dict[str, Any] = field(default_factory=dict)
     eval_criteria: list[str] = field(default_factory=list)
-    prompt_refs: dict[str, str] = field(default_factory=dict)  # 模块化 prompt 引用
+    prompt_refs: dict[str, str] = field(default_factory=dict)  # ponytail: 预留，role_assembler 合成 prompt 时引用
     skills: list[str] = field(default_factory=list)  # 技能列表
-    skill_refs: dict[str, str] = field(default_factory=dict)  # 技能引用路径
-    goal: str = ""  # 角色目标
-    constraints: list[str] = field(default_factory=list)  # 红线约束
+    skill_refs: dict[str, str] = field(default_factory=dict)  # ponytail: skill 路径映射，role_assembler 读取
+    goal: str = ""  # ponytail: 角色定位描述，role_assembler 输出包含
+    constraints: list[str] = field(default_factory=list)  # ponytail: 角色约束列表，role_assembler 输出包含
     mcp_servers: list[str] = field(default_factory=list)  # ponytail: 预留，等 launcher MCP 注册表填充后启用
     mcp_tools: dict[str, list] = field(default_factory=dict)  # ponytail: 同上
     mcp_permissions: dict[str, list] = field(default_factory=dict)  # ponytail: 同上
@@ -129,7 +129,7 @@ class RoleDef(PersonaDef):
     idle_action: str = "exit"
     input_signals: list[dict] = field(default_factory=list)
     output_targets: list[str] = field(default_factory=list)
-    session_hint: str = "cron"
+    session_hint: str = "cron"  # ponytail: 提示启动方式（cron/loop/ondemand），session-launcher 消费
 
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
