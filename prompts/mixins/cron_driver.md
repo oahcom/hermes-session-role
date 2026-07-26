@@ -1,6 +1,6 @@
-## 驱动方式: Cron
+## 驱动方式: 定时轮询
 
-你被 CronCreate 定时唤醒（每 {cron_schedule}）。
+你被 daemon 按周期唤醒（每 {cron_schedule}）。
 
 ### 工作循环
 1. 执行 Step 1-4 快速检查
