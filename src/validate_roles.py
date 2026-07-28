@@ -281,7 +281,8 @@ def main() -> int:
     for pf in prompt_files:
         full_path = os.path.join(prompts_dir, pf)
         try:
-            content = open(full_path).read()
+            with open(full_path) as fh:
+                content = fh.read()
             if "## 参考来源" not in content:
                 errors.append(f"{pf}: 缺少 '## 参考来源' 章节")
         except Exception as e:
@@ -294,7 +295,8 @@ def main() -> int:
             continue  # 原创设计，不强制外部引用
         full_path = os.path.join(prompts_dir, pf)
         try:
-            content = open(full_path).read()
+            with open(full_path) as fh:
+                content = fh.read()
             # 提取 ## 参考来源 后的文本
             ref_section = content.split("## 参考来源")[-1] if "## 参考来源" in content else ""
             # 检查是否有 URL (http:// 或 https://)
@@ -308,7 +310,8 @@ def main() -> int:
         name_stem = pf.replace(".md", "")
         full_path = os.path.join(prompts_dir, pf)
         try:
-            lines = open(full_path).read().splitlines()
+            with open(full_path) as fh:
+                lines = fh.read().splitlines()
             if lines:
                 first_line = lines[0].strip()
                 # 移除标题标记
