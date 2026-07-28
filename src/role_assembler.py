@@ -17,7 +17,7 @@ def load_role_json(role_name: str) -> dict[str, Any]:
         obj = get(role_name)
         if obj is not None:
             return obj.to_dict()
-    except Exception:
+    except (KeyError, FileNotFoundError):
         pass
     # fallback: 直接读文件
     for f in sorted(PERSONAS_DIR.glob('*.json')):

@@ -8,7 +8,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 import os
-import re
 
 @dataclass
 class PersonaDef:
@@ -97,9 +96,12 @@ def render_prompt_from_refs(
     defaults.update(kwargs)
 
     parts = []
+    base_dir_real = os.path.realpath(base_dir)
     for key in ["base", "role", "driver"]:
         if key in prompt_refs:
-            file_path = os.path.join(base_dir, prompt_refs[key])
+            file_path = os.path.realpath(os.path.join(base_dir, prompt_refs[key]))
+            if not file_path.startswith(base_dir_real):
+                continue
             if os.path.exists(file_path):
                 with open(file_path, encoding="utf-8") as f:
                     content = f.read().strip()
