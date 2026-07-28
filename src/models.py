@@ -100,7 +100,7 @@ def render_prompt_from_refs(
     for key in ["base", "role", "driver"]:
         if key in prompt_refs:
             file_path = os.path.realpath(os.path.join(base_dir, prompt_refs[key]))
-            if not file_path.startswith(base_dir_real):
+            if not file_path.startswith(base_dir_real.rstrip(os.sep) + os.sep):
                 continue
             if os.path.exists(file_path):
                 with open(file_path, encoding="utf-8") as f:

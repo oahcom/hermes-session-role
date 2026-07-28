@@ -7,7 +7,7 @@ import re
 import sys
 
 import paths
-from shared_loader import _parse_produce_categories, _parse_consume_categories
+from shared_loader import parse_produce_categories, parse_consume_categories
 
 ROLES_DIR = str(paths.SESSION_ROLES_PERSONAS)
 
@@ -95,6 +95,12 @@ def _check_prompt_sizes(prompts_dir: str) -> None:
 
 
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description="Validate session-role JSON files")
+    parser.add_argument("--roles", action="store_true", help="仅验证 session 角色（默认全部）")
+    parser.add_argument("--category", default="", help="按分类筛选验证（如 '维护'）")
+    args, _ = parser.parse_known_args()
+
     if not os.path.isdir(ROLES_DIR):
         print(f"  FAIL: 目录不存在 {ROLES_DIR}")
         return 1
@@ -121,6 +127,10 @@ def main() -> int:
             continue
         except Exception as e:
             errors.append(f"{fname}: 读取失败 — {e}")
+            continue
+
+        # 筛选
+        if args.category and data.get("category", "") != args.category:
             continue
 
         checked += 1
@@ -219,8 +229,8 @@ def main() -> int:
                 _prompt_size_done = True
 
             # produce/consume 分类注册表校验
-            produce_cats = _parse_produce_categories(data.get("output_targets", []))
-            consume_cats = _parse_consume_categories(data.get("input_signals", []))
+            produce_cats = parse_produce_categories(data.get("output_targets", []))
+            consume_cats = parse_consume_categories(data.get("input_signals", []))
             for cat in produce_cats:
                 if cat not in VALID_BUS_CATEGORIES:
                     errors.append(f"{fname}: bus 产出分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")

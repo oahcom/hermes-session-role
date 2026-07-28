@@ -61,7 +61,7 @@ class RoleExport:
 
 # ── 解析函数（单一权威实现） ──
 
-def _parse_produce_categories(output_targets: list[str]) -> list[str]:
+def parse_produce_categories(output_targets: list[str]) -> list[str]:
     """从 output_targets 提取 bus 产出分类。"""
     cats: list[str] = []
     for target in output_targets:
@@ -73,7 +73,7 @@ def _parse_produce_categories(output_targets: list[str]) -> list[str]:
     return cats
 
 
-def _parse_consume_categories(input_signals: list[dict]) -> list[str]:
+def parse_consume_categories(input_signals: list[dict]) -> list[str]:
     """从 input_signals 提取消费分类。"""
     cats: list[str] = []
     for signal in input_signals:
@@ -122,7 +122,7 @@ def load_roles() -> list[dict]:
     roles: list[dict] = []
     for f in sorted(ROLES_DIR.glob("persona_*.json")):
         try:
-            with open(f) as fp:
+            with open(f, encoding="utf-8") as fp:
                 item = json.load(fp)
                 # browser-harness 的 profiles dict 格式：解包为多个角色
                 if isinstance(item, dict) and "profiles" in item and isinstance(item["profiles"], dict):
@@ -150,8 +150,8 @@ def export_role(role: dict) -> RoleExport:
     name = role.get("name", "")
     input_signals = role.get("input_signals", [])
     output_targets = role.get("output_targets", [])
-    produce = _parse_produce_categories(output_targets)
-    consume = _parse_consume_categories(input_signals)
+    produce = parse_produce_categories(output_targets)
+    consume = parse_consume_categories(input_signals)
     return RoleExport(
         name=name,
         title=role.get("title", ""),
@@ -184,7 +184,7 @@ def write_export() -> str:
         "exported_at": time.time(),
         "roles": export_all(),
     }
-    EXPORT_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    EXPORT_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return str(EXPORT_PATH)
 
 

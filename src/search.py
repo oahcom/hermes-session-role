@@ -30,7 +30,8 @@ def search(query: str, top_k: int = 5) -> list[dict]:
         search_text = f"{item.title} {item.description} {item.category} {item.name} {item.system_prompt[:200]}"
         target_tokens = _tokenize(search_text)
         score = sum(10 for qt in query_tokens if qt in target_tokens)
-        if all(c in search_text for c in re.findall(r'[一-鿿]', query)):
+        chinese_chars = re.findall(r'[一-鿿]', query)
+        if chinese_chars and all(c in search_text for c in chinese_chars):
             score += 25
         if score > 0:
             scored.append({"name": item.name, "title": item.title, "score": score})
