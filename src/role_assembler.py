@@ -75,6 +75,18 @@ def assemble_role_prompt(role_name: str) -> str:
         if base_content and "[SKILL NOT FOUND" not in base_content:
             parts.append("## 通用红线\n" + base_content)
 
+    # 加载角色专用 prompt (如 roles/lr.md)
+    if prompt_refs.get('role'):
+        role_content = read_skill(prompt_refs['role'])
+        if role_content and "[SKILL NOT FOUND" not in role_content:
+            parts.append("## 角色系统提示词\n" + role_content)
+
+    # 加载驱动模式 mixin (如 mixins/ondemand_driver.md)
+    if prompt_refs.get('driver'):
+        driver_content = read_skill(prompt_refs['driver'])
+        if driver_content and "[SKILL NOT FOUND" not in driver_content:
+            parts.append("## 驱动方式\n" + driver_content)
+
     if role.get('goal'):
         parts.append(f"## 目标\n{role['goal']}")
 
@@ -122,12 +134,27 @@ def assemble_role_prompt(role_name: str) -> str:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: role_assembler.py <role_name>")
+        print("Usage: role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]")
         sys.exit(1)
     role_name = sys.argv[1]
     output = sys.argv[sys.argv.index('--output') + 1] if '--output' in sys.argv else None
+    inject_path = sys.argv[sys.argv.index('--inject') + 1] if '--inject' in sys.argv else None
     prompt = assemble_role_prompt(role_name)
-    if output:
+    if inject_path:
+        path = Path(inject_path)
+        content = path.read_text()
+        start_marker = '<!-- KNOWLEDGE:START -->'
+        end_marker = '<!-- KNOWLEDGE:END -->'
+        if start_marker in content and end_marker in content:
+            start = content.index(start_marker)
+            end = content.index(end_marker) + len(end_marker)
+            new_block = f'{start_marker}\n{prompt}\n{end_marker}'
+            path.write_text(content[:start] + new_block + content[end:])
+            print(f"Injected into {inject_path}")
+        else:
+            print(f"ERROR: {inject_path} missing KNOWLEDGE markers", file=sys.stderr)
+            sys.exit(1)
+    elif output:
         Path(output).write_text(prompt)
         print(f"Written to {output}")
     else:
