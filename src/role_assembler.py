@@ -81,11 +81,49 @@ def assemble_role_prompt(role_name: str) -> str:
         if role_content and "[SKILL NOT FOUND" not in role_content:
             parts.append("## 角色系统提示词\n" + role_content)
 
-    # 加载驱动模式 mixin (如 mixins/ondemand_driver.md)
-    if prompt_refs.get('driver'):
-        driver_content = read_skill(prompt_refs['driver'])
-        if driver_content and "[SKILL NOT FOUND" not in driver_content:
-            parts.append("## 驱动方式\n" + driver_content)
+    # 驱动方式 — 按角色适配生成（不再使用静态 mixin）
+    drive = role.get('drive', 'ondemand')
+    drive_lines = [f"## 驱动方式: {drive.title()}"]
+    if drive == 'ondemand':
+        drive_lines.extend([
+            "由 `ccs start` 或上游 `ccs send` 唤醒，常驻 tmux 等待任务。",
+            "",
+            "### 等待信号",
+        ])
+        sigs = role.get('input_signals', [])
+        for sig in sigs:
+            cat = sig.get('spec', {}).get('category', '') if sig.get('type') == 'bus' else sig.get('source', '')
+            flt = sig.get('filter', '')
+            drive_lines.append(f"- `cat={cat}` filter={flt}" if flt else f"- `cat={cat}`")
+        drive_lines.extend([
+            "",
+            "### 产出物",
+        ])
+        for t in role.get('output_targets', []):
+            drive_lines.append(f"- {t}")
+        drive_lines.extend([
+            "",
+            "### 工作循环",
+            "1. 接收任务（上游 ccs send 或 bus 消息）",
+            "2. 执行任务",
+            "3. 验证结果",
+            "4. 通知完成（bus 通知下游或 wf complete）",
+            "5. 进入待机，等待下一轮任务",
+            "",
+            "### 注意事项",
+            "- 每个任务完成后不得退出 tmux session（lifecycle=infinite）",
+            "- 没有待办时等待上游驱动，不自行巡检",
+        ])
+    elif drive == 'loop':
+        drive_lines.append("已淘汰 — 等效 ondemand 常驻待命，不自循环。")
+    elif drive == 'cron':
+        cron = role.get('cron_schedule', '')
+        drive_lines.append(f"由 cron-worker 按计划唤醒: `{cron}`。每次唤醒后执行检查任务，完成后退出等待下次唤醒。")
+    elif drive == 'goal':
+        drive_lines.append("由 goal/agentic-loop 驱动，主动执行直至目标达成。")
+    else:
+        drive_lines.append(f"驱动模式: {drive}")
+    parts.append("\n".join(drive_lines))
 
     if role.get('goal'):
         parts.append(f"## 目标\n{role['goal']}")
