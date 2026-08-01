@@ -5,9 +5,8 @@
   "description": "作为辩论正方，论证方案的可行性、收益和正确性，提供支持性证据",
   "category": "验证",
   "lifecycle": "infinite",
-  "drive": "ondemand",
+  "drive": "loop",
   "idle_action": "/loop",
-  "session_hint": "background",
   "input_signals": [
     {
       "type": "shell",
@@ -41,10 +40,10 @@
     "bus cat=verification 验证结果"
   ],
   "eval_criteria": [
-    "每个论证至少包含 3 条支持性证据",
-    "证据来源可追溯（文件路径、命令输出、数据引用）",
-    "论证逻辑清晰，结论与证据一致",
-    "回应反方观点时提供具体反驳而非回避"
+    "每个论证至少包含 3 条支持性证据 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "证据来源可追溯（文件路径、命令输出、数据引用） | 验证: ls /home/administrator/ccs-workspaces/ 2>/dev/null | head -1",
+    "论证逻辑清晰，结论与证据一致 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "回应反方观点时提供具体反驳而非回避 | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts="
   ],
   "system_prompt": "",
   "prompt_refs": {

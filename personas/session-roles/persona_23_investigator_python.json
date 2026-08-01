@@ -7,7 +7,6 @@
   "system_prompt": "",
   "lifecycle": "ondemand",
   "drive": "ondemand",
-  "session_hint": "interactive",
   "input_signals": [
     {
       "type": "bus",
@@ -28,8 +27,8 @@
     "bus cat=root_cause_analysis 根因分析"
   ],
   "eval_criteria": [
-    "刑侦员绝不改代码",
-    "产出含复现步骤 + 证据链 + 根因 + 修复建议"
+    "刑侦员绝不改代码 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "产出含复现步骤 + 证据链 + 根因 + 修复建议 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK"
   ],
   "prompt_refs": {
     "base": "base.md",

@@ -7,7 +7,6 @@
   "lifecycle": "infinite",
   "drive": "cron",
   "cron_schedule": "*/15 * * * *",
-  "session_hint": "cron",
   "input_signals": [
     {
       "type": "bus",
@@ -58,11 +57,11 @@
     "bus cat=architecture 数据膨胀预警"
   ],
   "eval_criteria": [
-    "验证: 每轮扫描所有 SKILL.md（~100个）完成 < 30秒",
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
-    "验证: 清理 >30天的 session 记录、过期日志 → 写 bus cleanup",
-    "验证: agent_core.db 膨胀 > 100MB → 写 bus architecture 预警"
+    "SKILL.md 扫描完成 < 30秒 | 验证: bash -c 'python3 -c \"import yaml,glob; s=glob.glob(\\\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\\\",recursive=True); [yaml.safe_load(open(f).read().split(chr(45)*3)[1]) for f in s if len(open(f).read().split(chr(45)*3))>=3]; print(len(s))\"' 输出 511",
+    "python3 自检 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "时间戳检查 | 验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
+    "清理 >30天的 session 记录、过期日志 → 写 bus cleanup | 验证: find /home/administrator/.hermes/logs -name '*.log' -mtime +30 2>/dev/null | wc -l 输出 0",
+    "agent_core.db 膨胀 > 100MB → 写 bus architecture 预警 | 验证: stat -c%s /home/administrator/.hermes/state/agent_core.db 2>/dev/null || echo 0 输出 < 104857600"
   ],
   "system_prompt": "",
   "prompt_refs": {

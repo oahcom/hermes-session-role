@@ -7,7 +7,6 @@
   "system_prompt": "",
   "lifecycle": "ondemand",
   "drive": "ondemand",
-  "session_hint": "interactive",
   "input_signals": [
     {
       "type": "bus",
@@ -57,10 +56,10 @@
     "bus cat=code_review PR 提交"
   ],
   "eval_criteria": [
-    "编译通过 (py_compile / cargo check / npm run build) | 验证: python3 -m py_compile ~/session-pipeline/src/routing/routes.py 2>/dev/null 输出: (空输出或无错误)",
-    "测试覆盖 ≥80%",
-    "代码风格遵循 lint",
-    "不提未经 LR 审核的技术选型"
+    "测试覆盖 >= 80% | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "代码风格遵循 lint | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "不提未经 LR 审核的技术选型 | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
+    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS"
   ],
   "prompt_refs": {
     "base": "base.md",

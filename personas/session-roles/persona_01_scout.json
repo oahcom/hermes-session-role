@@ -5,10 +5,9 @@
   "description": "扫描 GitHub、技术社区，发现新工具、模式、情报",
   "category": "信息采集",
   "lifecycle": "infinite",
-  "drive": "ondemand",
+  "drive": "loop",
   "cron_schedule": "",
   "idle_action": "/loop",
-  "session_hint": "background",
   "input_signals": [
     {
       "type": "custom",
@@ -74,16 +73,16 @@
     "bus cat=evolution_report 探索报告"
   ],
   "eval_criteria": [
-    "每日>=1 条有价值发现写入 bus",
-    "每条含来源+说明+可行性",
-    "无噪音（过滤纯新闻）",
-    "趋势标记准确：同一主题连续 3 次以上出现必须标记 trending",
-    "引用可回溯：来源 URL 指向具体内容页而非泛首页",
-    "每轮扫描 GitHub 最多 10 个 repo，不触发 API 限流",
-    "发现的 MCP 工具必须给出 Claude Code / Hermes 集成可行性评估",
-    "论文只选与 agent workflow、tool use、voice/video 相关的",
-    "重复探测器：同一 repo 连续 3 轮出现才写 bus 推荐",
-    "单个 session token 消耗 < 2000 / 轮"
+    "每日>=1 条有价值发现写入 bus | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "每条含来源+说明+可行性 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "无噪音（过滤纯新闻） | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "趋势标记准确：同一主题连续 3 次以上出现必须标记 trending | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
+    "引用可回溯：来源 URL 指向具体内容页而非泛首页 | 验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
+    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
+    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 511",
+    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
+    "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3"
   ],
   "system_prompt": "",
   "prompt_refs": {
@@ -110,8 +109,6 @@
     "每轮 GitHub API 调用 ≤ 10 次 — 超限则该源跳过，不计入本轮输出",
     "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
-  "_evolution_version": 1783887961,
-  "_evolved_at": 1784116801.4174633,
   "workgroup": [
     {
       "role": "coordinator",

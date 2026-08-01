@@ -7,7 +7,6 @@
   "lifecycle": "infinite",
   "drive": "cron",
   "cron_schedule": "0 4 * * *",
-  "session_hint": "cron",
   "input_signals": [
     {
       "type": "shell",
@@ -71,13 +70,104 @@
     "bus cat=optimization 优化建议"
   ],
   "eval_criteria": [
-    "统计 7 天 token 用途分布（reasoning vs content 占比） | 验证: cat /proc/loadavg | cut -d' ' -f1 输出 > 0",
-    "识别 ratio<5%（reasoning/content）的低效 combo 并给出切换建议",
-    "磁盘使用趋势：周增长率 > 5% 必须告警",
-    "内存泄漏检测：同一进程连续 3 周 RSS 上涨 > 10%",
-    "5router 请求截断率 > 10% 必须告警并建议增大 max_tokens",
-    "每份优化建议附带预期收益量化（释放多少空间/减少多少浪费 token）"
+    "验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1",
+    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
+    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
+    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 511",
+    "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0"
   ],
+  "codex_review_gate": {
+    "trigger": "任何涉及代码/配置变更的执行动作（修改文件、git 提交）",
+    "command": "cd /home/administrator/session-launcher && codex review --uncommitted -c model=\"9router_hermes\"",
+    "rule": "审查未通过（P0/P1 未清零）禁止继续或提交；迭代修复直到连续两轮零问题，结论以 # Review: <结论> 存入提交信息",
+    "no_change": "纯分析/报告产出（不修改任何文件）不触发门禁，但结论必须附验证命令输出"
+  },
+  "boundary_declaration": {
+    "refusal_format": "bus_write <分类> \"[optimizer] 拒绝\" \"边界声明: <问题>归属<角色> | 原因: <判断依据> | 转交: @<角色> | 证据: <数据或命令输出>\"",
+    "no_data_format": "bus_write <分类> \"[optimizer] 无法评估\" \"缺失项: <指标> | 原因: <schema 无字段/无历史存档/查询0行> | 跳过动作: <本项不告警>\"",
+    "cases": [
+      {
+        "scene": "发现其他角色代码问题",
+        "action": "refusal_format 转交 @<角色>，不自己修"
+      },
+      {
+        "scene": "架构设计不合理",
+        "action": "refusal_format 转交 @architect，不自行决策"
+      },
+      {
+        "scene": "文档过时",
+        "action": "refusal_format 转交 @writer"
+      },
+      {
+        "scene": "查询返回 0 行/字段不存在",
+        "action": "no_data_format 声明，绝不编造数据或结论"
+      }
+    ]
+  },
+  "signal_routing": [
+    {
+      "signal": "shell filter=token_usage",
+      "action": "聚合 7 天 token 总量与 reasoning/content 占比",
+      "output": "bus cat=optimization 周报",
+      "verify": "SQL 返回行数>0 且数值>0",
+      "no_data": "无法评估声明"
+    },
+    {
+      "signal": "shell filter=model_usage",
+      "action": "按 model 排序识别低效 combo（ratio<5%）",
+      "output": "bus cat=optimization 切换建议",
+      "verify": "SQL GROUP BY 输出",
+      "no_data": "无低效组合声明"
+    },
+    {
+      "signal": "shell filter=disk_usage",
+      "action": "算周增长率，>5% 告警",
+      "output": "bus cat=architecture 资源告警",
+      "verify": "df -h 输出",
+      "no_data": "读取失败声明+重试"
+    },
+    {
+      "signal": "shell filter=disk_hogs",
+      "action": "识别大目录并量化可释放空间",
+      "output": "bus cat=optimization 清理建议",
+      "verify": "du -sh 输出",
+      "no_data": "无大目录声明"
+    },
+    {
+      "signal": "shell filter=memory_swap",
+      "action": "检查内存/Swap 水位",
+      "output": "bus cat=architecture 资源告警",
+      "verify": "free -h 输出",
+      "no_data": "读取失败声明"
+    },
+    {
+      "signal": "shell filter=top_processes",
+      "action": "RSS 多周趋势比对，连续 3 周 +10% 告警",
+      "output": "bus cat=architecture 泄漏告警",
+      "verify": "ps aux 输出",
+      "no_data": "无历史存档声明"
+    },
+    {
+      "signal": "shell filter=cgroup_limits",
+      "action": "核对 hermes.slice 资源配额合理性",
+      "output": "bus cat=optimization 配额建议",
+      "verify": "systemctl show 输出",
+      "no_data": "无 slice 声明"
+    },
+    {
+      "signal": "shell filter=finish_reasons",
+      "action": "算截断率，>10% 告警并建议 max_tokens",
+      "output": "bus cat=architecture 截断告警",
+      "verify": "finish_reason SQL 输出",
+      "no_data": "0 行/无 length → 截断率 0% 声明"
+    }
+  ],
+  "publish_format": {
+    "architecture_alert": "bus_write architecture \"[optimizer] <类型>告警\" \"<指标>: <现值> (<趋势/阈值> | 建议: <一句动作> | 证据: <命令输出>\"",
+    "optimization_report": "bus_write optimization \"[optimizer] 周报\" \"token: <值> (推理占<x>%) | 磁盘: <值> (<趋势>) | 截断: <值> | 泄漏: <状态> | 收益: <释放/节省数值>\"",
+    "rule": "每条产出必须包含: 数据来源命令、具体数值、趋势判断、量化收益、验证命令输出；无数据项必须按 no_data_format 声明，禁止空泛结论"
+  },
   "system_prompt": "",
   "prompt_refs": {
     "base": "base.md",

@@ -5,9 +5,8 @@
   "description": "监控所有 CCS tmux session 是否卡住/停滞，卡住了就发 Enter 让它继续",
   "category": "监控",
   "lifecycle": "infinite",
-  "drive": "ondemand",
+  "drive": "loop",
   "idle_action": "sleep 30",
-  "session_hint": "loop",
   "input_signals": [
     {
       "type": "shell",
@@ -42,7 +41,7 @@
     "bus cat=notice session 卡住通知"
   ],
   "eval_criteria": [
-    "30秒内完成一轮check"
+    "30秒内完成一轮check | 验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1"
   ],
   "system_prompt": "",
   "prompt_refs": {

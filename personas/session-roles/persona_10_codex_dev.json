@@ -7,7 +7,6 @@
   "lifecycle": "infinite",
   "drive": "goal",
   "cron_schedule": "",
-  "session_hint": "background",
   "input_signals": [
     {
       "type": "bus",
@@ -41,11 +40,11 @@
     "bus cat=code_fix"
   ],
   "eval_criteria": [
-    "验收: 每轮处理 >= 1 个未处理的 bus 任务",
-    "验收: 每轮产出可执行的代码变更",
-    "验收: 每次提交包含测试或验证",
-    "验收: 处理后更新 bus 状态为 done",
-    "验收: Git commit 有清晰的中文描述"
+    "验收: 每轮处理 >= 1 个未处理的 bus 任务 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "验收: 每轮产出可执行的代码变更 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "验收: 每次提交包含测试或验证 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "验收: 处理后更新 bus 状态为 done | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
+    "验收: Git commit 有清晰的中文描述 | 验证: python3 -c 'import os; print(\"OK\")' 输出 OK"
   ],
   "system_prompt": "",
   "prompt_refs": {

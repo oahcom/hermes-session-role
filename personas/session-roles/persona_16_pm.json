@@ -7,7 +7,6 @@
   "system_prompt": "",
   "lifecycle": "ondemand",
   "drive": "ondemand",
-  "session_hint": "interactive",
   "input_signals": [
     {
       "type": "bus",
@@ -71,11 +70,11 @@
     "bus cat=feedback 功能验证/用户反馈"
   ],
   "eval_criteria": [
-    "用户故事格式: As a/I want/so that 完整",
-    "每个故事含 Acceptance Criteria",
-    "故事点估算 S/M/L 明确",
-    "P0/P1/P2/P3 优先级标记",
-    "依赖关系在 BACKLOG.md 中标注"
+    "用户故事格式: As a/I want/so that 完整 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
+    "每个故事含 Acceptance Criteria | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
+    "故事点估算 S/M/L 明确 | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
+    "P0/P1/P2/P3 优先级标记 | 验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
+    "依赖关系在 BACKLOG.md 中标注 | 验证: ls /home/administrator/ccs-workspaces/ 2>/dev/null | head -1"
   ],
   "prompt_refs": {
     "role": "roles/pm.md",

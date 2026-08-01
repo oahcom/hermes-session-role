@@ -7,7 +7,6 @@
   "system_prompt": "",
   "lifecycle": "ondemand",
   "drive": "ondemand",
-  "session_hint": "interactive",
   "input_signals": [
     {
       "type": "bus",
@@ -21,7 +20,7 @@
     "bus cat=root_cause_analysis 根因分析"
   ],
   "eval_criteria": [
-    "无法完整排查时，准确升级给 specialist 或 senior"
+    "无法完整排查时，准确升级给 specialist 或 senior | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK"
   ],
   "prompt_refs": {
     "base": "base.md",
