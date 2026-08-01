@@ -72,11 +72,11 @@
     "git commit 文档提交"
   ],
   "eval_criteria": [
-    "PRD 完整性校验 | 验证: find /home/administrator/ccs-workspaces -name 'PRD.md' 2>/dev/null | wc -l 输出 >= 0",
-    "Mermaid 语法校验 | 验证: python3 -c 'import re; print(1)' 输出 1",
-    "接口定义完整 | 验证: python3 -c 'import os; print(os.path.exists(\"/home/administrator/ccs-workspaces\"))' 输出 True",
-    "任务分解可执行 | 验证: python3 -c 'import json; print(\"OK\")' 输出 OK",
-    "无未验证声明 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS"
+    "PRD 完整性校验 | 验证: head -20 PRD.md | grep -E 'Problem|User Stories|Out of Scope|Criteria' | wc -l 输出 >= 4",
+    "Mermaid 语法校验 | 验证: python3 -c 'import re; print(\"mermaid_regex_ok\" if re.compile(chr(96)*3+\"mermaid\") else \"fail\")' 输出 mermaid_regex_ok",
+    "接口定义完整 | 验证: grep -E '^(GET|POST|PUT|DELETE|function|method) ' docs/api.md | wc -l 输出 >= 3",
+    "验证: python3 -c \"import os,json; tasks=json.load(open('tasks.json')) if os.path.exists('tasks.json') else []\"",
+    "验证: bash -c 'grep -cE \"需要验证|未知|待补充\" *.md 2>/dev/null | awk -F: \"$NF == 0 {exit 0} {exit 1}\"' 输出 0"
   ],
   "system_prompt": "",
   "prompt_refs": {

@@ -154,11 +154,13 @@
     "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
     "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
     "验证: bash -c 'ps aux | grep -v grep | wc -l | head -1' 输出 > 0",
-    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
     "验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1",
     "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0",
     "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3",
-    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK"
+    "验证: bash -c 'ls /tmp/ccs-sentinels/ | wc -l'",
+    "验证: bash -c 'find /tmp/ccs-sentinels/ -mmin +5 2>/dev/null | wc -l' 输出 0",
+    "验证: bash -c 'journalctl --user -u ccs* --since \"5 min ago\" 2>/dev/null | grep -cE \"ERROR|exception|Traceback\"' 输出 0",
+    "验证: git -C /home/administrator/session-launcher status --porcelain | wc -l"
   ],
   "system_prompt": "",
   "prompt_refs": {
