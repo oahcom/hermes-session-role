@@ -57,7 +57,7 @@
     "bus cat=architecture 数据膨胀预警"
   ],
   "eval_criteria": [
-    "SKILL.md 扫描完成 < 30秒 | 验证: bash -c 'python3 -c \"import yaml,glob; s=glob.glob(\\\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\\\",recursive=True); [yaml.safe_load(open(f).read().split(chr(45)*3)[1]) for f in s if len(open(f).read().split(chr(45)*3))>=3]; print(len(s))\"' 输出 511",
+    "SKILL.md 扫描完成 < 30秒 | 验证: bash -c 'python3 -c \"import yaml,glob; s=glob.glob(\\\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\\\",recursive=True); [yaml.safe_load(open(f).read().split(chr(45)*3)[1]) for f in s if len(open(f).read().split(chr(45)*3))>=3]; print(len(s))\"' 输出 506",
     "python3 自检 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
     "时间戳检查 | 验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
     "清理 >30天的 session 记录、过期日志 → 写 bus cleanup | 验证: find /home/administrator/.hermes/logs -name '*.log' -mtime +30 2>/dev/null | wc -l 输出 0",

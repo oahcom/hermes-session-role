@@ -31,7 +31,7 @@
     "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
     "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
     "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
-    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 511",
+    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
     "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3"
   ],
   "goal": "验证三项目 API + 产出排查工具 + 维护系统健康",

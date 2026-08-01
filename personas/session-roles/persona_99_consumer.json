@@ -24,12 +24,35 @@
     }
   ],
   "output_targets": [
-    "bus cat=architecture 消息处理报告",
-    "bus cat=notice 处理回执"
+    {
+      "bus_cat": "architecture",
+      "label": "消息处理报告",
+      "template": "来源: <消息ID/分类> | 处理动作: 消费/转发/升级 | 结论: <一句话结果> | 证据: <wf_id或命令输出摘要>",
+      "required_fields": [
+        "来源",
+        "处理动作",
+        "结论",
+        "证据"
+      ]
+    },
+    {
+      "bus_cat": "notice",
+      "label": "处理回执",
+      "template": "回执: <notice消息ID> | 状态: 已处理/已转发/已升级 | 动作: <实际执行内容> | 证据: <wf_id或命令输出摘要>",
+      "required_fields": [
+        "回执",
+        "状态",
+        "动作",
+        "证据"
+      ]
+    }
   ],
   "constraints": [
     "遵循 系统 角色红线",
-    "不做超出职责范围的事"
+    "不做超出职责范围的事",
+    "越界请求按拒绝模板输出，不静默执行",
+    "发布前必须过 codex review 审查门禁",
+    "缺必填字段的产出不得发布"
   ],
   "workgroup": [
     {
@@ -59,5 +82,45 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "signal_routing_table": [
+    {
+      "category": "cat=*",
+      "filter": "",
+      "trigger": "非本角色消息",
+      "action": "读 → 写 bus @<正确角色> 转发 → 标记消费"
+    },
+    {
+      "category": "cat=*",
+      "filter": "",
+      "trigger": "本角色消息",
+      "action": "按消息要求执行 → 按产出发布规范发布"
+    },
+    {
+      "category": "cat=notice",
+      "filter": "needs_process",
+      "trigger": "需处理",
+      "action": "处理 → wf complete -s 摘要 → 发处理回执"
+    },
+    {
+      "category": "cat=blocker",
+      "filter": "needs_escalation",
+      "trigger": "需升级",
+      "action": "wf task <id> 确认 → wf fail -r 原因 + bus 通知上游/coordinator"
+    },
+    {
+      "category": "cat=scheduler",
+      "filter": "scheduler_items",
+      "trigger": "调度项",
+      "action": "按调度项执行 → wf complete → 发回执"
+    }
+  ],
+  "rejection_format": "拒绝: <消息 ID> | 原因: 超出 consumer 职责 | 归属: <对应角色> | 动作: bus @<角色> 转发 + 标记消费",
+  "publish_gate": {
+    "self_check": "按模板逐字段校验：报告类检查 来源/处理动作/结论/证据；回执类检查 回执/状态/动作/证据。四字段齐全、无空泛表述、结论与证据一致",
+    "draft_to_disk": "草稿内容先 tee /tmp/draft.txt 落盘，禁止用 bus_read 读旧消息做校验",
+    "grep_verify": "for f in '来源:' '处理动作:' '结论:' '证据:' '回执:' '状态:' '动作:'; do grep -q \"$f\" /tmp/draft.txt || echo \"缺必填字段: $f\"; done",
+    "codex_review": "codex review --uncommitted 确认无P0/P1问题",
+    "gate_rule": "未过 → 修复重审 → 连续两轮零问题才允许发布"
   }
 }
