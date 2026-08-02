@@ -61,10 +61,20 @@ class RoleExport:
 
 # ── 解析函数（单一权威实现） ──
 
-def parse_produce_categories(output_targets: list[str]) -> list[str]:
-    """从 output_targets 提取 bus 产出分类。"""
+def parse_produce_categories(output_targets: list) -> list[str]:
+    """从 output_targets 提取 bus 产出分类。
+
+    兼容两种格式：
+    - 旧格式字符串: "bus cat=architecture 归档清理方案"
+    - 新格式 dict:   {"bus_cat": "architecture", "label": "..."}
+    """
     cats: list[str] = []
     for target in output_targets:
+        if isinstance(target, dict):
+            cat = target.get("bus_cat", "")
+            if cat and cat not in cats:
+                cats.append(cat)
+            continue
         m = re.search(r"bus cat=(\w+)", target)
         if m:
             cat = m.group(1)
