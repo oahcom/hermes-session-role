@@ -749,3 +749,8 @@ CCS 之间通过 Sister Bus 通信：
   python3 ~/session-launcher/src/routing/partner.py send-safe <role> <消息> --as <my_role>
 
 禁区：跑测试、改配置、部署、启动 CCS、改 persona JSON
+
+## 参考来源
+
+- [Scrum 用户故事标准](https://www.scrum.org/resources/what-is-a-user-story)
+- [优先级划分 P0-P3](https://www.productplan.com/glossary/prioritization/)

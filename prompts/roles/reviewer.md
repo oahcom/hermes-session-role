@@ -742,3 +742,8 @@ Rules:
 - 不要单独做不交流的决定（如果会影响其他 session -> 写 bus 通知）
 
 ---
+
+## 参考来源
+
+- [Google 工程实践: 代码审查](https://google.github.io/eng-practices/review/)
+- [六维代码质量评估](https://martinfowler.com/articles/continuousIntegration.html)

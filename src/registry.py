@@ -9,6 +9,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,9 @@ from models import PersonaDef, RoleDef, render_prompt_from_refs
 
 _ROLES: dict[str, RoleDef] = {}
 _PERSONAS: dict[str, PersonaDef] = {}
+_LOADED_AT: float = 0.0
+_LOADED_COUNT: int = 0
+_LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存，register() 时失效
 
 
 def _notify_bus_contract_change(name: str, obj_type: str) -> None:
@@ -37,7 +41,9 @@ def _notify_bus_contract_change(name: str, obj_type: str) -> None:
 
 
 def register(obj: PersonaDef | RoleDef) -> None:
-    """注册一个人格/角色。"""
+    """注册一个人格/角色（注册即失效缓存，保证新数据可见）。"""
+    global _LOADED_AT
+    _LOADED_AT = 0.0
     conflict = False
     if isinstance(obj, RoleDef):
         if obj.name in _ROLES:
@@ -95,7 +101,11 @@ def _load_roles_json(roles_dir: Path) -> list[dict]:
 
 
 def load_all(base_dir: str | None = None) -> int:
-    """从目录加载所有人格/角色定义文件，返回加载的数量。"""
+    """从目录加载所有人格/角色定义文件，返回加载的数量（5s TTL 缓存）。"""
+    global _LOADED_AT, _LOADED_COUNT
+    now = time.monotonic()
+    if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
+        return _LOADED_COUNT
     if base_dir is None:
         base_dir = os.path.join(os.path.dirname(__file__), "..")
 
@@ -146,4 +156,6 @@ def load_all(base_dir: str | None = None) -> int:
                     print(f"  [registry] 加载失败 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
                 except Exception as e:
                     print(f"  [registry] 加载异常 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
+    _LOADED_AT = time.monotonic()
+    _LOADED_COUNT = count
     return count

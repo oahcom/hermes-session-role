@@ -17,7 +17,6 @@ class PersonaDef:
     description: str
     category: str
     system_prompt: str
-    config_overrides: dict[str, Any] = field(default_factory=dict)
     eval_criteria: list[str] = field(default_factory=list)
     prompt_refs: dict[str, str] = field(default_factory=dict)  # ponytail: 预留，role_assembler 合成 prompt 时引用
     skills: list[str] = field(default_factory=list)  # 技能列表
@@ -26,17 +25,15 @@ class PersonaDef:
     constraints: list[str] = field(default_factory=list)  # ponytail: 角色约束列表，role_assembler 输出包含
     mcp_servers: list[str] = field(default_factory=list)  # ponytail: 预留，等 launcher MCP 注册表填充后启用
     mcp_tools: dict[str, list] = field(default_factory=dict)  # ponytail: 同上
-    mcp_permissions: dict[str, list] = field(default_factory=dict)  # ponytail: 同上
-    sla_seconds: int = 0  # ponytail: 预留，等 tracker 消费后启用；0=未设置
     auto_send_messages: list[str] = field(default_factory=list)  # 自动发送消息列表
 
     def to_dict(self) -> dict[str, Any]:
         return {k: getattr(self, k) for k in (
             "name", "title", "description", "category",
-            "system_prompt", "config_overrides", "eval_criteria",
+            "system_prompt", "eval_criteria",
             "prompt_refs", "skills", "skill_refs", "goal", "constraints",
-            "mcp_servers", "mcp_tools", "mcp_permissions",
-            "sla_seconds", "auto_send_messages",
+            "mcp_servers", "mcp_tools",
+            "auto_send_messages",
         )}
 
     @classmethod
@@ -47,7 +44,7 @@ class PersonaDef:
         """渲染系统提示词，替换已知占位符，保留未知 {} 文本原样。"""
         defaults = {"persona_name": self.name, "persona_title": self.title}
         defaults.update(kwargs)
-        # 只替换已知占位符，用正则匹配 {known_key} 避免误伤 curl 格式串
+        # 用 str.replace 替换已知占位符，未知 {…} 文本原样保留
         result = self.system_prompt
         for key, val in defaults.items():
             result = result.replace("{" + key + "}", val)
@@ -131,7 +128,7 @@ class RoleDef(PersonaDef):
     idle_action: str = "exit"
     input_signals: list[dict] = field(default_factory=list)
     output_targets: list[str] = field(default_factory=list)
-    session_hint: str = "cron"  # ponytail: 提示启动方式（cron/loop/ondemand），session-launcher 消费
+    workgroup: list[dict] = field(default_factory=list)  # 协作工作组成员
 
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
@@ -142,7 +139,7 @@ class RoleDef(PersonaDef):
             "idle_action": self.idle_action,
             "input_signals": self.input_signals,
             "output_targets": self.output_targets,
-            "session_hint": self.session_hint,
+            "workgroup": self.workgroup,
         })
         return base
 

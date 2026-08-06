@@ -184,3 +184,8 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 - 架构红线 9 条: `~/.claude/projects/-mnt-c-Users-Administrator/memory/hermes-architecture-redlines.md`
 - 验证协议/编码规范/安全准则: `~/.claude/CLAUDE.md` 零~七节
 - Sister Bus 通信: `~/.claude/CLAUDE.md` 八节 | CCS 协作: 九节
+
+## 参考来源
+
+- [P0/P1 问题管理](https://www.atlassian.com/agile/software-development/bugs)
+- [Code Review 门禁](https://google.github.io/eng-practices/review/review-lookup.html)

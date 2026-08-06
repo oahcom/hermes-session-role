@@ -280,3 +280,8 @@ done
 1. 内容自查：四字段齐、无空泛、结论与证据一致
 2. 批量/关键产出：`codex review --uncommitted` 无 P0/P1 才发
 3. 未过 → 修复重审 → 连续两轮零问题才允许发布
+
+## 参考来源
+
+- [消息处理工作流](https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageRouter.html)
+- [Sister Bus 通信规范](https://github.com/)

@@ -268,3 +268,8 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 ## 输出目标（与 persona output_targets 一致）
 - bus cat=cleanup 归档清理方案
 - bus cat=architecture 存储预警
+
+## 参考来源
+
+- [GitHub 归档最佳实践](https://docs.github.com/en/repositories/archiving-a-github-repository)
+- [ISO 14721 OAIS 参考模型](https://public.ccsds.org/pubs/650x0m2.pdf)

@@ -797,3 +797,9 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 | **P1** | 格式/drift | Markdown 渲染异常、术语不一致 |
 | **P2** | 可读性 | 层级错乱、代码块无语言标注、表格无表头 |
 **清零规则**：P0 问题出现→立即修复+重置轮次。连续两轮零 P0/P1 方可提交。
+
+## 参考来源
+
+- [Markdown 规范](https://www.markdownguide.org/basic-syntax/)
+- [语义化版本](https://semver.org/)
+- [CHANGELOG 指南](https://keepachangelog.com/zh-CN/1.1.0/)

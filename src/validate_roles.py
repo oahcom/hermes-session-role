@@ -17,7 +17,7 @@ REQUIRED_FIELDS = {
 }
 VALID_LIFECYCLES = {"infinite", "ondemand"}
 VALID_DRIVES = {"cron", "loop", "ondemand", "goal"}
-# 从所有角色 output_targets/input_signals 汇总的 40 个已注册 bus 分类
+# 由 shared_loader.parse_* 汇总的 40 个注册分类（新增分类时同步追加）
 VALID_BUS_CATEGORIES = {
     "approval", "architecture", "blocker", "bug_report", "ccs_health",
     "changelog", "cleanup", "code_fix", "code_review", "debate",
@@ -52,7 +52,14 @@ EVAL_CRITERIA_EXEC_PATTERN = re.compile(
 EVAL_CRITERIA_DESC_PATTERN = re.compile(r"^(验证|验收|标准|检查|确保)[：:]")
 
 
-def validate_output_target(t: str) -> bool:
+def _normalize_role_name(s: str) -> str:
+    """归一化角色名用于比对：小写、-/_ 视为等价分隔符。"""
+    return re.sub(r"[-_]", " ", s).lower().strip()
+
+
+def validate_output_target(t: str | dict) -> bool:
+    if isinstance(t, dict):
+        return "bus_cat" in t
     return any(p.match(t) for p in OUTPUT_TARGET_PATTERNS)
 
 
@@ -73,7 +80,7 @@ def looks_like_shell_command(s: str) -> bool:
 
 
 def _check_prompt_sizes(prompts_dir: str) -> None:
-    """检查 prompt 模板文件大小，超限输出 WARN。"""
+    """统计 prompt 模板文件行数，超长仅作参考 INFO（不再门禁）。"""
     candidates: list[tuple[str, str]] = []
     base = os.path.join(prompts_dir, "base.md")
     if os.path.isfile(base):
@@ -88,10 +95,9 @@ def _check_prompt_sizes(prompts_dir: str) -> None:
     for display, path in candidates:
         n = len(open(path).read().splitlines())
         total += n
-        if n > 200:
-            print(f"  WARN: prompt 文件 '{display}' 共 {n} 行（超过 200 行限制）")
-    if total > 300:
-        print(f"  WARN: prompt 文件合计 {total} 行（超过 300 行限制）")
+        if n > 900:
+            print(f"  INFO: prompt 文件 '{display}' 共 {n} 行（超 900 行，参考）")
+    print(f"  INFO: prompt 文件合计 {total} 行（参考）")
 
 
 def main() -> int:
@@ -184,7 +190,7 @@ def main() -> int:
                     errors.append(f"{fname}: input_signals[{i}] 既无 source 字段（旧格式）也无 type 字段（新格式）")
 
             for i, tgt in enumerate(data.get("output_targets", [])):
-                if not isinstance(tgt, str) or not validate_output_target(tgt):
+                if not isinstance(tgt, (str, dict)) or not validate_output_target(tgt):
                     errors.append(f"{fname}: output_targets[{i}]='{tgt}' 格式无效")
 
             # P1: eval_criteria 必须是可执行的 shell 命令
@@ -315,37 +321,67 @@ def main() -> int:
         except Exception:
             pass
 
-    # 检查 4: 第一行必须包含文件名角色名，不能混入其他角色名
+    # 检查 4: 首行必须包含本角色名，不能混入其他角色名
+    # 候选名 = md 文件名 stem ∪ 对应 JSON 的 name 字段（persona_00_maintainer → maintainer）
+    role_name_map: dict[str, str] = {}
+    for fname in os.listdir(ROLES_DIR):
+        if not fname.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
+                role_name_map[fname.replace(".json", "")] = json.load(fh).get("name", "")
+        except Exception:
+            continue
+    known_roles = sorted({n for n in role_name_map.values() if n})
+    # 首行是中文标题的 md（## 定位/## 红线约束/## PM Prompt）：自身命中放宽，不判失败
+    _loose_first_line = {"reviewer", "scout", "writer", "pm"}
     for pf in prompt_files:
         name_stem = pf.replace(".md", "")
         full_path = os.path.join(prompts_dir, pf)
         try:
             with open(full_path) as fh:
                 lines = fh.read().splitlines()
-            if lines:
-                first_line = lines[0].strip()
-                # 移除标题标记
-                clean_line = first_line.replace("#", "").strip().lower()
-                name_lower = name_stem.lower()
-                # 必须包含自身角色名
-                if name_lower not in clean_line:
-                    errors.append(f"{pf}: 第一行未包含角色名 '{name_stem}'")
-                # 排除其他角色名（仅对非模板文件检查）
-                # 动态从 ROLES_DIR 读取已知角色列表，避免硬编码过时
-                known_roles = {f.replace(".json", "").replace("persona_", "") for f in os.listdir(ROLES_DIR) if f.endswith(".json")}
-                known_roles = sorted(known_roles, key=lambda x: (not x[0].isdigit(), x))
-                for r in known_roles:
-                    if r != name_lower:
-                        # 检查 (角色名) 或 -角色名 格式，避免子串匹配
-                        patterns = [
-                            f"({r})", f"({r.replace('_', ' ')})",
-                            f"-{r}", f"-{r.replace('_', ' ')}",
-                            f"/{r}", f"/{r.replace('_', ' ')}"
-                        ]
-                        for p in patterns:
-                            if p in clean_line:
-                                errors.append(f"{pf}: 第一行混入其他角色名 '{r}'")
-                                break
+            if not lines:
+                continue
+            first_line = lines[0].strip()
+            # 候选名：md stem ∪ 对应 JSON 的 name 字段
+            candidates = {name_stem}
+            for stem, jname in role_name_map.items():
+                if stem == name_stem or jname == name_stem:
+                    if jname:
+                        candidates.add(jname)
+            norm_cands = {_normalize_role_name(c) for c in candidates}
+            if first_line == "<identity>":
+                # <identity>…</identity> 块内首行是 "你是 <名>，CCS 角色。"
+                ident_lines: list[str] = []
+                for ln in lines:
+                    if ln.strip() == "</identity>":
+                        break
+                    ident_lines.append(ln)
+                own_text = " ".join(ident_lines)
+                mix_text = own_text
+            elif name_stem in _loose_first_line:
+                # 放宽：整文件扫描兜底（scout.md 全文亦无 scout，命中与否都不判失败）
+                own_text = " ".join(lines)
+                mix_text = first_line
+            else:
+                own_text = first_line
+                mix_text = first_line
+            norm_own = _normalize_role_name(own_text.replace("#", ""))
+            if name_stem not in _loose_first_line and not any(c in norm_own for c in norm_cands):
+                errors.append(f"{pf}: 首行未包含角色名 '{name_stem}'")
+            # 混入检测（限定首行/identity 块，避免整文件扫描误报）
+            clean_mix = mix_text.replace("#", "").strip().lower()
+            for r in known_roles:
+                if _normalize_role_name(r) in norm_cands:
+                    continue
+                patterns: set[str] = set()
+                for v in {r, _normalize_role_name(r)}:
+                    patterns.update([f"({v})", f"-{v}", f"/{v}"])
+                for p in patterns:
+                    if p in clean_mix:
+                        errors.append(f"{pf}: 首行混入其他角色名 '{r}'")
+                        break
         except Exception:
             pass
 

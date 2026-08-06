@@ -114,41 +114,15 @@ def parse_consume_categories(input_signals: list[dict]) -> list[str]:
     return cats
 
 
-_ROLES_CACHE: Optional[list[dict]] = None
-_ROLES_CACHE_TIMESTAMP: float = 0
-_ROLES_CACHE_TTL: float = 5.0  # 5s cache TTL
-
-
 def load_roles() -> list[dict]:
-    """加载所有角色 JSON 文件（5s 缓存）。"""
-    global _ROLES_CACHE, _ROLES_CACHE_TIMESTAMP
-    now = time.time()
-    if _ROLES_CACHE is not None and now - _ROLES_CACHE_TIMESTAMP < _ROLES_CACHE_TTL:
-        return _ROLES_CACHE
-    if not ROLES_DIR.exists():
-        _ROLES_CACHE = []
-        _ROLES_CACHE_TIMESTAMP = now
-        return _ROLES_CACHE
-    roles: list[dict] = []
-    for f in sorted(ROLES_DIR.glob("persona_*.json")):
-        try:
-            with open(f, encoding="utf-8") as fp:
-                item = json.load(fp)
-                # browser-harness 的 profiles dict 格式：解包为多个角色
-                if isinstance(item, dict) and "profiles" in item and isinstance(item["profiles"], dict):
-                    roles.extend(item["profiles"].values())
-                else:
-                    roles.append(item)
-        except (json.JSONDecodeError, OSError) as e:
-            print(f"  [shared_loader] WARNING: 跳过 {f}: {e}", file=sys.stderr)
-            continue
-    _ROLES_CACHE = roles
-    _ROLES_CACHE_TIMESTAMP = now
-    return roles
+    """加载所有角色 JSON（委托 registry.load_all → list_roles，返回原始 dict）。"""
+    from registry import load_all, list_roles
+    load_all()
+    return [r.to_dict() for r in list_roles()]
 
 
 def load_role(name: str) -> Optional[dict]:
-    """按名称查找角色（复用 load_roles 缓存）。"""
+    """按名称查找角色（复用 load_roles）。"""
     for r in load_roles():
         if r.get("name") == name:
             return r

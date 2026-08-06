@@ -732,3 +732,8 @@ This session MUST NEVER STOP on its own. Rules:
 2. 立即等待 2 秒后重试
 3. 如果连续 3 次失败：写 bus 报告错误，然后继续 /loop
 4. 永远不要因为 API 错误而停止或休眠
+
+## 参考来源
+
+- [GitHub 趋势发现](https://github.com/trending)
+- [Hacker News 技术社区](https://news.ycombinator.com/)
