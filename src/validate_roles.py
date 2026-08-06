@@ -331,14 +331,9 @@ def main() -> int:
                 if name_lower not in clean_line:
                     errors.append(f"{pf}: 第一行未包含角色名 '{name_stem}'")
                 # 排除其他角色名（仅对非模板文件检查）
-                known_roles = [
-                    "maintainer", "scout", "curator", "coordinator", "developer",
-                    "closer", "optimizer", "supervisor", "codex", "ccs_monitor",
-                    "debate_verifier", "product_architect", "knowledge_curator",
-                    "security_auditor", "pm", "reviewer", "qa", "devops", "writer",
-                    "engineer", "lr", "pg", "investigator_python", "investigator_senior",
-                    "investigator_general",
-                ]
+                # 动态从 ROLES_DIR 读取已知角色列表，避免硬编码过时
+                known_roles = {f.replace(".json", "").replace("persona_", "") for f in os.listdir(ROLES_DIR) if f.endswith(".json")}
+                known_roles = sorted(known_roles, key=lambda x: (not x[0].isdigit(), x))
                 for r in known_roles:
                     if r != name_lower:
                         # 检查 (角色名) 或 -角色名 格式，避免子串匹配

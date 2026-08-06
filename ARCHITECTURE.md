@@ -2,6 +2,8 @@
 
 版本: 2026-07-25 | 范围: hermes-session-roles / session-launcher / session-pipeline | 方法: 代码通读 46 源文件 + 4 专家工作流审查
 
+> 本项目内部架构参见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+
 ---
 
 ## TL;DR（给 AI 的第一段）

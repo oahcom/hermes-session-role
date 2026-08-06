@@ -6,7 +6,7 @@ TIMEOUT = 30
 signal.signal(signal.SIGALRM, lambda s,f: (print("TIMEOUT"), sys.exit(1)))
 signal.alarm(TIMEOUT)
 
-sys.path.insert(0, "/home/administrator/session-pipeline/src")
+sys.path.insert(0, str(__import__("pathlib").Path.home() / "session-pipeline" / "src"))
 from paths import ensure_paths; ensure_paths()
 from pipeflow.engine import WorkflowEngine
 e = WorkflowEngine()

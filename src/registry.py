@@ -114,7 +114,7 @@ def load_all(base_dir: str | None = None) -> int:
             else:
                 items = [item] if isinstance(item, dict) else item
             for subitem in items:
-                if subitem.get("category") == "测试":
+                if subitem.get("category") == "测试" and "browser-harness" in roles_path:
                     continue
                 try:
                     if "lifecycle" in subitem or "input_signals" in subitem:

@@ -14,7 +14,7 @@ Session 生态的**定义层**——每个 CCS（Claude Code Session）是谁、
 │  │  hermes-session-roles  ← 本项目（定义层）                     │      │
 │  │                                                               │      │
 │  │  personas/session-roles/*.json    → 31 基础设施角色            │      │
-│  │  personas/browser-harness/*.json  → 57 浏览器自动化人格        │      │
+│  │  personas/browser-harness/*.json  → 53 浏览器自动化人格        │      │
 │  │  prompts/roles/*.md               → 角色专业 prompt 模板       │      │
 │  │                                                               │      │
 │  │  src/cli.py          → list/show/load/search CLI              │      │
@@ -67,7 +67,7 @@ personas/
     persona_02_consumer.json
     persona_03_curator.json
     ...
-  browser-harness/             # 57 个浏览器自动化人格
+  browser-harness/             # 53 个浏览器自动化人格
     persona_01_core.json       # 10 核心人格
     persona_02_specialized.json # 25 专业人格
     persona_03_advanced.json   # 22 高级人格
@@ -85,8 +85,8 @@ src/
   validate_roles.py       → 31 角色全量校验
   role_assembler.py       → 动态组装 system prompt
   # role_relations.py     → [已删除] 角色关系图谱（迁移至 Router API）
-  inject_skills.py        → 技能注入工具
-  create_skill_library.py → 技能库创建工具
+#   inject_skills.py        → 技能注入工具
+#   create_skill_library.py → 技能库创建工具
 tests/
   test_search.py          → 15 个搜索回归测试
 ```
@@ -133,7 +133,7 @@ tests/
 
 ## Browser Harness 集成
 
-Browser Harness 是一个独立的浏览器自动化人格库，包含 57 个人格，按三个层级组织：
+Browser Harness 是一个独立的浏览器自动化人格库，包含 53 个人格，按三个层级组织：
 
 | 层级 | 文件 | 人格数 | 涵盖领域 |
 |------|------|--------|----------|

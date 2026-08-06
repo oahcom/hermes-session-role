@@ -1,6 +1,6 @@
 # Hermes Session Roles — 文档索引
 
-> 角色注册表：64 个定义（7 role + 57 persona），定义 Claude Code session 的职业身份、prompt、输入输出链路。
+> 角色注册表：31 个 session-role JSON，定义 Claude Code session 的职业身份、prompt、输入输出链路。
 
 ## 快速链接
 

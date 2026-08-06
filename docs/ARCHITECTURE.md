@@ -1,7 +1,8 @@
 # Architecture — hermes-session-roles
 
 ## Purpose
-Role registry for Hermes multi-session ecosystem. Defines professional identity, prompts, I/O signals, and eval criteria for 31 session roles + 57 browser-harness personas. **Pure data layer -- zero runtime logic, zero dependencies on other two projects.**
+Role registry for Hermes multi-session ecosystem. Defines professional identity, prompts, I/O signals, and eval criteria for 31 session roles + 53 browser-harness personas. **Pure data layer -- zero runtime logic, zero dependencies on other two projects.**
+(See [root ARCHITECTURE.md](../ARCHITECTURE.md) for cross-project architecture.)
 
 ## Position in ecosystem
 
@@ -17,7 +18,7 @@ hermes-session-roles (定义层)      ← 最底层，不引用其他项目
 ```
 personas/
   session-roles/               # 31 基础设施角色（persona_XX_name.json）
-  browser-harness/             # 57 浏览器自动化人格
+  browser-harness/             # 53 浏览器自动化人格
     persona_01_core.json       # 10 核心人格
     persona_02_specialized.json # 25 专业人格
     persona_03_advanced.json   # 22 高级人格

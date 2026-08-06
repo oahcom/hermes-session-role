@@ -13,9 +13,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from registry import load_all, get, list_roles, list_personas, list_categories, register
 from models import PersonaDef, RoleDef
 
-EXPECTED_ROLES = 26  # session-roles + test roles
-# Total personas loaded: 56 (26 session-roles + 30 browser-harness non-test)
-EXPECTED_TOTAL = 56
+EXPECTED_ROLES = 26  # session-roles（不含 persona_99_*）
+EXPECTED_TOTAL = 56  # session-roles + browser-harness profiles（估算宽限）
 
 
 def test_load_all_count():

@@ -16,10 +16,14 @@ jobs:
           python-version: '3.10'
       - name: Check syntax
         run: |
-          python3 -m py_compile src/models.py src/registry.py src/search.py src/cli.py
+          find src/ -name '*.py' -exec python3 -m py_compile {} ;
       - name: Run tests
         run: |
           python3 tests/test_search.py
+          python3 tests/test_registry.py
+      - name: Validate roles
+        run: |
+          python3 src/validate_roles.py || echo "validate_roles warnings (non-fatal)"
       - name: Validate JSONs
         run: |
           python3 -c "
