@@ -34,10 +34,7 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 
 ## ValidateRoles (`validate_roles.py`)
 
-| 函数 | 参数 | 返回 |
-|------|------|------|
-| `validate_all()` | — | `list[str]` (错误列表, 空=通过) |
-| `validate_role(role_name)` | `str` | `list[str]` |
+CLI 入口（`main()`，argparse），用 `python3 src/validate_roles.py` 运行。无 `validate_all()`/`validate_role()` 两个 API 函数。
 
 ## Search (`search.py`)
 
@@ -57,12 +54,14 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 
 ## CLI (`cli.py`)
 
+无 argparse，用 `sys.argv` 手动解析；命令为 `list/show/load/search`。
+
 | 命令 | 功能 |
 |------|------|
 | `list` | 列出所有角色 |
-| `info <role>` | 查角色详情 |
-| `validate [role]` | 校验角色 |
-| `search <query>` | 语义搜索 |
+| `show <role>` | 查角色详情（JSON 输出） |
+| `load <role>` | 输出角色 system_prompt |
+| `search <query>` | 子串匹配搜索 title/description |
 
 ## Models (`models.py`)
 
