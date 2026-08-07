@@ -117,7 +117,10 @@ def parse_consume_categories(input_signals: list[dict]) -> list[str]:
 def load_roles() -> list[dict]:
     """加载所有角色 JSON（委托 registry.load_all → list_roles，返回原始 dict）。"""
     from registry import load_all, list_roles
-    load_all()
+    # ponytail: 环境变量 SESSION_ROLES_ROOT 可覆盖默认路径；
+    # 加载器用 ROLES_DIR.parent.parent（项目根目录），
+    # registry 内部再拼接 "personas/session-roles" 子目录。
+    load_all(base_dir=str(ROLES_DIR.parent.parent))
     return [r.to_dict() for r in list_roles()]
 
 
