@@ -127,8 +127,11 @@ class RoleDef(PersonaDef):
     cron_schedule: str = ""
     idle_action: str = "exit"
     input_signals: list[dict] = field(default_factory=list)
-    output_targets: list[str] = field(default_factory=list)
+    # output_targets 兼容 str 旧格式（"bus cat=..."）与 dict 新格式（{"bus_cat": ...}，见 shared_loader.parse_produce_categories）
+    output_targets: list[Union[str, dict]] = field(default_factory=list)
     workgroup: list[dict] = field(default_factory=list)  # 协作工作组成员
+    contract_version: str = ""  # JSON 顶层声明（如 "1.0"，无声明时为空）
+    permissions: dict = field(default_factory=dict)  # 外部工具权限白名单（如 maintainer 的 allow 列表）
 
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
@@ -140,6 +143,8 @@ class RoleDef(PersonaDef):
             "input_signals": self.input_signals,
             "output_targets": self.output_targets,
             "workgroup": self.workgroup,
+            "contract_version": self.contract_version,
+            "permissions": self.permissions,
         })
         return base
 

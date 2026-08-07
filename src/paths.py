@@ -38,7 +38,7 @@ WORKFLOW_GUIDE = HERMES_TEMPLATES / "WORKFLOW_GUIDE.md"
 # ── 项目根目录 ──
 SESSION_LAUNCHER_SRC = Path(os.environ.get('SESSION_LAUNCHER_SRC', str(Path.home() / 'session-launcher' / 'src')))
 SESSION_PIPELINE_SRC = Path(os.environ.get('SESSION_PIPELINE_SRC', str(Path.home() / 'session-pipeline' / 'src')))
-SESSION_ROLES_ROOT = _HOME / "hermes-session-roles"
+SESSION_ROLES_ROOT = Path(os.environ.get('SESSION_ROLES_ROOT', str(_HOME / "hermes-session-roles")))
 
 # ── Sister Bus ──
 SISTER_BUS_CCS_SOCK = Path("/tmp/sister_bus_ccs.sock")

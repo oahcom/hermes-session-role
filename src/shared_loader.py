@@ -54,7 +54,7 @@ class RoleExport:
     drive: str
     cron_schedule: str
     routing: RoleRouting
-    workgroup: list[str]
+    workgroup: list[dict]  # [{role, mode, round_limit?}]，与 models.RoleDef.workgroup 一致
     auto_send_messages: list[str]
     raw: dict | None = None  # original JSON (excluded from --export)
 

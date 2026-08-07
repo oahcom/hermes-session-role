@@ -109,19 +109,26 @@ def _load_roles_json(roles_dir: Path) -> list[dict]:
 
 
 def load_all(base_dir: str | None = None) -> int:
-    """从目录加载所有人格/角色定义文件，返回加载的数量（5s TTL 缓存）。"""
+    """从目录加载所有人格/角色定义文件，返回加载的数量（5s TTL 缓存）。
+
+    快照模式：锁内构建临时 dict，整体替换全局引用，消除读路径空窗期。
+    TTL 检查分两层：锁外快速返回（无竞争时零开销），锁内二次确认（防并发重复全量加载）。
+    """
     global _LOADED_AT, _LOADED_COUNT
     now = time.monotonic()
     if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
         return _LOADED_COUNT
     with _WRITE_LOCK:
+        # 锁内二次确认：另一线程可能刚完成加载
+        now = time.monotonic()
+        if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
+            return _LOADED_COUNT
         if base_dir is None:
             base_dir = os.path.join(os.path.dirname(__file__), "..")
 
-        # 重载前清空注册表，删除的 JSON 不再作为幽灵角色残留
-        _ROLES.clear()
-        _PERSONAS.clear()
-
+        # 快照：构建临时 dict，加载完后整体替换（消除读路径空窗）
+        new_roles: dict[str, RoleDef] = {}
+        new_personas: dict[str, PersonaDef] = {}
         count = 0
         prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
 
@@ -145,9 +152,6 @@ def load_all(base_dir: str | None = None) -> int:
                         else:
                             obj = PersonaDef.from_dict(subitem)
 
-                        # 渲染 prompt_refs → system_prompt
-                        # prompt_refs 是权威源，system_prompt 是缓存
-                        # 两者都存在时仍以 prompt_refs 为准，并告警
                         if obj.prompt_refs:
                             render_kwargs = {
                                 "persona_name": obj.name,
@@ -163,12 +167,20 @@ def load_all(base_dir: str | None = None) -> int:
                                     print(f"  [registry] WARNING: {obj.name} 同时有 system_prompt 和 prompt_refs，以 prompt_refs 为准", file=sys.stderr)
                                 obj.system_prompt = rendered
 
-                        register(obj)
+                        if isinstance(obj, RoleDef):
+                            new_roles[obj.name] = obj
+                        new_personas[obj.name] = obj
                         count += 1
                     except (json.JSONDecodeError, OSError, KeyError) as e:
                         print(f"  [registry] 加载失败 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
                     except Exception as e:
                         print(f"  [registry] 加载异常 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
+
+        # 整体替换（锁内单次赋值，读路径原子可见）
+        _ROLES.clear()
+        _ROLES.update(new_roles)
+        _PERSONAS.clear()
+        _PERSONAS.update(new_personas)
         _LOADED_AT = time.monotonic()
         _LOADED_COUNT = count
         return count

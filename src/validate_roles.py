@@ -9,6 +9,8 @@ import sys
 import paths
 from shared_loader import parse_produce_categories, parse_consume_categories
 
+# 仅扫描会话角色目录；browser-harness profiles（registry.load_all 同时加载）
+# 是另一套 schema（无 skills/goal/constraints/mcp_servers 强校验），不走本校验器。
 ROLES_DIR = str(paths.SESSION_ROLES_PERSONAS)
 
 REQUIRED_FIELDS = {
