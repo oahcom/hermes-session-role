@@ -95,7 +95,11 @@ def _check_prompt_sizes(prompts_dir: str) -> None:
                     candidates.append((f"{subdir}/{f}", os.path.join(d, f)))
     total = 0
     for display, path in candidates:
-        n = len(open(path).read().splitlines())
+        try:
+            with open(path) as f:
+                n = len(f.read().splitlines())
+        except OSError:
+            continue
         total += n
         if n > 900:
             print(f"  INFO: prompt 文件 '{display}' 共 {n} 行（超 900 行，参考）")
