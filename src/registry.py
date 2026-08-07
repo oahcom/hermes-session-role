@@ -41,19 +41,20 @@ def _notify_bus_contract_change(name: str, obj_type: str) -> None:
 
 
 def register(obj: PersonaDef | RoleDef) -> None:
-    """注册一个人格/角色（注册即失效缓存，保证新数据可见）。"""
+    """注册一个人格/角色（注册即失效缓存，保证新数据可见）。
+
+    仅内容真正变更时发 bus 通知（比较 to_dict），避免 load_all 每次全量
+    触发 62 次 subprocess 写总线。
+    """
     global _LOADED_AT
     _LOADED_AT = 0.0
-    conflict = False
     if isinstance(obj, RoleDef):
-        if obj.name in _ROLES:
-            conflict = True
+        if obj.name not in _ROLES or _ROLES[obj.name].to_dict() != obj.to_dict():
+            _notify_bus_contract_change(obj.name, type(obj).__name__)
         _ROLES[obj.name] = obj
-    if obj.name in _PERSONAS:
-        conflict = True
-    _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
-    if conflict:
+    if obj.name not in _PERSONAS or _PERSONAS[obj.name].to_dict() != obj.to_dict():
         _notify_bus_contract_change(obj.name, type(obj).__name__)
+    _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
 
 
 def get(name: str) -> PersonaDef | RoleDef | None:
@@ -108,6 +109,10 @@ def load_all(base_dir: str | None = None) -> int:
         return _LOADED_COUNT
     if base_dir is None:
         base_dir = os.path.join(os.path.dirname(__file__), "..")
+
+    # 重载前清空注册表，删除的 JSON 不再作为幽灵角色残留
+    _ROLES.clear()
+    _PERSONAS.clear()
 
     count = 0
     prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
