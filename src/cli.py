@@ -3,7 +3,7 @@
 import json, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from registry import load_all, list_roles, list_personas, get
+from registry import load_all, list_roles, get
 
 def main():
     load_all()

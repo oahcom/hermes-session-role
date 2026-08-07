@@ -12,8 +12,6 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import Any
-
 from models import PersonaDef, RoleDef, render_prompt_from_refs
 
 

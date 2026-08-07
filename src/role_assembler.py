@@ -2,7 +2,7 @@
 """Role Prompt Assembler — 动态组装 System Prompt
 对标 MetaGPT: profile + goal + constraints + skills -> 完整 prompt"""
 from __future__ import annotations
-import json, os, subprocess, sys
+import json, sys
 from pathlib import Path
 from typing import Any
 

@@ -6,7 +6,7 @@ Session Role Definition — PersonaDef + RoleDef.
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Union
 import os
 
 @dataclass

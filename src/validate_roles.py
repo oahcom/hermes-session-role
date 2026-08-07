@@ -145,7 +145,7 @@ def main() -> int:
 
     files = sorted(f for f in os.listdir(ROLES_DIR) if f.endswith(".json"))
     if not files:
-        print(f"  FAIL: 未找到 JSON 文件")
+        print("  FAIL: 未找到 JSON 文件")
         return 1
 
     seen_names: set[str] = set()

@@ -7,7 +7,7 @@ ponytail: 当前是内存子串/词元重叠打分；若需要语义检索，升
 import re, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from registry import load_all, list_roles, list_personas
+from registry import load_all, list_roles
 
 def _tokenize(text: str) -> list[str]:
     text = text.lower().strip()
