@@ -18,13 +18,13 @@ class PersonaDef:
     category: str
     system_prompt: str
     eval_criteria: list[str] = field(default_factory=list)
-    prompt_refs: dict[str, str] = field(default_factory=dict)  # ponytail: 预留，role_assembler 合成 prompt 时引用
+    prompt_refs: dict[str, str] = field(default_factory=dict)  # ponytail: prompt 模板引用，registry.load_all 渲染为 system_prompt
     skills: list[str] = field(default_factory=list)  # 技能列表
-    skill_refs: dict[str, str] = field(default_factory=dict)  # ponytail: skill 路径映射，role_assembler 读取
-    goal: str = ""  # ponytail: 角色定位描述，role_assembler 输出包含
-    constraints: list[str] = field(default_factory=list)  # ponytail: 角色约束列表，role_assembler 输出包含
-    mcp_servers: list[str] = field(default_factory=list)  # ponytail: 预留，等 launcher MCP 注册表填充后启用
-    mcp_tools: dict[str, list] = field(default_factory=dict)  # ponytail: 同上
+    skill_refs: dict[str, str] = field(default_factory=dict)  # ponytail: skill 路径映射，validate_roles 校验、role_assembler 读取
+    goal: str = ""  # ponytail: 角色定位描述，validate_roles 强制非空
+    constraints: list[str] = field(default_factory=list)  # ponytail: 角色约束列表，validate_roles 强制非空
+    mcp_servers: list[str] = field(default_factory=list)  # ponytail: 已由 validate_roles 强制校验（非空、与 mcp_tools 键对应）
+    mcp_tools: dict[str, list] = field(default_factory=dict)  # ponytail: 已由 validate_roles 强制校验（非空、工具字符串列表）
     auto_send_messages: list[str] = field(default_factory=list)  # 自动发送消息列表
 
     def to_dict(self) -> dict[str, Any]:

@@ -5,6 +5,11 @@
 环境变量可覆盖，支持测试和部署环境切换。
 
 ensure_paths() 统一管理跨项目 sys.path，替代各文件独立实现。
+
+ponytail: 与 ~/session-launcher/src/paths.py 有约 40% 重复常量
+（HERMES_STATE/WORKFLOWS_DB/模板/哨兵目录等，本项目仅实际使用
+BUS_CLIENT/SESSION_ROLES_PERSONAS/PROMPTS_DIR/SKILLS_ROOT）。
+合并需统一引入源（如公共包），跨项目改动风险高，暂缓。
 """
 import os
 import sys

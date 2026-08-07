@@ -9,6 +9,7 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,11 @@ _PERSONAS: dict[str, PersonaDef] = {}
 _LOADED_AT: float = 0.0
 _LOADED_COUNT: int = 0
 _LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存，register() 时失效
+
+# 写路径锁（RLock 允许 load_all 内部调用 register 重入）。
+# ponytail: 当前单进程使用，读路径（get/list_*) 不加锁；多线程共享此模块时
+# 需把读操作也纳入锁，升级路径是把读缓存换成线程安全的 dict 快照。
+_WRITE_LOCK = threading.RLock()
 
 
 def _notify_bus_contract_change(name: str, obj_type: str) -> None:
@@ -47,14 +53,15 @@ def register(obj: PersonaDef | RoleDef) -> None:
     触发 62 次 subprocess 写总线。
     """
     global _LOADED_AT
-    _LOADED_AT = 0.0
-    if isinstance(obj, RoleDef):
-        if obj.name not in _ROLES or _ROLES[obj.name].to_dict() != obj.to_dict():
+    with _WRITE_LOCK:
+        _LOADED_AT = 0.0
+        if isinstance(obj, RoleDef):
+            if obj.name not in _ROLES or _ROLES[obj.name].to_dict() != obj.to_dict():
+                _notify_bus_contract_change(obj.name, type(obj).__name__)
+            _ROLES[obj.name] = obj
+        if obj.name not in _PERSONAS or _PERSONAS[obj.name].to_dict() != obj.to_dict():
             _notify_bus_contract_change(obj.name, type(obj).__name__)
-        _ROLES[obj.name] = obj
-    if obj.name not in _PERSONAS or _PERSONAS[obj.name].to_dict() != obj.to_dict():
-        _notify_bus_contract_change(obj.name, type(obj).__name__)
-    _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
+        _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
 
 
 def get(name: str) -> PersonaDef | RoleDef | None:
@@ -107,60 +114,61 @@ def load_all(base_dir: str | None = None) -> int:
     now = time.monotonic()
     if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
         return _LOADED_COUNT
-    if base_dir is None:
-        base_dir = os.path.join(os.path.dirname(__file__), "..")
+    with _WRITE_LOCK:
+        if base_dir is None:
+            base_dir = os.path.join(os.path.dirname(__file__), "..")
 
-    # 重载前清空注册表，删除的 JSON 不再作为幽灵角色残留
-    _ROLES.clear()
-    _PERSONAS.clear()
+        # 重载前清空注册表，删除的 JSON 不再作为幽灵角色残留
+        _ROLES.clear()
+        _PERSONAS.clear()
 
-    count = 0
-    prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
+        count = 0
+        prompts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
 
-    for roles_subdir in ("personas/session-roles", "personas/browser-harness"):
-        roles_path = os.path.join(base_dir, roles_subdir)
-        if not os.path.isdir(roles_path):
-            continue
-        raw_items = _load_roles_json(Path(roles_path))
-        for item in raw_items:
-            # 兼容 browser-harness profiles 格式
-            if isinstance(item, dict) and 'profiles' in item and isinstance(item['profiles'], dict):
-                items = list(item['profiles'].values())
-            else:
-                items = [item] if isinstance(item, dict) else item
-            for subitem in items:
-                if subitem.get("category") == "测试" and "browser-harness" in roles_path:
-                    continue
-                try:
-                    if "lifecycle" in subitem or "input_signals" in subitem:
-                        obj = RoleDef.from_dict(subitem)
-                    else:
-                        obj = PersonaDef.from_dict(subitem)
+        for roles_subdir in ("personas/session-roles", "personas/browser-harness"):
+            roles_path = os.path.join(base_dir, roles_subdir)
+            if not os.path.isdir(roles_path):
+                continue
+            raw_items = _load_roles_json(Path(roles_path))
+            for item in raw_items:
+                # 兼容 browser-harness profiles 格式
+                if isinstance(item, dict) and 'profiles' in item and isinstance(item['profiles'], dict):
+                    items = list(item['profiles'].values())
+                else:
+                    items = [item] if isinstance(item, dict) else item
+                for subitem in items:
+                    if subitem.get("category") == "测试" and "browser-harness" in roles_path:
+                        continue
+                    try:
+                        if "lifecycle" in subitem or "input_signals" in subitem:
+                            obj = RoleDef.from_dict(subitem)
+                        else:
+                            obj = PersonaDef.from_dict(subitem)
 
-                    # 渲染 prompt_refs → system_prompt
-                    # prompt_refs 是权威源，system_prompt 是缓存
-                    # 两者都存在时仍以 prompt_refs 为准，并告警
-                    if obj.prompt_refs:
-                        render_kwargs = {
-                            "persona_name": obj.name,
-                            "persona_title": obj.title,
-                        }
-                        if isinstance(obj, RoleDef):
-                            render_kwargs["cron_schedule"] = obj.cron_schedule
-                        rendered = render_prompt_from_refs(
-                            obj.prompt_refs, prompts_dir, **render_kwargs
-                        )
-                        if rendered:
-                            if obj.system_prompt and obj.system_prompt != rendered:
-                                print(f"  [registry] WARNING: {obj.name} 同时有 system_prompt 和 prompt_refs，以 prompt_refs 为准", file=sys.stderr)
-                            obj.system_prompt = rendered
+                        # 渲染 prompt_refs → system_prompt
+                        # prompt_refs 是权威源，system_prompt 是缓存
+                        # 两者都存在时仍以 prompt_refs 为准，并告警
+                        if obj.prompt_refs:
+                            render_kwargs = {
+                                "persona_name": obj.name,
+                                "persona_title": obj.title,
+                            }
+                            if isinstance(obj, RoleDef):
+                                render_kwargs["cron_schedule"] = obj.cron_schedule
+                            rendered = render_prompt_from_refs(
+                                obj.prompt_refs, prompts_dir, **render_kwargs
+                            )
+                            if rendered:
+                                if obj.system_prompt and obj.system_prompt != rendered:
+                                    print(f"  [registry] WARNING: {obj.name} 同时有 system_prompt 和 prompt_refs，以 prompt_refs 为准", file=sys.stderr)
+                                obj.system_prompt = rendered
 
-                    register(obj)
-                    count += 1
-                except (json.JSONDecodeError, OSError, KeyError) as e:
-                    print(f"  [registry] 加载失败 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
-                except Exception as e:
-                    print(f"  [registry] 加载异常 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
-    _LOADED_AT = time.monotonic()
-    _LOADED_COUNT = count
-    return count
+                        register(obj)
+                        count += 1
+                    except (json.JSONDecodeError, OSError, KeyError) as e:
+                        print(f"  [registry] 加载失败 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
+                    except Exception as e:
+                        print(f"  [registry] 加载异常 {subitem.get('name', 'unknown')}: {type(e).__name__}: {e}", file=sys.stderr)
+        _LOADED_AT = time.monotonic()
+        _LOADED_COUNT = count
+        return count

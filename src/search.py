@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Chinese semantic search using bigram tokenization."""
+"""角色搜索——基于 bigram 词元 + 字符子串匹配的本地打分（非语义向量检索）。
+
+ponytail: 当前是内存子串/词元重叠打分；若需要语义检索，升级路径为
+接向量库（如 sqlite-vec）替换 search() 内部实现，调用方不变。
+"""
 import re, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))

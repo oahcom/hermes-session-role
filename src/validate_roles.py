@@ -100,6 +100,30 @@ def _check_prompt_sizes(prompts_dir: str) -> None:
     print(f"  INFO: prompt 文件合计 {total} 行（参考）")
 
 
+def _warn_category_drift() -> None:
+    """对比 JSON 实际使用的 bus 分类与 VALID_BUS_CATEGORIES，不一致时告警。"""
+    used: set[str] = set()
+    for fname in os.listdir(ROLES_DIR):
+        if not fname.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            continue
+        for c in parse_produce_categories(data.get("output_targets", [])):
+            used.add(c)
+        for c in parse_consume_categories(data.get("input_signals", [])):
+            if c != "*":
+                used.add(c)
+    unregistered = used - VALID_BUS_CATEGORIES
+    orphan = VALID_BUS_CATEGORIES - used
+    if unregistered:
+        print(f"  WARN: JSON 使用了 {len(unregistered)} 个未注册分类 → {sorted(unregistered)}，请同步追加到 VALID_BUS_CATEGORIES", file=sys.stderr)
+    if orphan:
+        print(f"  WARN: VALID_BUS_CATEGORIES 有 {len(orphan)} 个未被 JSON 引用 → {sorted(orphan)}，可考虑清理", file=sys.stderr)
+
+
 def main() -> int:
     import argparse
     parser = argparse.ArgumentParser(description="Validate session-role JSON files")
@@ -110,6 +134,8 @@ def main() -> int:
     if not os.path.isdir(ROLES_DIR):
         print(f"  FAIL: 目录不存在 {ROLES_DIR}")
         return 1
+
+    _warn_category_drift()
 
     files = sorted(f for f in os.listdir(ROLES_DIR) if f.endswith(".json"))
     if not files:
