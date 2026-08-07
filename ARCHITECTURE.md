@@ -76,7 +76,7 @@ pipeflow/daemon.py:51-76       while True (sleep 10s) — 这是系统唯一的�
 | constraints | persona JSON | gatekeeper 校验 + wake_permission | ✅ |
 | lifecycle/drive | persona JSON | ccs.py start 消费（ondemand/infinite） | ✅ |
 | output_targets | persona JSON | pipeline/router.py → produce/consume 推导 | ✅ |
-| input_signals | persona JSON | 仅 render_system_prompt，无代码消费 | ⚠️ 无运行时读取 |
+| input_signals | persona JSON | launcher/routing/roles.py 推导 bus_track（core.py:414）+ launcher/events/signals.py 检查器 | ✅ 已消费 |
 | eval_criteria | persona JSON | 仅注入 CLAUDE.md，无运行时执行 | ⚠️ 无运行时执行 |
 | skills + skill_refs | persona JSON | role_assembler 读 skill，**未自动 /skill load** | ⚠️ 无自动加载 |
 | workgroup | persona JSON | 存在但**无任何代码消费** | ❌ 完全未用 |

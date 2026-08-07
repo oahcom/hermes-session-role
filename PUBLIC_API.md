@@ -49,7 +49,7 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
-| `load_roles(roles_dir)` | `Optional[Path \| str]` | `list[dict]` |
+| `load_roles()` | — | `list[dict]` |
 | `load_role(name)` | `str` | `Optional[dict]` |
 | `export_all()` | — | `list[dict]` |
 | `export_role(role)` | `dict` | `RoleExport` |
