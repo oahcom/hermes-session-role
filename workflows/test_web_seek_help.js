@@ -63,7 +63,7 @@ const testPlan = await agent(
    ⚠️ 你的角色 prompt 要求"测试前先搜测试策略和已知漏洞"。
    你必须执行：
    1. python3 ~/.hermes/scripts/web_search.py "pytest-asyncio testing best practices" --source qa -n 3
-   2. python3 ~/.hermes/scripts/web_search.py "fastapi CVE vulnerability" -n 3
+   2. python3 ~/.hermes/scripts/web_search.py "python asyncio security pitfalls input validation concurrency" --source qa -n 3
    输出测试计划（200字以内）：测试策略、关键用例、asyncio 特有陷阱、依赖安全性。引用来源。`,
   { label: 'qa: 测试计划', phase: '质量验证', effort: 'medium' }
 )
