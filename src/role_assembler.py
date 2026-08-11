@@ -69,17 +69,25 @@ def assemble_role_prompt(role_name: str) -> str:
     parts.append(f"## 定位\n{role.get('description', '')}")
 
     prompt_refs = role.get('prompt_refs', {})
+    # 加载角色专用 prompt (如 roles/lr.md) — 必须先读，判断是否已内嵌 base.md
+    role_content = ""
+    if prompt_refs.get('role'):
+        role_content = read_skill(prompt_refs['role'])
+        if "[SKILL NOT FOUND" in role_content:
+            role_content = ""
     # base.md 修复：read_skill 已有第4回退路径
+    # 跳过条件: role.md 已内嵌 base.md 关键段（8 个主角色 role.md 含 12 段 base 内容）
+    # → 外层再注入 = 双倍冗余。其余角色 role.md 无 base 内容，仍需注入 base.md。
     if prompt_refs.get('base'):
         base_content = read_skill(prompt_refs['base'])
         if base_content and "[SKILL NOT FOUND" not in base_content:
-            parts.append("## 通用红线\n" + base_content)
+            if role_content and "## 零、验证协议" in role_content and "## 八、Sister Bus" in role_content:
+                print(f"[assembler] {role_name}: role.md 已内嵌 base.md，跳过 base 全文注入")
+            else:
+                parts.append("## 通用红线\n" + base_content)
 
-    # 加载角色专用 prompt (如 roles/lr.md)
-    if prompt_refs.get('role'):
-        role_content = read_skill(prompt_refs['role'])
-        if role_content and "[SKILL NOT FOUND" not in role_content:
-            parts.append("## 角色系统提示词\n" + role_content)
+    if role_content:
+        parts.append("## 角色系统提示词\n" + role_content)
 
     # 驱动方式 — 按角色适配生成（不再使用静态 mixin）
     drive = role.get('drive', 'ondemand')
