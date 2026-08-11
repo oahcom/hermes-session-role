@@ -132,7 +132,7 @@
       "auto_restart": true
     },
     "track": {
-      "bus_category": "deployment",
+      "bus_category": "deployment_plan",
       "timeout_sec": 300,
       "notify_roles": [
         "engineer"

@@ -221,7 +221,7 @@
       "auto_restart": true
     },
     "track": {
-      "bus_category": "performance",
+      "bus_category": "optimization",
       "timeout_sec": 300,
       "notify_roles": [
         "maintainer"

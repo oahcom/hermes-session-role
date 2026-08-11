@@ -109,7 +109,7 @@
       "auto_restart": true
     },
     "track": {
-      "bus_category": "knowledge",
+      "bus_category": "knowledge_distill",
       "timeout_sec": 300,
       "notify_roles": [
         "curator"

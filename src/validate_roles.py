@@ -130,6 +130,29 @@ def _warn_category_drift() -> None:
         print(f"  WARN: VALID_BUS_CATEGORIES 有 {len(orphan)} 个未被 JSON 引用 → {sorted(orphan)}，可考虑清理", file=sys.stderr)
 
 
+def _validate_collab(fname: str, collab: dict, known_roles: set[str], errors: list) -> None:
+    """校验 collab 结构: guard.watch 引用的角色必须存在, track.bus_category 必须注册。"""
+    guard = collab.get("guard", {})
+    if guard:
+        if not isinstance(guard, dict):
+            errors.append(f"{fname}: collab.guard 必须是 dict")
+        else:
+            watch = guard.get("watch", [])
+            if not isinstance(watch, list) or not all(isinstance(r, str) for r in watch):
+                errors.append(f"{fname}: collab.guard.watch 必须是字符串列表")
+            else:
+                for r in watch:
+                    if _normalize_role_name(r) not in {_normalize_role_name(k) for k in known_roles}:
+                        errors.append(f"{fname}: collab.guard.watch 引用未知角色 '{r}'")
+    track = collab.get("track", {})
+    if track:
+        if not isinstance(track, dict):
+            errors.append(f"{fname}: collab.track 必须是 dict")
+        else:
+            cat = track.get("bus_category", "")
+            if cat and cat != "*" and cat not in VALID_BUS_CATEGORIES:
+                errors.append(f"{fname}: collab.track.bus_category '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+
 def main() -> int:
     import argparse
     parser = argparse.ArgumentParser(description="Validate session-role JSON files")
@@ -150,6 +173,16 @@ def main() -> int:
 
     seen_names: set[str] = set()
     _prompt_size_done = False
+
+    # 预收集所有角色名（collab.guard.watch 校验用）
+    _known: dict[str, str] = {}
+    for fname in files:
+        try:
+            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
+                _known[fname.replace(".json", "")] = json.load(fh).get("name", "")
+        except Exception:
+            continue
+    known_roles: set[str] = {n for n in _known.values() if n}
     errors: list[str] = []
     dead_warnings: list[str] = []
     checked = 0
@@ -277,6 +310,14 @@ def main() -> int:
                     continue  # 通配符无需注册
                 if cat not in VALID_BUS_CATEGORIES:
                     errors.append(f"{fname}: bus 消费分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+
+            # ── collab 结构校验（engine 依赖它做死锁检测/守护重启） ──────
+            collab = data.get("collab", {})
+            if collab:
+                if not isinstance(collab, dict):
+                    errors.append(f"{fname}: collab 必须是 dict")
+                else:
+                    _validate_collab(fname, collab, known_roles, errors)
 
             # Dead field warnings (not errors — schema compat)
             # NOTE: constraints/goal/skill_refs 被 role_assembler.py 和本文件消费，不是死字段
