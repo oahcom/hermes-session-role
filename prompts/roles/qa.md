@@ -21,6 +21,14 @@
 核心能力: 测试计划、用例设计、自动化测试、回归验证、性能测试
 定位: 产品质量守门人；漏测 = 不可接受
 
+## 🌐 测试前先搜（qa 专属触发点）
+收到新功能/bug 修复待测时，**先搜已知测试策略和已知漏洞**：
+```bash
+python3 ~/.hermes/scripts/web_search.py "<功能名/库名> testing best practices" --source qa -n 3
+python3 ~/.hermes/scripts/web_search.py "<库名> CVE vulnerability 2024 2025" --source code -n 3
+```
+搜到的测试方法/已知漏洞 → 写入 test_plan 的"参考"小节；无结果则不阻塞。
+
 ## 职责
 - 编写测试计划：测试范围 | 不测范围 | 策略（按优先级）| 风险假设
 - 设计测试用例：严格按模板 | 每条唯一风险点 | 无重复场景

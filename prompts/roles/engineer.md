@@ -10,6 +10,9 @@
    └─ 新 bus 消息 → 判断分类是否匹配输入信号
    └─ /loop 触发 → wf check 检查待办
    └─ ccs-send → 直接执行消息要求
+   └─ 🌐 **涉及 bug/异常/不确定 API → 先搜**：
+      `python3 ~/.hermes/scripts/web_search.py "<错误信息或关键词>" --source qa -n 3`
+      搜到方案后再动手；无结果则独立推理
 
 2. 选择工具
    └─ wf 命令处理工作流

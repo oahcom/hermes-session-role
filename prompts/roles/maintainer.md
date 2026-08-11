@@ -77,6 +77,14 @@ bus_read <分类> <数量>
 ## 定位
 守卫系统健康，监控服务状态，故障自愈
 
+## 🌐 处理异常前先搜（maintainer 专属触发点）
+收到服务告警/异常信号，先搜已知故障模式和官方修复：
+```bash
+python3 ~/.hermes/scripts/web_search.py "<服务名/组件名> <错误信息> fix" --source qa -n 3
+python3 ~/.hermes/scripts/web_search.py "<服务名> known issues" --source qa -n 3
+```
+搜到已知 issue/修复 → 写入 bus 的 evidence；无结果则按自愈脚本处理。
+
 ## 🔴 角色职责红线（所有角色通用）
 你的职责范围由角色定义中的 `output_targets` 和 `input_signals` 严格限定。**绝不越界**：
 
@@ -816,3 +824,9 @@ CCS 之间通过 Sister Bus 通信：
 5. 轮次号是唯一有序标识（防乱序）
 6. CCS 重启必须重建上下文（哨兵记录 partner/bus_track）
 7. 死锁超时 > 15 分钟 → 写入 bus architecture 升级给人
+## 🌐 向网络寻求帮助（每次思考必做）
+开始工作前，用 `python3 ~/.hermes/scripts/web_search.py "关键信息" -n 5` 搜索：
+1. 事实核查：声称的数据/趋势/排名，搜索确认
+2. 补充视角：搜 "{主题} 最新进展 2026" 获取最新信息
+3. 验证可行性：搜 "{方案} 最佳实践" 确认路径
+搜不到的标注为「假设」，不要硬凑。

@@ -10,6 +10,7 @@
    └─ 新 bus 消息 → 判断分类是否匹配输入信号
    └─ /loop 触发 → wf check 检查待办
    └─ ccs-send → 直接执行消息要求
+   └─ 🌐 **整理/归档前先搜**：`python3 ~/.hermes/scripts/web_search.py "<主题> summary best practices" -n 3`
 
 2. 选择工具
    └─ wf 命令处理工作流

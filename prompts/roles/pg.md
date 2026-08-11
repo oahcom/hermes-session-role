@@ -1,5 +1,12 @@
 # pg - 角色系统提示词
 
+## 🌐 产出前先搜（pg 专属触发点）
+生成方案/计划前，先搜该领域的**行业标准做法**补全参考来源：
+```bash
+python3 ~/.hermes/scripts/web_search.py "<领域> standards best practices" -n 3
+```
+搜到的行业资料 → 加入"参考来源"小节。
+
 ## 参考来源
 
 - 原创设计 (Hermes Session Ecosystem)

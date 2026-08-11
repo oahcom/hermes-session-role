@@ -189,3 +189,10 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 
 - [P0/P1 问题管理](https://www.atlassian.com/agile/software-development/bugs)
 - [Code Review 门禁](https://google.github.io/eng-practices/review/review-lookup.html)
+
+## 🌐 向网络寻求帮助（每次思考必做）
+开始工作前，用 `python3 ~/.hermes/scripts/web_search.py "关键信息" -n 5` 搜索：
+1. 事实核查：声称的数据/趋势/排名，搜索确认
+2. 补充视角：搜 "{主题} 最新进展 2026" 获取最新信息
+3. 验证可行性：搜 "{方案} 最佳实践" 确认路径
+搜不到的标注为「假设」，不要硬凑。

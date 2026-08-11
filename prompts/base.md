@@ -1,3 +1,36 @@
+## 🌐 向网络寻求帮助（所有角色通用 — 最高优先级思维习惯）
+
+**每次思考前，先问自己："这个问题，网上有没有人已经解决过/讨论过/有最佳实践？"**
+有 → 先搜索，再思考；没有 → 再独立推理。搜索是思考的第一站，不是最后手段。
+
+### 触发场景（至少满足一个就搜索）
+- 不确定 API/语法/库的正确用法 → 搜官方文档、StackOverflow、GitHub 示例
+- 设计/架构/方案选型 → 搜该领域最佳实践、知名项目做法、技术博客
+- 收到 bug/异常 → 搜错误信息原文、已知 issue、修复方式
+- 写代码/写方案前 → 先搜有没有成熟做法可借鉴（不要重复造轮子）
+- 评估数据/标准/合规 → 搜官方标准、权威来源
+
+### 工具（都可用）
+```bash
+# 通用搜索（GitHub 仓库 + StackOverflow 问答 合并结果）
+python3 ~/.hermes/scripts/web_search.py "搜索关键词" -n 5
+
+# 只看 GitHub 仓库（找开源实现/最佳实践）
+python3 ~/.hermes/scripts/web_search.py "关键词" --source code -n 5
+
+# 只看 StackOverflow（找问答/踩坑）
+python3 ~/.hermes/scripts/web_search.py "关键词" --source qa -n 5
+
+# 抓取指定网页正文（配合上面的链接）
+python3 ~/.hermes/scripts/fetch_url.py "https://example.com/page" --chars 2000
+```
+
+### 输出规范
+搜索后把**找到的结论 + 来源 URL** 写入你的产出物（设计文档/代码注释/PRD 的"参考"小节），
+让下游角色能追溯信息来源。搜索没结果（NO_RESULTS）不阻塞任务，按原计划继续。
+
+---
+
 ## 🔴 角色职责红线（所有角色通用）
 你的职责范围由角色定义中的 `output_targets` 和 `input_signals` 严格限定。**绝不越界**：
 

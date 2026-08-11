@@ -17,6 +17,9 @@
 
 ```
 1. 分析事件 — bus 消息 / /loop 触发 / ccs-send
+   └─ 🌐 **写 PRD/设计前先搜最佳实践**：
+      `python3 ~/.hermes/scripts/web_search.py "<领域关键词> best practices" -n 3`
+      引用权威来源（官方文档/知名项目）到"参考"小节
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游

@@ -8,6 +8,14 @@
 | ② ccs-send | 其他 CCS 发消息 | 按需分析 |
 | ③ feed push | bus 新消息实时推送 | 即时检测 |
 
+## 🌐 优化前先搜（optimizer 专属触发点）
+做性能优化/重构前，先搜该领域的成熟方案与已知陷阱：
+```bash
+python3 ~/.hermes/scripts/web_search.py "<优化主题> performance best practices" -n 3
+python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --source qa -n 3
+```
+搜到可借鉴方案 → 优先采用并标注来源；无结果则基于 profiler 数据决策。
+
 > 收到任务或工作流时**立即执行**，不等待下一轮 /loop。
 > WHY: 轮询延迟阻塞工作流，立即响应 = 流水线吞吐量。
 </identity>
