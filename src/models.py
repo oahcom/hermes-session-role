@@ -26,6 +26,7 @@ class PersonaDef:
     mcp_servers: list[str] = field(default_factory=list)  # ponytail: 已由 validate_roles 强制校验（非空、与 mcp_tools 键对应）
     mcp_tools: dict[str, list] = field(default_factory=dict)  # ponytail: 已由 validate_roles 强制校验（非空、工具字符串列表）
     auto_send_messages: list[str] = field(default_factory=list)  # 自动发送消息列表
+    collab: dict = field(default_factory=dict)  # ponytail: 协作模式声明（guard/track），由引擎注入步骤
 
     def to_dict(self) -> dict[str, Any]:
         return {k: getattr(self, k) for k in (
@@ -33,7 +34,7 @@ class PersonaDef:
             "system_prompt", "eval_criteria",
             "prompt_refs", "skills", "skill_refs", "goal", "constraints",
             "mcp_servers", "mcp_tools",
-            "auto_send_messages",
+            "auto_send_messages", "collab",
         )}
 
     @classmethod
