@@ -59,5 +59,20 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "scout"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "evolution_report",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "pm"
+      ]
+    }
   }
 }

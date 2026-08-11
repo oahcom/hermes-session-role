@@ -117,8 +117,7 @@
   ],
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/engineer.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/engineer.md"
   },
   "skills": [
     "write_code",
@@ -178,5 +177,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "qa",
+        "reviewer"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "code_fix",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "qa"
+      ]
+    }
   }
 }

@@ -73,8 +73,7 @@
   "system_prompt": "",
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/security_auditor.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/security_auditor.md"
   },
   "skills": [
     "owasp_scan",
@@ -119,5 +118,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "engineer",
+        "reviewer"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "security",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "maintainer"
+      ]
+    }
   }
 }

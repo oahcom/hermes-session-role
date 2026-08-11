@@ -81,8 +81,7 @@
   ],
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/qa.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/qa.md"
   },
   "skills": [
     "test_plan",
@@ -139,5 +138,20 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "engineer"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "test_report",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "reviewer"
+      ]
+    }
   }
 }

@@ -190,40 +190,21 @@ systemctl --user is-active cron-worker.service
 # 或通过 settings.json 的 model 配置继承
 ```
 
-### 2. 启动 CronCreate 自检定时器
+### 2. 禁止 CronCreate 和 /loop（已废弃）
 
-```bash
-# 这一行必须是 session 第一条指令 — 由 Claude Code 内部工具执行
-CronCreate(cron="*/15 * * * *", prompt="bash ~/.claude/hooks/cron_selfcheck.sh", recurring=true)
-```
+**CronCreate 与 /loop 均已废弃禁用**（与全局 ~/.claude/CLAUDE.md 一致）。
+- 不得调用 CronCreate 工具创建任何定时器
+- 不得执行 /loop 循环
+- 会话驱动依赖外部调度（cron-worker / workflow-engine / Sister Bus 事件），不依赖 session 内自循环
 
-**关键语法说明：**
-- `cron="*/15 * * * *"` = 标准 cron 表达式，每 15 分钟触发一次
-- `recurring=true` = 循环执行，不设置则仅执行一次
-- `prompt` = 引用脚本文件，避免多行字符串导致 JSON 解析失败
-- CronCreate 是 **session 级** 工具：session 结束即失效，下次 session 必须重新创建
-
-### 3. 启动 /loop 持续工作流
-
-```bash
-# 在 CronCreate 之后立即执行，保持持续任务推进
-/loop
-```
-
-**/loop 交互规则：**
-- `/loop` 单独使用 = 自动节奏模式：Claude Code 自行决定何时重试/继续
-- `/loop 5m /status` = 固定间隔模式：每 5 分钟执行一次 `/status`
-- **CronCreate 不会中断 /loop**；两者并行运行。CronCreate 在指定时间点插入自检任务，/loop 继续推进主任务
-- 推荐：用 `/loop` 推进主任务，CronCreate 处理周期性自检
-
-### 4. 加载 Sister Bus 未读消息（限 30 条防 /compact）
+### 3. 加载 Sister Bus 未读消息（限 30 条防 /compact）
 
 ```bash
 python3 ~/.hermes/scripts/bus_client.py unread --limit 30
 # 若 > 0 条，逐条阅读并纳入上下文，读完后标记已消费。limit 30 限制首次加载量，防止 /compact。
 ```
 
-### 5. 读取违规历史（自我纠正）
+### 4. 读取违规历史（自我纠正）
 
 ```bash
 # 必须读取，查看上一轮 supervisor 检测到的违规

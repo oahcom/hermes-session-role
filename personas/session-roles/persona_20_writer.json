@@ -75,8 +75,7 @@
   ],
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/writer.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/writer.md"
   },
   "skills": [
     "doc_structure",
@@ -123,5 +122,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "pm",
+        "product_architect"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "code_fix",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "pm"
+      ]
+    }
   }
 }

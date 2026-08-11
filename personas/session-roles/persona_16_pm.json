@@ -78,7 +78,6 @@
   ],
   "prompt_refs": {
     "role": "roles/pm.md",
-    "driver": "mixins/ondemand_driver.md",
     "base": "base.md"
   },
   "skills": [
@@ -138,5 +137,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "engineer",
+        "product_architect"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "user_story",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "product_architect"
+      ]
+    }
   }
 }

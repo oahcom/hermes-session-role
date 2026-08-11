@@ -122,5 +122,21 @@
     "grep_verify": "for f in '来源:' '处理动作:' '结论:' '证据:' '回执:' '状态:' '动作:'; do grep -q \"$f\" /tmp/draft.txt || echo \"缺必填字段: $f\"; done",
     "codex_review": "codex review --uncommitted 确认无P0/P1问题",
     "gate_rule": "未过 → 修复重审 → 连续两轮零问题才允许发布"
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "scout",
+        "curator"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "task_spec",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "scout"
+      ]
+    }
   }
 }

@@ -32,8 +32,7 @@
   ],
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/investigator_python.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/investigator_python.md"
   },
   "skills": [
     "evidence_chain",
@@ -77,5 +76,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "engineer",
+        "qa"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "bug_report",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "qa"
+      ]
+    }
   }
 }

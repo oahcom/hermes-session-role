@@ -66,5 +66,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "curator",
+        "knowledge_curator"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "scheduler",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "curator"
+      ]
+    }
   }
 }

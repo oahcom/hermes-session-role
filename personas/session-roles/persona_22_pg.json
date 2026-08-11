@@ -63,8 +63,7 @@
   ],
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/pg.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/pg.md"
   },
   "skills": [
     "decision_ladder",
@@ -125,5 +124,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "product_architect",
+        "qa"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "task_spec",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "qa"
+      ]
+    }
   }
 }

@@ -49,8 +49,7 @@
   "system_prompt": "",
   "prompt_refs": {
     "base": "base.md",
-    "role": "roles/codex_dev.md",
-    "driver": "mixins/ondemand_driver.md"
+    "role": "roles/codex_dev.md"
   },
   "skills": [
     "goal_manage",
@@ -92,5 +91,21 @@
       "grep_search",
       "inspect_path"
     ]
+  },
+  "collab": {
+    "guard": {
+      "watch": [
+        "engineer",
+        "reviewer"
+      ],
+      "auto_restart": true
+    },
+    "track": {
+      "bus_category": "code_fix",
+      "timeout_sec": 300,
+      "notify_roles": [
+        "engineer"
+      ]
+    }
   }
 }
