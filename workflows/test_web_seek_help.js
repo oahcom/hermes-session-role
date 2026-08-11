@@ -13,6 +13,14 @@ export const meta = {
 
 const TASK = '为一个已存在的 Python Flask 同步 Web 应用迁移到 asyncio（FastAPI/asyncio），涉及数据库查询、HTTP 外部调用、定时任务'
 
+// ═══════ 测试工作流红线（所有 agent 必须遵守）═══════
+// 1. 禁止修改任何生产文件：不得 Edit/Write/sed -i/git checkout 实际项目文件（daemon.py、unit、config 等）
+//    修复 agent 只能输出修复方案（可粘贴代码块），由人工审核后执行
+// 2. 只读检查允许：ls/cat/grep/systemctl show/stat 等只读命令可以执行
+// 3. 输出规范：所有产出必须包含来源 URL 或命令输出证据，禁止空口断言
+// 4. 闭环上限 3 轮：3 轮后仍未 PASS → 输出 "ESCALATE:" 列表，由人工介入
+// ════════════════════════════════════════════════════
+
 phase('立项')
 const prd = await agent(
   `你是 pm 角色。任务：为"${TASK}"编写立项 PRD。

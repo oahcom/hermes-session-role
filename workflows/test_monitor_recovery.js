@@ -10,6 +10,14 @@ export const meta = {
   ],
 }
 
+// ═══════ 测试工作流红线（所有 agent 必须遵守）═══════
+// 1. 禁止修改任何生产文件：不得 Edit/Write/sed -i/git checkout 实际项目文件（daemon.py、unit、config 等）
+//    修复 agent 只能输出修复方案（可粘贴代码块），由人工审核后执行
+// 2. 只读检查允许：ls/cat/grep/systemctl show/stat 等只读命令可以执行
+// 3. 输出规范：所有产出必须包含来源 URL 或命令输出证据，禁止空口断言
+// 4. 闭环上限 3 轮：3 轮后仍未 PASS → 输出 "ESCALATE:" 列表，由人工介入
+// ════════════════════════════════════════════════════
+
 phase('立项')
 const prd = await agent(
   `你是 pm 角色。任务：为"systemd 服务告警响应流程"编写立项 PRD。
@@ -80,17 +88,20 @@ while (round < 3) {
   lastReasons = acceptance.replace(/^REJECT:/, '').slice(0, 300)
   phase('验收闭环')
   lastFix = await agent(
-    `你是 engineer 角色。第${round + 2}轮：pm 打回，必须落实修复。
+    `你是 engineer 角色。第${round + 2}轮：pm 打回，必须输出修复方案。
      打回原因：${lastReasons}
      ⚠️ 涉及修复先搜：python3 ~/.hermes/scripts/web_search.py "systemd watchdog sd_notify python" --source qa -n 3
-     输出：针对每条打回原因给出**可执行命令/配置修改**（可粘贴代码），不是建议。`,
+     🔴 隔离红线（必须遵守）：你只能输出修复方案（代码块/配置块），**禁止执行任何写操作**（不得 Edit/Write/sed -i 实际生产文件如 daemon.py、unit 文件、config 文件）。由人工审核后执行。
+     输出：针对每条打回原因给出**可粘贴的修复代码块**（含完整文件名和行号说明），不是建议。`,
     { label: `engineer: 闭环修复 R${round + 1}`, phase: '验收闭环', effort: 'medium' }
   )
   phase('验收闭环')
   lastVerify = await agent(
-    `你是 qa 角色。第${round + 2}轮：验证修复是否真正落地（执行真实命令确认，不是描述）。
+    `你是 qa 角色。第${round + 2}轮：验证修复方案是否完整（只读检查，不写任何文件）。
      ⚠️ 涉及测试先搜：python3 ~/.hermes/scripts/web_search.py "systemd watchdog test" --source qa -n 3
-     输出：验证结论，开头写 "FIXED:" 或 "NOT_FIXED:" 并含实际命令输出。`,
+     🔴 隔离红线：你只能执行只读命令（ls/cat/grep/stat），禁止写任何文件。
+     🔍 越权检测：顺带检查修复 agent 是否违规修改了生产文件（git status 是否有 M/?? 的 daemon.py/unit/config）→ 有则判 "VIOLATION:"。
+     输出：验证结论，开头写 "FIXED:" 或 "NOT_FIXED:"（或 "VIOLATION:"）并含实际命令输出。`,
     { label: `qa: 闭环复验 R${round + 1}`, phase: '验收闭环', effort: 'medium' }
   )
   round++
