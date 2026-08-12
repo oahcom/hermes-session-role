@@ -115,6 +115,8 @@ def _warn_category_drift() -> None:
         try:
             with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as f:
                 data = json.load(f)
+            if not isinstance(data, dict):
+                continue
         except Exception:
             continue
         for c in parse_produce_categories(data.get("output_targets", [])):
@@ -198,6 +200,9 @@ def main() -> int:
             continue
         except Exception as e:
             errors.append(f"{fname}: 读取失败 — {e}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{fname}: JSON 顶层必须是对象")
             continue
 
         # 筛选

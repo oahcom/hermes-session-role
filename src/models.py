@@ -62,9 +62,8 @@ def render_prompt_from_refs(
     prompt_refs 格式：
     - base: base.md 的相对路径
     - role: roles/xxx.md 的相对路径
-    - driver: mixins/xxx_driver.md 的相对路径
 
-    拼接顺序：base -> role -> driver
+    拼接顺序：base -> role
 
     当 prompts/ 目录不存在时（迁移后），回退到 role_assembler 组装。
     """
@@ -95,7 +94,7 @@ def render_prompt_from_refs(
 
     parts = []
     base_dir_real = os.path.realpath(base_dir)
-    for key in ["base", "role", "driver"]:
+    for key in ["base", "role"]:
         if key in prompt_refs:
             file_path = os.path.realpath(os.path.join(base_dir, prompt_refs[key]))
             if not file_path.startswith(base_dir_real.rstrip(os.sep) + os.sep):
