@@ -327,6 +327,21 @@ def main() -> int:
             if present:
                 dead_warnings.append(f"{fname}: 包含死字段(无代码消费): {', '.join(present)}")
 
+            # R2-3: deprecated_after 退役机制（洞察 5：agent 必须有正式退役阶段）
+            # 过期的 persona 发出 warning，提示运维下线或更新；不 blocking（schema 兼容）
+            _dep_after = data.get("deprecated_after")
+            if _dep_after:
+                try:
+                    from datetime import datetime
+                    _dep_ts = datetime.fromisoformat(_dep_after.replace("Z", "+00:00"))
+                    if _dep_ts.tzinfo is None:
+                        _dep_ts = _dep_ts.replace(tzinfo=datetime.now().astimezone().tzinfo)
+                    if datetime.now().astimezone() > _dep_ts:
+                        dead_warnings.append(
+                            f"{fname}: 已过退役日期({_dep_after}) — 建议标记 deprecated 或更新契约")
+                except (ValueError, TypeError):
+                    dead_warnings.append(f"{fname}: deprecated_after 格式非法: {_dep_after!r}（期望 ISO8601）")
+
             # 对于 RoleDef 角色，至少要有 input_signals 或 drive 之一
             has_input_signals = bool(data.get("input_signals"))
             has_drive = bool(data.get("drive"))
