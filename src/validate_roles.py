@@ -25,7 +25,7 @@ VALID_BUS_CATEGORIES = {
     "changelog", "cleanup", "code_fix", "code_review", "debate",
     "deployment_plan", "deployment_report", "design_issue", "documentation",
     "evolution_report", "feedback", "knowledge_distill", "memory_store",
-    "monitor_dashboard", "notice", "optimization", "prd", "product_design",
+    "monitor_dashboard", "notice", "optimization", "performance", "prd", "product_design",
     "research", "root_cause_analysis", "scheduler", "security",
     "security_audit", "session_log", "skill_audit", "system",
     "system_design", "task_spec", "tech_decision", "test_plan",
