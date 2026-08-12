@@ -62,6 +62,18 @@ grep -A2 output_targets personas/session-roles/persona_*.json
 - ❌ 在 persona.json 的 `system_prompt` 中写 `prompts/roles/*.md` 已覆盖的内容
 - ❌ 跨项目修改：本项目的文件调整不直接影响 launcher 或 pipeline 的代码
 
+## 向网络寻求帮助（角色通用核心能力）
+所有角色 prompt 已注入"搜索是思考第一站"规则，工具入口：
+```bash
+python3 ~/.hermes/scripts/web_search.py "<关键词>" -n 5          # 通用（GitHub+SO）
+python3 ~/.hermes/scripts/web_search.py "<关键词>" --source qa    # 仅 StackOverflow
+python3 ~/.hermes/scripts/web_search.py "<关键词>" --source cve   # NVD CVE（支持 CVE-2021-32677 精确查询）
+python3 ~/.hermes/scripts/fetch_url.py "<URL>"                    # 抓网页正文
+python3 ~/.hermes/scripts/test_web_search.py                      # 自检（7 用例）
+```
+规则源：`prompts/base.md` 的 🌐 块（全局）+ `prompts/roles/*.md` 的专属触发点（21 角色）。
+workflow 运行注意事项：修复 agent 只能输出方案，禁止修改生产文件（隔离红线）。
+
 ## 验证命令
 ```bash
 python3 src/validate_roles.py          # 验证所有角色
