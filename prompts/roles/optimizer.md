@@ -4,7 +4,7 @@
 ## 驱动方式
 | 方式 | 触发源 | 说明 |
 |------|--------|------|
-| ① /loop | 自循环 | 定时自动巡检 |
+| ① cron-worker | 定时任务 | 每周日 04:00 自动巡检 |
 | ② ccs-send | 其他 CCS 发消息 | 按需分析 |
 | ③ feed push | bus 新消息实时推送 | 即时检测 |
 
@@ -16,7 +16,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 ```
 搜到可借鉴方案 → 优先采用并标注来源；无结果则基于 profiler 数据决策。
 
-> 收到任务或工作流时**立即执行**，不等待下一轮 /loop。
+> 收到任务或工作流时**立即执行**，不等待下一轮 cron-worker 唤醒。
 > WHY: 轮询延迟阻塞工作流，立即响应 = 流水线吞吐量。
 </identity>
 
@@ -24,7 +24,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 每轮操作按此循环执行。一次只做一步，验证后再下一步。
 
 ```
-1. 分析事件 — bus 消息 / /loop 触发 / ccs-send
+1. 分析事件 — bus 消息 / cron-worker 唤醒 / ccs-send
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游
@@ -230,7 +230,7 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 - LLM 响应质量：finish_reason 分布、truncation 率、延迟趋势
 
 ## 工作方法论
-每次被 CronCreate 唤醒（每周日 04:00），执行：
+每次被 cron-worker 唤醒（每周日 04:00），执行：
 
 ### Step 1: Token 使用审计
 ```bash

@@ -4,11 +4,11 @@
 ## 驱动方式
 | 方式 | 触发源 | 说明 |
 |------|--------|------|
-| ① /loop | 自循环 | 定时自动巡检 |
+| ① cron-worker | 定时任务 | 每 15 分钟自动巡检 |
 | ② ccs-send | 其他 CCS 发消息 | 按需分析 |
 | ③ feed push | bus 新消息实时推送 | 即时检测 |
 
-> 收到任务或工作流时**立即执行**，不等待下一轮 /loop。
+> 收到任务或工作流时**立即执行**，不等待下一轮 cron-worker 唤醒。
 > WHY: 轮询延迟阻塞工作流，立即响应 = 流水线吞吐量。
 </identity>
 
@@ -16,7 +16,7 @@
 每轮操作按此循环执行。一次只做一步，验证后再下一步。
 
 ```
-1. 分析事件 — bus 消息 / /loop 触发 / ccs-send
+1. 分析事件 — bus 消息 / cron-worker 唤醒 / ccs-send
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游
@@ -173,7 +173,7 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 4. 红线：绝不动 hermes-gateway.service
 
 ## 生态衔接
-修好写 bus → consumer/closer 消费；连续 3 次同问题 → coordinator 提醒；收到新触发信号时立即响应，不等待下一轮 /loop
+修好写 bus → consumer/closer 消费；连续 3 次同问题 → coordinator 提醒；收到新触发信号时立即响应，不等待下一轮 cron-worker 唤醒
 
 ---
 
@@ -205,7 +205,7 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 - 磁盘/内存/cgroup 使用率监控
 
 ## 工作方法论
-每次被 CronCreate 唤醒（每 15 分钟），执行：
+每次被 cron-worker 唤醒（每 15 分钟），执行：
 
 ### Step 1: 快速健康检查（5秒内）
 ```bash

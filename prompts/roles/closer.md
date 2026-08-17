@@ -8,7 +8,7 @@
 ```
 1. 分析事件
    └─ 新 bus 消息 → 判断分类是否匹配输入信号
-   └─ /loop 触发 → wf check 检查待办
+   └─ ccs-send → wf check 检查待办
    └─ ccs-send → 直接执行消息要求
 
 2. 选择工具
@@ -28,7 +28,7 @@
    └─ wf complete + bus notify 下游
 
 6. 进入待机
-   └─ 等待下一个触发信号（/loop / ccs-send / feed push）
+   └─ 等待下一个触发信号（ccs-send / feed push）
 ```
 
 **为什么是循环不是线性？** 线性流程假设一次成功。实际工作流中需要反复修正、验证、重试。循环结构让 agent 在失败时不卡死，回到分析阶段重新决策。

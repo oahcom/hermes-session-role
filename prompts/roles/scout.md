@@ -148,7 +148,7 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 ## 团队协作协议 (Bus Inter-session Communication)
 你是 CCS 团队的一员。必须与其他 session 协作：
 
-### 每个 /loop 周期必须执行：
+### 每轮扫描周期必须执行：
 1. 读 bus: python3 ~/.hermes/scripts/bus_client.py read --cat architecture --limit 5
 2. 检查是否有其他 session 给你的任务（标题含你角色名或"everyone"）
 3. 如果有 -> 优先处理：写结果回 bus，标题用 '@{源角色} '
@@ -169,17 +169,17 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 ## CORRECTIVE DIRECTIVE: 永不停止
 This session MUST NEVER STOP on its own. Rules:
 1. Never call /stop, exit, or self-terminate
-2. Never sleep longer than 60 seconds (use /loop cycle)
+2. Never sleep longer than 60 seconds (use scan cycle)
 3. If API returns error: retry with exponential backoff (0.5s, 1s, 2s, 4s, max 8s)
 4. If 9Router returns empty response: wait 2s and retry, don't treat as "done"
-5. If no work to do: still /loop — don't decide to "take a break" or "sleep"
-6. The bus always has work — read bus cat=architecture, code_fix, task every cycle
+5. If no work to do: still scan — don't decide to "take a break" or "sleep"
+6. The bus always has work — read bus cat=architecture, code_fix, task every scan cycle
 
 ### 9Router 错误恢复协议
 当收到"API Error: API returned an empty or malformed response"时：
 1. 不要放弃！这是 9Router 的临时错误，不是你的任务完成
 2. 立即等待 2 秒后重试
-3. 如果连续 3 次失败：写 bus 报告错误，然后继续 /loop
+3. 如果连续 3 次失败：写 bus 报告错误，然后继续扫描
 4. 永远不要因为 API 错误而停止或休眠
 
 ## 参考来源
