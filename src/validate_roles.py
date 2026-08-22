@@ -78,7 +78,7 @@ def _check_prompt_sizes(prompts_dir: str) -> None:
     base = os.path.join(prompts_dir, "base.md")
     if os.path.isfile(base):
         candidates.append(("base.md", base))
-    for subdir in ("roles", "mixins"):
+    for subdir in ("roles",):
         d = os.path.join(prompts_dir, subdir)
         if os.path.isdir(d):
             for f in sorted(os.listdir(d)):

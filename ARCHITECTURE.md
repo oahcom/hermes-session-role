@@ -82,7 +82,6 @@ pipeflow/daemon.py:51-76       while True (sleep 10s) — 这是系统唯一的�
 | workgroup | persona JSON | 存在但**无任何代码消费** | ❌ 完全未用 |
 | cron_schedule | persona JSON | 存在但**无消费者**（CronCreate 在 tmux 不可用） | ❌ 无消费者 |
 | mcp 段 | **不存在** | 所有 CCS 共享全局 MCP | ❌ 缺字段 |
-| sla_seconds | **不存在** | tracker 硬编码 300s | ❌ 缺字段 |
 
 ### 3.3 为什么"角色契约的质量决定系统天花板"
 
@@ -214,7 +213,7 @@ persona JSON 定义了 `drive: "cron"` 的角色（maintainer、scout）和 `cro
 ### P0：完善角色契约（持续投入）
 
 ```
-models.py 加：mcp_servers, mcp_tools, mcp_permissions, sla_seconds, auto_send_messages
+models.py 加：mcp_servers, mcp_tools, mcp_permissions, auto_send_messages
 validate_roles.py 加：mcp 校验, produce/consume 分类注册表校验
 registry.py 加：契约变更触发通知（写 bus architecture）
 ```

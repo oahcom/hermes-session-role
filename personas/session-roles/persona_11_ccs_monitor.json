@@ -4,9 +4,9 @@
   "title": "Session 监控者",
   "description": "监控所有 CCS tmux session 是否卡住/停滞，卡住了就发 Enter 让它继续",
   "category": "监控",
-  "lifecycle": "infinite",
-  "drive": "loop",
-  "idle_action": "sleep 30",
+  "lifecycle": "ondemand",
+  "drive": "cron",
+  "cron_schedule": "*/5 * * * *",
   "input_signals": [
     {
       "type": "shell",

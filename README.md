@@ -235,7 +235,7 @@ python3 src/cli.py search "性能" --top 3
 
 AGENTS.md 包含完整的三层 prompt 架构规范（2026-07-15 版），涵盖：
 
-- 三层架构（base.md → roles/*.md → mixins/*.md）及各层内容边界
+- 三层架构（base.md → roles/*.md）及各层内容边界
 - 各类指令的正确归属表（"永不停止"在哪、"自审查"在哪）
 - 角色 prompt 文件的结构标准
 - eval_criteria 规范

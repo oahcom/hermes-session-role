@@ -50,11 +50,6 @@ Layer 1: roles/<name>.md（角色专业能力）
   └─ 输入/输出信号（我消费什么、产出什么）
   └─ 生态衔接（和谁协作）
   └─ 关键原则
-
-Layer 2: mixins/<driver>.md（驱动模式）
-  └─ loop_driver.md → 永不停止 + 退避重试 + 每轮读 bus
-  └─ cron_driver.md → 检查→退出，不与"永不停止"冲突
-  └─ ondemand_driver.md → 一次只做一件事，完成退出
 ```
 
 ### 二、每层的内容边界
@@ -63,7 +58,6 @@ Layer 2: mixins/<driver>.md（驱动模式）
 |----|------|--------|
 | base.md | 红线、协作协议、wf 手册 | 永不停止指令、自审查指令、特定角色技能 |
 | roles/\*.md | 角色身份、专长、方法论、信号契约 | 协作逻辑（如"永不停止"）、通用基线 |
-| mixins/\*.md | 驱动模式特定的生命周期指令 | 角色专业知识、信号契约 |
 
 ### 三、各类指令的正确归属
 
@@ -72,11 +66,8 @@ Layer 2: mixins/<driver>.md（驱动模式）
 | 角色红线（不越界、不替决策） | base.md | 所有角色通用 |
 | 协作协议（bus 格式、证据要求） | base.md | 所有角色通用 |
 | wf 操作手册 | base.md | 所有角色通用 |
-| 永不停止、退避重试 | mixins/loop_driver.md | 只适用于 loop 驱动角色 |
-| 9Router 错误恢复 | mixins/loop_driver.md | 同上 |
 | 自审查六维（提交前检查） | roles/engineer.md, roles/pg.md | 只适用于写代码的角色 |
 | D1-D6 审查维度 | roles/reviewer.md | reviewer 原本就有（审查别人 PR） |
-| cron 角色退出逻辑 | mixins/cron_driver.md | cron 驱动角色不该循环等待 |
 
 ### 四、角色 prompt 文件结构标准
 
@@ -145,7 +136,6 @@ Layer 2: mixins/<driver>.md（驱动模式）
 
 | 场景 | 正确做法 |
 |------|---------|
-| 想加"永不停止"指令 | 放在 mixins/loop_driver.md，不在 base.md |
 | 想加自审查指令 | 放在 roles/engineer.md 或 roles/pg.md，不在 base.md |
 | 想增加角色红线 | 加在 base.md |
 | 想加角色特有方法论 | 加在 roles/<name>.md |
@@ -217,7 +207,7 @@ print('security consumers:', r.get_consumers('security'))
 - 检查是否有重复角色（name 冲突）
 - 检查 Browser Harness 映射是否需要更新
 - 评估 prompt 蒸馏质量：每条规则是否来自真实踩坑
-- 检查 prompt 层级归属是否正确（base vs roles vs mixins）
+- 检查 prompt 层级归属是否正确（base vs roles）
 
 ## Browser Harness 集成
 57 个人格按三层组织：core(10) → specialized(25) → advanced(22)

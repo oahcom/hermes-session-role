@@ -4,9 +4,10 @@
   "title": "系统测试员",
   "description": "CCS 系统级测试角色，验证全套工作流操作",
   "category": "测试",
-  "lifecycle": "infinite",
-  "drive": "loop",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
   "cron_schedule": "",
+  "idle_action": null,
   "input_signals": [
     {
       "type": "bus",

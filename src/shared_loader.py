@@ -139,14 +139,6 @@ def load_roles() -> list[dict]:
     return [r.to_dict() for r in list_roles()]
 
 
-def load_role(name: str) -> Optional[dict]:
-    """按名称查找角色（复用 load_roles）。"""
-    for r in load_roles():
-        if r.get("name") == name:
-            return r
-    return None
-
-
 def export_role(role: dict) -> RoleExport:
     """将原始角色 dict 转为 RoleExport。"""
     name = role.get("name", "")

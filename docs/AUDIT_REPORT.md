@@ -1,6 +1,11 @@
 # Hermes Session 三项目 — 代码审计报告
 
+> ⚠️ **历史快照，已严重漂移，不可作为当前架构事实来源。**
 > 审计时间: 2026-07-23 | 范围: hermes-session-roles / session-launcher / session-pipeline
+> 当前权威来源：
+> - 架构同步铁律与实时漂移：`python3 ~/.hermes/scripts/arch_drift_detector.py --json`
+> - 自主进化迭代结论：`~/hermes/workspace/迭代总结-R2到R9.md` + `~/hermes/workspace/R12-价值审计/审计报告.md`
+> - 实测代码布局以各项目 `CLAUDE.md` 的 `wc -l` 实测块为准（如 session-pipeline/src 已拆分 pipeflow mixin，文档中 `template_registry.py 528行` 等数字已失真）
 
 ---
 

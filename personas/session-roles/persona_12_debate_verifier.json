@@ -4,9 +4,9 @@
   "title": "正方验证者",
   "description": "作为辩论正方，论证方案的可行性、收益和正确性，提供支持性证据",
   "category": "验证",
-  "lifecycle": "infinite",
-  "drive": "loop",
-  "idle_action": "/loop",
+  "lifecycle": "ondemand",
+  "drive": "ondemand",
+  "idle_action": null,
   "input_signals": [
     {
       "type": "shell",

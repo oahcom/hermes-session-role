@@ -30,7 +30,6 @@ personas/
 prompts/
   base.md                      # Layer 0: 全体角色共享（红线、协作协议）
   roles/                       # Layer 1: 各角色专业 prompt（23 个 .md 文件）
-  mixins/                      # Layer 2: 驱动模式（loop/cron/ondemand）
 
 src/
   models.py            # PersonaDef + RoleDef dataclass（~157行）
@@ -73,7 +72,6 @@ class PersonaDef:
     mcp_servers: list[str] = []        # 角色需要的 MCP server
     mcp_tools: dict[str, list] = {}    # 角色能用的具体工具
     mcp_permissions: dict[str, list] = {}  # MCP 操作权限
-    sla_seconds: int = 0              # 消息响应超时秒数
     auto_send_messages: list[str] = []  # 自动发送消息列表
 ```
 
@@ -113,14 +111,9 @@ Layer 0: base.md（所有角色共享）
 
 Layer 1: roles/<name>.md（角色专业能力）
   └─ 身份定位、专长领域、方法论、红线、信号契约
-
-Layer 2: mixins/<driver>.md（驱动模式）
-  └─ loop_driver.md → 永不停止 + 退避重试
-  └─ cron_driver.md → 检查→退出
-  └─ ondemand_driver.md → 一次只做一件事
 ```
 
-汇编顺序：`base.md → roles/<name>.md → mixins/<driver>.md`，由 `role_assembler.py` 执行。
+汇编顺序：`base.md → roles/<name>.md`，由 `role_assembler.py` 执行。
 
 ## Consumed fields audit
 
@@ -137,7 +130,7 @@ Layer 2: mixins/<driver>.md（驱动模式）
 | workgroup | persona JSON | 存在但无任何代码消费 | ❌ 完全未用 |
 | cron_schedule | persona JSON | 无消费者（CronCreate 在 tmux 不可用） | ❌ 无消费者 |
 | mcp_servers/tools | models.py 已定义 | launcher _write_mcp_settings() 消费 | ✅ |
-| sla_seconds | models.py 已定义 | tracker 硬编码 300s | ⚠️ 未使用 |
+| sla_seconds | **不存在** | tracker 硬编码 300s | ❌ 文档误称已定义 |
 | auto_send_messages | models.py 已定义 | core.py start 时自动发送 | ✅ |
 
 ## Cross-project interface: `shared_loader.py --export`
@@ -165,7 +158,7 @@ python3 src/validate_roles.py                # 全量验证
 
 1. **测试缺失**: 仅 `tests/test_registry.py` 一个测试文件
 2. **`_parse_produce/consume_categories` 三处实现**: shared_loader.py, launcher/routing/roles.py, pipeline/routing/router.py 各有自己的正则解析——风险是解析不一致
-3. **字段缺口**: `workgroup`, `cron_schedule`, `sla_seconds` 等字段定义但下游未消费
+3. **字段缺口**: `workgroup`, `cron_schedule` 等字段定义但下游未消费；`sla_seconds` 从未在 models.py 定义（文档误称）
 
 ## Red Lines
 
