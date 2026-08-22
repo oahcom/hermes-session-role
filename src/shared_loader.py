@@ -59,6 +59,21 @@ class RoleExport:
     raw: dict | None = None  # original JSON (excluded from --export)
 
 
+# ── 总线分类注册表（单一权威来源） ──
+# validate_roles.py 與 shared_loader.py 共用，避免雙份維護。
+# 新增分類時同步此處。
+VALID_BUS_CATEGORIES = {
+    "approval", "architecture", "blocker", "bug_report", "ccs_health",
+    "changelog", "cleanup", "code_fix", "code_review", "debate",
+    "deployment_plan", "deployment_report", "design_issue", "documentation",
+    "evolution_report", "feedback", "knowledge_distill", "memory_store",
+    "monitor_dashboard", "notice", "optimization", "performance", "prd", "product_design",
+    "research", "root_cause_analysis", "scheduler", "security",
+    "security_audit", "session_log", "skill_audit", "system",
+    "system_design", "task_spec", "tech_decision", "test_plan",
+    "test_report", "threat_model", "user_story", "verification", "workflow",
+}
+
 # ── 解析函数（单一权威实现） ──
 
 def parse_produce_categories(output_targets: list) -> list[str]:

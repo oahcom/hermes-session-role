@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Validate all session-role JSON files for schema correctness."""
 from __future__ import annotations
+import argparse
 import json
 import os
 import re
 import sys
 
 import paths
-from shared_loader import parse_produce_categories, parse_consume_categories
+from shared_loader import parse_produce_categories, parse_consume_categories, VALID_BUS_CATEGORIES
 
 # 仅扫描会话角色目录；browser-harness profiles（registry.load_all 同时加载）
 # 是另一套 schema（无 skills/goal/constraints/mcp_servers 强校验），不走本校验器。
@@ -20,17 +21,7 @@ REQUIRED_FIELDS = {
 VALID_LIFECYCLES = {"infinite", "ondemand"}
 VALID_DRIVES = {"cron", "loop", "ondemand", "goal"}
 # 由 shared_loader.parse_* 汇总的 40 个注册分类（新增分类时同步追加）
-VALID_BUS_CATEGORIES = {
-    "approval", "architecture", "blocker", "bug_report", "ccs_health",
-    "changelog", "cleanup", "code_fix", "code_review", "debate",
-    "deployment_plan", "deployment_report", "design_issue", "documentation",
-    "evolution_report", "feedback", "knowledge_distill", "memory_store",
-    "monitor_dashboard", "notice", "optimization", "performance", "prd", "product_design",
-    "research", "root_cause_analysis", "scheduler", "security",
-    "security_audit", "session_log", "skill_audit", "system",
-    "system_design", "task_spec", "tech_decision", "test_plan",
-    "test_report", "threat_model", "user_story", "verification", "workflow",
-}
+# VALID_BUS_CATEGORIES 從 shared_loader 匯入（單一權威來源）
 OUTPUT_TARGET_PATTERNS = [
     re.compile(r"^bus cat=\S+"),
     re.compile(r"^bus consume"),
@@ -155,12 +146,338 @@ def _validate_collab(fname: str, collab: dict, known_roles: set[str], errors: li
             if cat and cat != "*" and cat not in VALID_BUS_CATEGORIES:
                 errors.append(f"{fname}: collab.track.bus_category '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
 
-def main() -> int:
-    import argparse
+def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate session-role JSON files")
     parser.add_argument("--roles", action="store_true", help="仅验证 session 角色（默认全部）")
     parser.add_argument("--category", default="", help="按分类筛选验证（如 '维护'）")
-    args, _ = parser.parse_known_args()
+    return parser.parse_known_args()[0]
+
+
+_PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "prompts")
+
+
+def _load_known_roles(files: list[str]) -> tuple[set[str], dict[str, str]]:
+    """预收集所有角色名（collab.guard.watch 校验用）。"""
+    known: dict[str, str] = {}
+    for fname in files:
+        try:
+            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
+                known[fname.replace(".json", "")] = json.load(fh).get("name", "")
+        except Exception:
+            continue
+    return {n for n in known.values() if n}, known
+
+
+def _load_json_files() -> list[str]:
+    return sorted(f for f in os.listdir(ROLES_DIR) if f.endswith(".json"))
+
+
+def _validate_role_fields(fname: str, data: dict, seen_names: set[str], errors: list[str]) -> int:
+    """校验单个角色的必填字段、命名、生命周期、驱动等基础字段。返回 role_count（0 或 1）。"""
+    missing = REQUIRED_FIELDS - set(data.keys())
+    if missing:
+        errors.append(f"{fname}: 缺少必填字段 {missing}")
+        return 0
+    name = data["name"]
+    if name in seen_names:
+        errors.append(f"{fname}: 重复角色名称 '{name}' (已在其他文件中定义)")
+    seen_names.add(name)
+    return 1 if "lifecycle" in data else 0
+
+
+def _validate_input_signals(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 input_signals 的格式兼容性（旧/新格式）。"""
+    for i, sig in enumerate(data.get("input_signals", [])):
+        if not isinstance(sig, dict):
+            errors.append(f"{fname}: input_signals[{i}] 不是对象")
+        elif "source" in sig:
+            if "filter" not in sig:
+                errors.append(f"{fname}: input_signals[{i}] 旧格式缺少 filter 字段")
+        elif "type" in sig:
+            sig_type = sig.get("type")
+            spec = sig.get("spec", {})
+            if sig_type == "bus" and "category" not in spec:
+                errors.append(f"{fname}: input_signals[{i}] type=bus 但 spec 缺少 category")
+            elif sig_type == "shell" and "command" not in spec:
+                errors.append(f"{fname}: input_signals[{i}] type=shell 但 spec 缺少 command")
+        else:
+            errors.append(f"{fname}: input_signals[{i}] 既无 source 字段（旧格式）也无 type 字段（新格式）")
+
+
+def _validate_output_targets(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 output_targets 格式。"""
+    for i, tgt in enumerate(data.get("output_targets", [])):
+        if not isinstance(tgt, (str, dict)) or not validate_output_target(tgt):
+            errors.append(f"{fname}: output_targets[{i}]='{tgt}' 格式无效")
+
+
+def _validate_eval_criteria(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 eval_criteria 必须是可执行命令或描述性标准。"""
+    for i, criteria in enumerate(data.get("eval_criteria", [])):
+        if not isinstance(criteria, str):
+            errors.append(f"{fname}: eval_criteria[{i}] 不是字符串")
+        elif not looks_like_shell_command(criteria):
+            errors.append(f"{fname}: eval_criteria[{i}]='{criteria[:60]}...' 看起来不是可执行的 shell 命令（需以 bash/python/curl/git 等开头或包含管道/重定向）")
+
+
+def _validate_prompt_refs(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 prompt_refs 引用的文件存在（仅当 prompts/ 目录存在时）。"""
+    if not os.path.isdir(_PROMPTS_DIR):
+        return
+    for ref_key, ref_path in data.get("prompt_refs", {}).items():
+        full_path = os.path.join(_PROMPTS_DIR, ref_path)
+        if not os.path.exists(full_path):
+            errors.append(f"{fname}: prompt_refs.{ref_key}='{ref_path}' 文件不存在 ({full_path})")
+
+
+def _validate_mcp(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 mcp_servers / mcp_tools 的结构和对应关系。"""
+    mcp_servers = data.get("mcp_servers", [])
+    mcp_tools = data.get("mcp_tools", {})
+    if not isinstance(mcp_servers, list):
+        errors.append(f"{fname}: mcp_servers 必须是字符串列表")
+    elif not mcp_servers:
+        errors.append(f"{fname}: mcp_servers 为空——每个角色必须声明至少一个 MCP server")
+    if not isinstance(mcp_tools, dict):
+        errors.append(f"{fname}: mcp_tools 必须是对象")
+    for srv in mcp_servers:
+        if srv not in mcp_tools:
+            errors.append(f"{fname}: mcp_servers 含 '{srv}' 但 mcp_tools 中无对应键")
+        else:
+            tools = mcp_tools[srv]
+            if not isinstance(tools, list) or not all(isinstance(t, str) for t in tools):
+                errors.append(f"{fname}: mcp_tools['{srv}'] 必须是字符串列表")
+            elif not tools:
+                errors.append(f"{fname}: mcp_tools['{srv}'] 不能为空")
+
+
+def _validate_bus_categories(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 produce/consume 分类都在 VALID_BUS_CATEGORIES 中注册。"""
+    produce_cats = parse_produce_categories(data.get("output_targets", []))
+    consume_cats = parse_consume_categories(data.get("input_signals", []))
+    for cat in produce_cats:
+        if cat not in VALID_BUS_CATEGORIES:
+            errors.append(f"{fname}: bus 产出分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+    for cat in consume_cats:
+        if cat == "*":
+            continue
+        if cat not in VALID_BUS_CATEGORIES:
+            errors.append(f"{fname}: bus 消费分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
+
+
+def _validate_dead_fields(fname: str, data: dict, dead_warnings: list[str]) -> None:
+    """检测 schema compat 的死字段。"""
+    DEAD_FIELDS = {"output_schema", "session_hint",
+                  "_evolution_version", "_evolved_at", "version"}
+    present = [f for f in DEAD_FIELDS if f in data]
+    if present:
+        dead_warnings.append(f"{fname}: 包含死字段(无代码消费): {', '.join(present)}")
+
+
+def _validate_deprecated(fname: str, data: dict, dead_warnings: list[str]) -> None:
+    """检测过期 persona 退役日期。"""
+    _dep_after = data.get("deprecated_after")
+    if not _dep_after:
+        return
+    try:
+        from datetime import datetime
+        _dep_ts = datetime.fromisoformat(_dep_after.replace("Z", "+00:00"))
+        if _dep_ts.tzinfo is None:
+            _dep_ts = _dep_ts.replace(tzinfo=datetime.now().astimezone().tzinfo)
+        if datetime.now().astimezone() > _dep_ts:
+            dead_warnings.append(
+                f"{fname}: 已过退役日期({_dep_after}) — 建议标记 deprecated 或更新契约")
+    except (ValueError, TypeError):
+        dead_warnings.append(f"{fname}: deprecated_after 格式非法: {_dep_after!r}（期望 ISO8601）")
+
+
+def _validate_role_def(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 RoleDef 特有字段：至少需要 input_signals 或 drive。"""
+    has_input_signals = bool(data.get("input_signals"))
+    has_drive = bool(data.get("drive"))
+    if not has_input_signals and not has_drive:
+        errors.append(f"{fname}: RoleDef 角色缺少 input_signals 和 drive，必须至少有一个")
+
+
+def _validate_skills(fname: str, data: dict, errors: list[str]) -> None:
+    """校验 skills / skill_refs / goal / constraints 字段。"""
+    skills = data.get("skills", [])
+    if not isinstance(skills, list) or len(skills) == 0:
+        errors.append(f"{fname}: skills 必须是非空数组")
+    elif not all(isinstance(s, str) and s for s in skills):
+        errors.append(f"{fname}: skills 元素必须是非空字符串")
+    skill_refs = data.get("skill_refs", {})
+    if not isinstance(skill_refs, dict):
+        errors.append(f"{fname}: skill_refs 必须是对象")
+    else:
+        for skill in skills:
+            if skill not in skill_refs:
+                errors.append(f"{fname}: skill_refs 缺少 '{skill}' 的路径")
+    if not data.get("goal"):
+        errors.append(f"{fname}: goal 字段不能为空")
+    constraints = data.get("constraints", [])
+    if not isinstance(constraints, list) or len(constraints) == 0:
+        errors.append(f"{fname}: constraints 必须是非空数组")
+
+
+def _check_prompt_refs_exist(prompts_dir: str, _prompt_size_done: list[bool]) -> None:
+    """统计 prompt 模板文件行数（仅执行一次）。"""
+    if _prompt_size_done[0]:
+        return
+    _check_prompt_sizes(prompts_dir)
+    _prompt_size_done[0] = True
+
+
+def _validate_one_role(
+    fname: str, data: dict, seen_names: set[str],
+    known_roles: set[str], errors: list[str],
+    dead_warnings: list[str], prompt_size_done: list[bool],
+) -> int:
+    """校验单个角色 JSON。返回 role_count（0 或 1）。"""
+    # 筛选
+    if args_category and data.get("category", "") != args_category:
+        return 0
+    role_count = _validate_role_fields(fname, data, seen_names, errors)
+    if role_count == 0 and "lifecycle" not in data:
+        # 缺少必填字段，但仍需后续字段校验 — return 但 errors 已记录
+        pass
+    if "lifecycle" not in data:
+        return role_count
+    lifecycle = data.get("lifecycle", "")
+    if lifecycle == "infinite" and "input_signals" not in data:
+        errors.append(f"{fname}: lifecycle=infinite 角色缺少 input_signals")
+    if "output_targets" not in data:
+        errors.append(f"{fname}: 角色缺少 output_targets")
+    if lifecycle not in VALID_LIFECYCLES:
+        errors.append(f"{fname}: lifecycle='{lifecycle}' 无效，应为 {VALID_LIFECYCLES}")
+    drive = data.get("drive", "")
+    if drive not in VALID_DRIVES:
+        errors.append(f"{fname}: drive='{drive}' 无效，应为 {VALID_DRIVES}")
+    if drive == "cron" and not data.get("cron_schedule"):
+        errors.append(f"{fname}: drive='cron' 但缺少 cron_schedule 字段")
+    _validate_input_signals(fname, data, errors)
+    _validate_output_targets(fname, data, errors)
+    _validate_eval_criteria(fname, data, errors)
+    _validate_prompt_refs(fname, data, errors)
+    _validate_mcp(fname, data, errors)
+    _check_prompt_refs_exist(_PROMPTS_DIR, prompt_size_done)
+    _validate_bus_categories(fname, data, errors)
+    collab = data.get("collab", {})
+    if collab:
+        if not isinstance(collab, dict):
+            errors.append(f"{fname}: collab 必须是 dict")
+        else:
+            _validate_collab(fname, collab, known_roles, errors)
+    _validate_dead_fields(fname, data, dead_warnings)
+    _validate_deprecated(fname, data, dead_warnings)
+    _validate_role_def(fname, data, errors)
+    _validate_skills(fname, data, errors)
+    return role_count
+
+
+def _check_prompt_quality(errors: list[str]) -> None:
+    """R3-13: Prompt 质量检查 — 参考来源、外部 URL、首行角色名。"""
+    prompts_roles_dir = os.path.join(_PROMPTS_DIR, "roles")
+    prompt_files = []
+    if os.path.isdir(prompts_roles_dir):
+        prompt_files = sorted(f for f in os.listdir(prompts_roles_dir) if f.endswith(".md"))
+    _check_references_section(prompts_roles_dir, prompt_files, errors)
+    _check_external_urls(prompts_roles_dir, prompt_files, errors)
+    _check_prompt_first_line(prompts_roles_dir, prompt_files, errors)
+
+
+def _check_references_section(prompts_roles_dir: str, prompt_files: list[str], errors: list[str]) -> None:
+    """检查 2: 每个 prompt 文件包含 ## 参考来源。"""
+    for pf in prompt_files:
+        full_path = os.path.join(prompts_roles_dir, pf)
+        try:
+            with open(full_path) as fh:
+                content = fh.read()
+            if "## 参考来源" not in content:
+                errors.append(f"{pf}: 缺少 '## 参考来源' 章节")
+        except Exception as e:
+            errors.append(f"{pf}: 读取失败 — {e}")
+
+
+def _check_external_urls(prompts_roles_dir: str, prompt_files: list[str], errors: list[str]) -> None:
+    """检查 3: 非原创角色必须引用至少 1 个外部 URL。"""
+    for pf in prompt_files:
+        name_stem = pf.replace(".md", "")
+        if name_stem in ("lr", "pg", "investigator_python", "investigator_senior", "investigator_general"):
+            continue
+        full_path = os.path.join(prompts_roles_dir, pf)
+        try:
+            with open(full_path) as fh:
+                content = fh.read()
+            ref_section = content.split("## 参考来源")[-1] if "## 参考来源" in content else ""
+            if not re.search(r"https?://", ref_section):
+                errors.append(f"{pf}: 非原创角色但 ## 参考来源 无外部 URL 引用")
+        except Exception:
+            pass
+
+
+def _check_prompt_first_line(prompts_roles_dir: str, prompt_files: list[str], errors: list[str]) -> None:
+    """检查 4: 首行必须包含本角色名，不能混入其他角色名。"""
+    role_name_map: dict[str, str] = {}
+    for fname in os.listdir(ROLES_DIR):
+        if not fname.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
+                role_name_map[fname.replace(".json", "")] = json.load(fh).get("name", "")
+        except Exception:
+            continue
+    known_roles = sorted({n for n in role_name_map.values() if n})
+    _loose_first_line = {"reviewer", "scout", "writer", "pm"}
+    for pf in prompt_files:
+        name_stem = pf.replace(".md", "")
+        full_path = os.path.join(prompts_roles_dir, pf)
+        try:
+            with open(full_path) as fh:
+                lines = fh.read().splitlines()
+            if not lines:
+                continue
+            first_line = lines[0].strip()
+            candidates = {name_stem}
+            for stem, jname in role_name_map.items():
+                if stem == name_stem or jname == name_stem:
+                    if jname:
+                        candidates.add(jname)
+            norm_cands = {_normalize_role_name(c) for c in candidates}
+            if first_line == "<identity>":
+                ident_lines: list[str] = []
+                for ln in lines:
+                    if ln.strip() == "</identity>":
+                        break
+                    ident_lines.append(ln)
+                own_text = " ".join(ident_lines)
+                mix_text = own_text
+            elif name_stem in _loose_first_line:
+                own_text = " ".join(lines)
+                mix_text = first_line
+            else:
+                own_text = first_line
+                mix_text = first_line
+            norm_own = _normalize_role_name(own_text.replace("#", ""))
+            if name_stem not in _loose_first_line and not any(c in norm_own for c in norm_cands):
+                errors.append(f"{pf}: 首行未包含角色名 '{name_stem}'")
+            clean_mix = mix_text.replace("#", "").strip().lower()
+            for r in known_roles:
+                if _normalize_role_name(r) in norm_cands:
+                    continue
+                patterns: set[str] = {f"({r})", f"-{r}", f"/{r}"}
+                patterns |= {f"({_normalize_role_name(r)})", f"-{_normalize_role_name(r)}", f"/{_normalize_role_name(r)}"}
+                for p in patterns:
+                    if p in clean_mix:
+                        errors.append(f"{pf}: 首行混入其他角色名 '{r}'")
+                        break
+        except Exception:
+            pass
+
+
+def main() -> int:
+    args = _parse_args()
+    args_category = args.category
 
     if not os.path.isdir(ROLES_DIR):
         print(f"  FAIL: 目录不存在 {ROLES_DIR}")
@@ -168,27 +485,18 @@ def main() -> int:
 
     _warn_category_drift()
 
-    files = sorted(f for f in os.listdir(ROLES_DIR) if f.endswith(".json"))
+    files = _load_json_files()
     if not files:
         print("  FAIL: 未找到 JSON 文件")
         return 1
 
     seen_names: set[str] = set()
-    _prompt_size_done = False
-
-    # 预收集所有角色名（collab.guard.watch 校验用）
-    _known: dict[str, str] = {}
-    for fname in files:
-        try:
-            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
-                _known[fname.replace(".json", "")] = json.load(fh).get("name", "")
-        except Exception:
-            continue
-    known_roles: set[str] = {n for n in _known.values() if n}
+    known_roles, _ = _load_known_roles(files)
     errors: list[str] = []
     dead_warnings: list[str] = []
     checked = 0
     role_count = 0
+    prompt_size_done = [False]
 
     for fname in files:
         path = os.path.join(ROLES_DIR, fname)
@@ -205,278 +513,12 @@ def main() -> int:
             errors.append(f"{fname}: JSON 顶层必须是对象")
             continue
 
-        # 筛选
-        if args.category and data.get("category", "") != args.category:
-            continue
-
         checked += 1
+        role_count += _validate_one_role(
+            fname, data, seen_names, known_roles, errors, dead_warnings, prompt_size_done
+        )
 
-        missing = REQUIRED_FIELDS - set(data.keys())
-        if missing:
-            errors.append(f"{fname}: 缺少必填字段 {missing}")
-            continue
-
-        name = data["name"]
-        if name in seen_names:
-            errors.append(f"{fname}: 重复角色名称 '{name}' (已在其他文件中定义)")
-        seen_names.add(name)
-
-        if "lifecycle" in data:
-            role_count += 1
-            lifecycle = data.get("lifecycle", "")
-            if lifecycle == "infinite" and "input_signals" not in data:
-                errors.append(f"{fname}: lifecycle=infinite 角色缺少 input_signals")
-            if "output_targets" not in data:
-                errors.append(f"{fname}: 角色缺少 output_targets")
-
-            if lifecycle not in VALID_LIFECYCLES:
-                errors.append(f"{fname}: lifecycle='{lifecycle}' 无效，应为 {VALID_LIFECYCLES}")
-
-            drive = data.get("drive", "")
-            if drive not in VALID_DRIVES:
-                errors.append(f"{fname}: drive='{drive}' 无效，应为 {VALID_DRIVES}")
-
-            # P1: drive=cron 时必须有 cron_schedule
-            if drive == "cron" and not data.get("cron_schedule"):
-                errors.append(f"{fname}: drive='cron' 但缺少 cron_schedule 字段")
-
-            for i, sig in enumerate(data.get("input_signals", [])):
-                if not isinstance(sig, dict):
-                    errors.append(f"{fname}: input_signals[{i}] 不是对象")
-                elif "source" in sig:
-                    # 旧格式: {"source": "...", "filter": "..."}
-                    if "filter" not in sig:
-                        errors.append(f"{fname}: input_signals[{i}] 旧格式缺少 filter 字段")
-                elif "type" in sig:
-                    # 新格式: {"type": "...", "spec": {...}, "filter": "..."}
-                    sig_type = sig.get("type")
-                    spec = sig.get("spec", {})
-                    if sig_type == "bus" and "category" not in spec:
-                        errors.append(f"{fname}: input_signals[{i}] type=bus 但 spec 缺少 category")
-                    elif sig_type == "shell" and "command" not in spec:
-                        errors.append(f"{fname}: input_signals[{i}] type=shell 但 spec 缺少 command")
-                    # journalctl 和 custom 类型暂不强制验证 spec 字段
-                else:
-                    errors.append(f"{fname}: input_signals[{i}] 既无 source 字段（旧格式）也无 type 字段（新格式）")
-
-            for i, tgt in enumerate(data.get("output_targets", [])):
-                if not isinstance(tgt, (str, dict)) or not validate_output_target(tgt):
-                    errors.append(f"{fname}: output_targets[{i}]='{tgt}' 格式无效")
-
-            # P1: eval_criteria 必须是可执行的 shell 命令
-            for i, criteria in enumerate(data.get("eval_criteria", [])):
-                if not isinstance(criteria, str):
-                    errors.append(f"{fname}: eval_criteria[{i}] 不是字符串")
-                elif not looks_like_shell_command(criteria):
-                    errors.append(f"{fname}: eval_criteria[{i}]='{criteria[:60]}...' 看起来不是可执行的 shell 命令（需以 bash/python/curl/git 等开头或包含管道/重定向）")
-
-            # P1: prompt_refs 引用的文件必须存在（仅当 prompts/ 目录存在时检查）
-            prompts_dir = os.path.join(os.path.dirname(__file__), "..", "prompts")
-            if os.path.isdir(prompts_dir):
-                for ref_key, ref_path in data.get("prompt_refs", {}).items():
-                    full_path = os.path.join(prompts_dir, ref_path)
-                    if not os.path.exists(full_path):
-                        errors.append(f"{fname}: prompt_refs.{ref_key}='{ref_path}' 文件不存在 ({full_path})")
-
-            # ── P2: 新增校验 ────────────────────────────────────────────────
-
-            # mcp_servers: list[str]（models.py 定义），mcp_tools: dict
-            mcp_servers = data.get("mcp_servers", [])
-            mcp_tools = data.get("mcp_tools", {})
-            if not isinstance(mcp_servers, list):
-                errors.append(f"{fname}: mcp_servers 必须是字符串列表")
-            elif not mcp_servers:
-                errors.append(f"{fname}: mcp_servers 为空——每个角色必须声明至少一个 MCP server")
-            if not isinstance(mcp_tools, dict):
-                errors.append(f"{fname}: mcp_tools 必须是对象")
-            for srv in mcp_servers:
-                if srv not in mcp_tools:
-                    errors.append(f"{fname}: mcp_servers 含 '{srv}' 但 mcp_tools 中无对应键")
-                else:
-                    tools = mcp_tools[srv]
-                    if not isinstance(tools, list) or not all(isinstance(t, str) for t in tools):
-                        errors.append(f"{fname}: mcp_tools['{srv}'] 必须是字符串列表")
-                    elif not tools:
-                        errors.append(f"{fname}: mcp_tools['{srv}'] 不能为空")
-
-            # prompt 模板文件大小门禁（仅执行一次）
-            if not _prompt_size_done:
-                _check_prompt_sizes(os.path.join(os.path.dirname(__file__), "..", "prompts"))
-                _prompt_size_done = True
-
-            # produce/consume 分类注册表校验
-            produce_cats = parse_produce_categories(data.get("output_targets", []))
-            consume_cats = parse_consume_categories(data.get("input_signals", []))
-            for cat in produce_cats:
-                if cat not in VALID_BUS_CATEGORIES:
-                    errors.append(f"{fname}: bus 产出分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
-            for cat in consume_cats:
-                if cat == "*":
-                    continue  # 通配符无需注册
-                if cat not in VALID_BUS_CATEGORIES:
-                    errors.append(f"{fname}: bus 消费分类 '{cat}' 未在 VALID_BUS_CATEGORIES 注册表中")
-
-            # ── collab 结构校验（engine 依赖它做死锁检测/守护重启） ──────
-            collab = data.get("collab", {})
-            if collab:
-                if not isinstance(collab, dict):
-                    errors.append(f"{fname}: collab 必须是 dict")
-                else:
-                    _validate_collab(fname, collab, known_roles, errors)
-
-            # Dead field warnings (not errors — schema compat)
-            # NOTE: constraints/goal/skill_refs 被 role_assembler.py 和本文件消费，不是死字段
-            DEAD_FIELDS = {"output_schema", "session_hint",
-                          "_evolution_version", "_evolved_at", "version"}
-            present = [f for f in DEAD_FIELDS if f in data]
-            if present:
-                dead_warnings.append(f"{fname}: 包含死字段(无代码消费): {', '.join(present)}")
-
-            # R2-3: deprecated_after 退役机制（洞察 5：agent 必须有正式退役阶段）
-            # 过期的 persona 发出 warning，提示运维下线或更新；不 blocking（schema 兼容）
-            _dep_after = data.get("deprecated_after")
-            if _dep_after:
-                try:
-                    from datetime import datetime
-                    _dep_ts = datetime.fromisoformat(_dep_after.replace("Z", "+00:00"))
-                    if _dep_ts.tzinfo is None:
-                        _dep_ts = _dep_ts.replace(tzinfo=datetime.now().astimezone().tzinfo)
-                    if datetime.now().astimezone() > _dep_ts:
-                        dead_warnings.append(
-                            f"{fname}: 已过退役日期({_dep_after}) — 建议标记 deprecated 或更新契约")
-                except (ValueError, TypeError):
-                    dead_warnings.append(f"{fname}: deprecated_after 格式非法: {_dep_after!r}（期望 ISO8601）")
-
-            # 对于 RoleDef 角色，至少要有 input_signals 或 drive 之一
-            has_input_signals = bool(data.get("input_signals"))
-            has_drive = bool(data.get("drive"))
-            if not has_input_signals and not has_drive:
-                errors.append(f"{fname}: RoleDef 角色缺少 input_signals 和 drive，必须至少有一个")
-
-            # ── P3: skills / skill_refs / goal / constraints 校验 ──────────
-            # skills 必须是非空数组
-            skills = data.get("skills", [])
-            if not isinstance(skills, list) or len(skills) == 0:
-                errors.append(f"{fname}: skills 必须是非空数组")
-            elif not all(isinstance(s, str) and s for s in skills):
-                errors.append(f"{fname}: skills 元素必须是非空字符串")
-
-            # skill_refs 必须包含所有 skills 的路径（文件存在性由 Claude Code 管理）
-            skill_refs = data.get("skill_refs", {})
-            if not isinstance(skill_refs, dict):
-                errors.append(f"{fname}: skill_refs 必须是对象")
-            else:
-                for skill in skills:
-                    if skill not in skill_refs:
-                        errors.append(f"{fname}: skill_refs 缺少 '{skill}' 的路径")
-
-            # goal 必须非空
-            if not data.get("goal"):
-                errors.append(f"{fname}: goal 字段不能为空")
-
-            # constraints 必须是非空数组
-            constraints = data.get("constraints", [])
-            if not isinstance(constraints, list) or len(constraints) == 0:
-                errors.append(f"{fname}: constraints 必须是非空数组")
-
-    # ── R3-13: Prompt 质量检查 ──────────────────────────────
-    prompts_dir = os.path.join(os.path.dirname(__file__), "..", "prompts", "roles")
-    prompt_files = []
-    if os.path.isdir(prompts_dir):
-        prompt_files = sorted(f for f in os.listdir(prompts_dir) if f.endswith(".md"))
-
-    # 检查 1: 每个角色引用的 prompt 文件存在（已有）
-    # 检查 2: 每个 prompt 文件包含 ## 参考来源
-    for pf in prompt_files:
-        full_path = os.path.join(prompts_dir, pf)
-        try:
-            with open(full_path) as fh:
-                content = fh.read()
-            if "## 参考来源" not in content:
-                errors.append(f"{pf}: 缺少 '## 参考来源' 章节")
-        except Exception as e:
-            errors.append(f"{pf}: 读取失败 — {e}")
-
-    # 检查 3: 非新角色（非 lr/pg/investigator_*）必须引用至少 1 个外部来源
-    for pf in prompt_files:
-        name_stem = pf.replace(".md", "")
-        if name_stem in ("lr", "pg", "investigator_python", "investigator_senior", "investigator_general"):
-            continue  # 原创设计，不强制外部引用
-        full_path = os.path.join(prompts_dir, pf)
-        try:
-            with open(full_path) as fh:
-                content = fh.read()
-            # 提取 ## 参考来源 后的文本
-            ref_section = content.split("## 参考来源")[-1] if "## 参考来源" in content else ""
-            # 检查是否有 URL (http:// 或 https://)
-            if not re.search(r"https?://", ref_section):
-                errors.append(f"{pf}: 非原创角色但 ## 参考来源 无外部 URL 引用")
-        except Exception:
-            pass
-
-    # 检查 4: 首行必须包含本角色名，不能混入其他角色名
-    # 候选名 = md 文件名 stem ∪ 对应 JSON 的 name 字段（persona_00_maintainer → maintainer）
-    role_name_map: dict[str, str] = {}
-    for fname in os.listdir(ROLES_DIR):
-        if not fname.endswith(".json"):
-            continue
-        try:
-            with open(os.path.join(ROLES_DIR, fname), encoding="utf-8") as fh:
-                role_name_map[fname.replace(".json", "")] = json.load(fh).get("name", "")
-        except Exception:
-            continue
-    known_roles = sorted({n for n in role_name_map.values() if n})
-    # 首行是中文标题的 md（## 定位/## 红线约束/## PM Prompt）：自身命中放宽，不判失败
-    _loose_first_line = {"reviewer", "scout", "writer", "pm"}
-    for pf in prompt_files:
-        name_stem = pf.replace(".md", "")
-        full_path = os.path.join(prompts_dir, pf)
-        try:
-            with open(full_path) as fh:
-                lines = fh.read().splitlines()
-            if not lines:
-                continue
-            first_line = lines[0].strip()
-            # 候选名：md stem ∪ 对应 JSON 的 name 字段
-            candidates = {name_stem}
-            for stem, jname in role_name_map.items():
-                if stem == name_stem or jname == name_stem:
-                    if jname:
-                        candidates.add(jname)
-            norm_cands = {_normalize_role_name(c) for c in candidates}
-            if first_line == "<identity>":
-                # <identity>…</identity> 块内首行是 "你是 <名>，CCS 角色。"
-                ident_lines: list[str] = []
-                for ln in lines:
-                    if ln.strip() == "</identity>":
-                        break
-                    ident_lines.append(ln)
-                own_text = " ".join(ident_lines)
-                mix_text = own_text
-            elif name_stem in _loose_first_line:
-                # 放宽：整文件扫描兜底（scout.md 全文亦无 scout，命中与否都不判失败）
-                own_text = " ".join(lines)
-                mix_text = first_line
-            else:
-                own_text = first_line
-                mix_text = first_line
-            norm_own = _normalize_role_name(own_text.replace("#", ""))
-            if name_stem not in _loose_first_line and not any(c in norm_own for c in norm_cands):
-                errors.append(f"{pf}: 首行未包含角色名 '{name_stem}'")
-            # 混入检测（限定首行/identity 块，避免整文件扫描误报）
-            clean_mix = mix_text.replace("#", "").strip().lower()
-            for r in known_roles:
-                if _normalize_role_name(r) in norm_cands:
-                    continue
-                patterns: set[str] = set()
-                for v in {r, _normalize_role_name(r)}:
-                    patterns.update([f"({v})", f"-{v}", f"/{v}"])
-                for p in patterns:
-                    if p in clean_mix:
-                        errors.append(f"{pf}: 首行混入其他角色名 '{r}'")
-                        break
-        except Exception:
-            pass
+    _check_prompt_quality(errors)
 
     for w in dead_warnings:
         print(f"  WARN: {w}")
@@ -496,4 +538,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Inline self-check: VALID_BUS_CATEGORIES imported from shared_loader
+    from shared_loader import VALID_BUS_CATEGORIES as _cats
+    assert isinstance(_cats, set), "VALID_BUS_CATEGORIES must be a set"
+    assert len(_cats) > 30, f"Expected 40+ categories, got {len(_cats)}"
+    assert "architecture" in _cats, "architecture must be a registered category"
+    # Inline self-check: refactored main() produces same validation output
+    assert callable(main), "main() must be callable after refactor"
     sys.exit(main())

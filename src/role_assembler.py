@@ -3,6 +3,7 @@
 对标 MetaGPT: profile + goal + constraints + skills -> 完整 prompt"""
 from __future__ import annotations
 import json, sys
+import os
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,12 @@ def load_role_json(role_name: str) -> dict[str, Any]:
 def read_skill(skill_path: str) -> str:
     """读取 skill 内容。"""
     full = SKILLS_ROOT / skill_path
+    # Trust boundary: skill_path may originate from persona JSON skill_refs.
+    # Defend against path traversal regardless of JSON validation trust.
+    real_root = os.path.realpath(SKILLS_ROOT)
+    real_full = os.path.realpath(full)
+    if not real_full.startswith(real_root + os.sep) and real_full != real_root:
+        raise PermissionError(f'PATH ESCAPE: skill_path {skill_path!r} resolves outside SKILLS_ROOT')
     if full.exists():
         return full.read_text()
     # skills 实际存储为 dir/SKILL.md 而非 dir.md（skill_refs 的路径如 skills/code/write_code.md → skills/code/write_code/SKILL.md）
@@ -200,4 +207,12 @@ def main():
 
 
 if __name__ == '__main__':
+    # Inline self-check: path traversal must be blocked
+    _ = read_skill('base.md')  # normal call still works
+    try:
+        read_skill('../../etc/passwd')
+    except PermissionError as e:
+        assert 'PATH ESCAPE' in str(e), f"Expected PATH ESCAPE in error, got: {e}"
+    else:
+        raise AssertionError('read_skill should reject path traversal')
     main()
