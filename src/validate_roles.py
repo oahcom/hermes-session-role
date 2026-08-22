@@ -332,10 +332,11 @@ def _validate_one_role(
     fname: str, data: dict, seen_names: set[str],
     known_roles: set[str], errors: list[str],
     dead_warnings: list[str], prompt_size_done: list[bool],
+    category_filter: str = "",
 ) -> int:
     """校验单个角色 JSON。返回 role_count（0 或 1）。"""
     # 筛选
-    if args_category and data.get("category", "") != args_category:
+    if category_filter and data.get("category", "") != category_filter:
         return 0
     role_count = _validate_role_fields(fname, data, seen_names, errors)
     if role_count == 0 and "lifecycle" not in data:
@@ -515,7 +516,8 @@ def main() -> int:
 
         checked += 1
         role_count += _validate_one_role(
-            fname, data, seen_names, known_roles, errors, dead_warnings, prompt_size_done
+            fname, data, seen_names, known_roles, errors, dead_warnings, prompt_size_done,
+            category_filter=args_category
         )
 
     _check_prompt_quality(errors)
@@ -541,7 +543,7 @@ if __name__ == "__main__":
     # Inline self-check: VALID_BUS_CATEGORIES imported from shared_loader
     from shared_loader import VALID_BUS_CATEGORIES as _cats
     assert isinstance(_cats, set), "VALID_BUS_CATEGORIES must be a set"
-    assert len(_cats) > 30, f"Expected 40+ categories, got {len(_cats)}"
+    assert len(_cats) == 41, f"Expected 41 categories, got {len(_cats)}"
     assert "architecture" in _cats, "architecture must be a registered category"
     # Inline self-check: refactored main() produces same validation output
     assert callable(main), "main() must be callable after refactor"
