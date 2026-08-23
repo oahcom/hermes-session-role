@@ -152,9 +152,6 @@ class RoleDef(PersonaDef):
     def from_dict(cls, d: dict) -> RoleDef:
         persona_fields = {k: d[k] for k in PersonaDef.__dataclass_fields__ if k in d}
         role_fields = {k: d[k] for k in cls.__dataclass_fields__ if k in d and k not in PersonaDef.__dataclass_fields__}
+        # skills/skill_refs/goal/constraints 已在 PersonaDef 中定义，from_dict 无需额外处理
         role = cls(**persona_fields, **role_fields)
-        # 补丁：to_dict 时确保 skills/skill_refs 等 BaseDef 字段存在
-        for extra_field in ['skills', 'skill_refs', 'goal', 'constraints']:
-            if extra_field in d and extra_field not in PersonaDef.__dataclass_fields__:
-                pass  # 已在 PersonaDef 初始化时处理
         return role

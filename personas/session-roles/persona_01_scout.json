@@ -5,9 +5,9 @@
   "description": "扫描 GitHub、技术社区，发现新工具、模式、情报",
   "category": "信息采集",
   "lifecycle": "infinite",
-  "drive": "loop",
+  "drive": "ondemand",
   "cron_schedule": "",
-  "idle_action": "/loop",
+  "idle_action": "wait_for_signal",
   "input_signals": [
     {
       "type": "custom",

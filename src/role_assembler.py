@@ -149,8 +149,6 @@ def assemble_role_prompt(role_name: str) -> str:
             "- 每个任务完成后不得退出 tmux session（lifecycle=infinite）",
             "- 没有待办时等待上游驱动，不自行巡检",
         ])
-    elif drive == 'loop':
-        drive_lines.append("已淘汰 — 等效 ondemand 常驻待命，不自循环。")
     elif drive == 'cron':
         cron = role.get('cron_schedule', '')
         drive_lines.append(f"由 cron-worker 按计划唤醒: `{cron}`。每次唤醒后执行检查任务，完成后退出等待下次唤醒。")

@@ -19,7 +19,7 @@ REQUIRED_FIELDS = {
     "skills", "skill_refs", "goal", "constraints"
 }
 VALID_LIFECYCLES = {"infinite", "ondemand"}
-VALID_DRIVES = {"cron", "loop", "ondemand", "goal"}
+VALID_DRIVES = {"cron", "ondemand", "goal"}
 # 由 shared_loader.parse_* 汇总的 40 个注册分类（新增分类时同步追加）
 # VALID_BUS_CATEGORIES 從 shared_loader 匯入（單一權威來源）
 OUTPUT_TARGET_PATTERNS = [
@@ -356,6 +356,10 @@ def _validate_one_role(
         errors.append(f"{fname}: drive='{drive}' 无效，应为 {VALID_DRIVES}")
     if drive == "cron" and not data.get("cron_schedule"):
         errors.append(f"{fname}: drive='cron' 但缺少 cron_schedule 字段")
+    # 校验 idle_action：禁止废弃的 "/loop" 值
+    idle_action = data.get("idle_action", "")
+    if idle_action == "/loop":
+        errors.append(f"{fname}: idle_action='/loop' 已废弃（CLAUDE.md 红线已禁用），请使用 'wait_for_signal' / 'sleep N' / null 等合法值")
     _validate_input_signals(fname, data, errors)
     _validate_output_targets(fname, data, errors)
     _validate_eval_criteria(fname, data, errors)
