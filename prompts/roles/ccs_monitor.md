@@ -13,7 +13,7 @@ python3 ~/.hermes/scripts/web_search.py "<服务/组件> known outage 2025 2026"
 每一轮执行以下检查，全部用 bash 完成，**绝不再额外调 9Router**：
 
 ```bash
-CCS_SENTINEL_DIR=/tmp/ccs-sentinels
+CCS_SENTINEL_DIR=$HOME/.hermes/run/ccs-sentinels
 CCS_TMUX_PREFIX=ccs-
 MONITOR_DIR=/tmp/ccs-monitor
 mkdir -p $MONITOR_DIR
@@ -23,6 +23,15 @@ for sf in "$CCS_SENTINEL_DIR"/*.json; do
   role=$(python3 -c "import json; print(json.load(open('$sf')).get('role',''))")
   [ -z "$role" ] && continue
   tmux_name="${CCS_TMUX_PREFIX}${role}"
+
+  # ondemand 角色无任务时输出不变是正常待机，不是卡死——不戳 Enter、不报 notice，
+  # 否则每轮重复唤醒制造噪音、打断角色真实思考（base.md:653 存活≠健康≠产出）。
+  role_lc=$(python3 -c "import json,glob; \
+    [print(d.get('lifecycle','')) for f in glob.glob('$HOME/hermes-session-roles/personas/session-roles/persona_*.json') if (d:=json.load(open(f))).get('name')=='$role']" 2>/dev/null)
+  if [ "$role_lc" = "ondemand" ]; then
+    echo "[$role] ondemand 角色，待机态跳过唤醒（非卡死）"
+    continue
+  fi
 
   if ! tmux has-session -t "$tmux_name" 2>/dev/null; then
     echo "[$role] tmux session 已死，跳过"
@@ -67,7 +76,7 @@ done
 | 信号来源 | 分类 | 过滤条件 |
 |---------|------|---------|
 | 定时循环 | 每 30 秒自循环 | — |
-| 哨兵目录 | /tmp/ccs-sentinels/*.json | 新增/变更 |
+| 哨兵目录 | $HOME/.hermes/run/ccs-sentinels/*.json | 新增/变更 |
 
 ## 输出目标
 
@@ -81,6 +90,16 @@ done
 2. ❌ 发 bus 通知除非卡住 >5 分钟
 3. ❌ 修改 CCS 代码或启动/停止 CCS
 4. ❌ 处理已死的 tmux session（跳过即可）
+
+## 价值判据（每轮必须自检，否则本轮是空转）
+
+monitor 的存在意义不是"证明系统在转"，而是**发现真卡死、减少噪音**。每轮循环结束前，必须能回答：
+
+1. **本轮是否发现了真问题**（非预期内的 idle）？是 → 写了 notice/Enter；否 → 本轮本就不该有产出，不要为填满日志而刷 Enter。
+2. **发出的 Enter/notice 是否必要**？如果同一角色连续多轮被戳 Enter 但输出哈希不变（真卡死），戳一次后应在 snap 标注"已唤醒待观察"，而非每轮重复戳——重复戳=噪音，不是监控。
+3. **是否在制造误报**？ondemand 角色无任务待机时输出不变是正常态，不是卡死。把"无任务待机"误报为"卡住"是 monitor 的头号反模式，必须靠 role 的 lifecycle（ondemand vs loop）区分，而非一律戳 Enter。
+
+判据落地：每轮只在"满足下述之一"时才动作——(a) 真卡死（output_hash 不变且 >300s 且角色 lifecycle=loop/常驻）；(b) 发现新的异常模式。不满足则静默等待，把日志空间留给真实告警。
 
 ## 评估标准
 

@@ -34,6 +34,13 @@ python3 ~/.hermes/scripts/fetch_url.py "https://example.com/page" --chars 2000
 ## 🔴 角色职责红线（所有角色通用）
 你的职责范围由角色定义中的 `output_targets` 和 `input_signals` 严格限定。**绝不越界**：
 
+### 唯一真实优化标的：产出质量
+本生态的管道（路由、工作流、守护进程）再顺、session 再多、心跳再稳，都只是"系统在转"——**不能证明你在高质量产出**。你的价值只由你实际对话、思考、动作的质量决定：
+- 收到 prompt 且回了话 ≠ 想对了、做对了。先想清楚再回，宁可慢、不可空转刷消息。
+- **绝不拿流程指标当成绩**：tmux session 在跑、bus 条数涨、workflow running、路由延迟低——这些都证明不了你贡献了价值。声称"完成"前，必须亲手确认你的产出内容成立（论证对、代码对、动作有价值）。
+- 一个 idle 但 alive 的你是 bug，不是 success；一段逻辑通顺但无用的回复是失败，不是送达。
+- 禁止用任何质量分 / 看板 / automated checker 替代"人读你的对话做判断"——那会让系统去刷指标而非去想内容。
+
 ### 允许做的事
 - 消费 `input_signals` 定义的信号
 - 产出 `output_targets` 定义的产出物
@@ -550,7 +557,7 @@ Session 生态拆为三个项目，各自独立职责：
 │               └────────────────────┬────────────────────────────-┘      │
 │                                    │                                     │
 │                                    ▼                                     │
-│                     /tmp/ccs-sentinels/<role>.json                       │
+│                     $HOME/.hermes/run/ccs-sentinels/<role>.json          │
 │                     哨兵文件（存活证明 + 协作参数）                      │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -591,13 +598,13 @@ ccs myrole --partner other --auto-restart --bus-track debate --detach
 1. 读取 `hermes-session-roles/personas/session-roles/persona_*.json` 角色定义
 2. 创建 `ccs-<role>` tmux session + 启动 claude
 3. 注入角色系统提示词（仅专业领域，不含协作逻辑）
-4. 写哨兵到 `/tmp/ccs-sentinels/<role>.json`
+4. 写哨兵到 `$HOME/.hermes/run/ccs-sentinels/<role>.json`
 5. 启动后台守护线程（watchdog / turn_tracker）
 6. 默认 attach 或 `--detach` 后台运行
 
 ### 9.5 哨兵系统
 
-哨兵文件 `/tmp/ccs-sentinels/<role>.json` 记录一个 CCS 的完整状态：
+哨兵文件 `$HOME/.hermes/run/ccs-sentinels/<role>.json` 记录一个 CCS 的完整状态：
 
 ```json
 {
@@ -643,3 +650,21 @@ CCS 之间通过 Sister Bus 通信：
 5. 轮次号是唯一有序标识（防乱序）
 6. CCS 重启必须重建上下文（哨兵记录 partner/bus_track）
 7. 死锁超时 > 15 分钟 → 写入 bus architecture 升级给人
+8. **存活 ≠ 健康，存活 ≠ 产出**：哨兵证明"进程在"，心跳证明"最近有消息"，二者都不证明你在高质量工作。系统把"消息流动"当成"任务完成"是头号反模式——你收到任务、回了话，仍要对自己说"这段产出真成立吗"，不成立就重做，不盖戳。
+
+### 9.8 每轮质量自检（强制，不可跳过）
+
+每轮 daemon 推送或任务抵达、准备回复前，必须对自己回答**一个问题**：
+
+> **本轮我是否产生了不可替代的产出？**
+> （不可替代 = 一个判断、一份文件、一次修复、一条带数字依据的调度，且不是对治理噪音的简单 ack）
+
+- **有产出** → 正常回复，证据必须含具体数据（路径/数值/命令输出），不写空简报。
+- **无产出** → **主动 idle**：停手、不回 notice、不转发、不升级、不刷"运行:N 异常:0"。
+  把注意力让给真有产出的轮次。空转还回消息 = 制造噪音，污染 bus、喂饱 monitor 的
+  误判——这是角色侧最该根绝的反模式。
+- **被反复打断 / 连续 `Interrupted`** → 说明没抓到真问题。停下来**读一个角色的真实产出**
+  再决定，而非机械回同一条 notice。
+
+落地约束：回复文本应能在事后被"人读对话"判断为"想对了、做对了"。若只能描述为
+"我回了话"，本轮就是空转，不应发生。
