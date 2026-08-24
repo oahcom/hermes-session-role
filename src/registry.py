@@ -27,40 +27,6 @@ _LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存，register() 时失效
 _WRITE_LOCK = threading.RLock()
 
 
-def _notify_bus_contract_change(name: str, obj_type: str) -> None:
-    """契约变更时写 bus 通知，失败静默。"""
-    try:
-        from paths import BUS_CLIENT
-        bus_py = os.fspath(BUS_CLIENT)
-        if os.path.isfile(bus_py):
-            subprocess.run(
-                [sys.executable, bus_py, "write", "architecture",
-                 f"\u5951\u7ea6\u53d8\u66f4: {name} \u88ab\u8986\u76d6",
-                 "--evidence", f"\u7c7b\u522b={obj_type}",
-                 "--src", "registry"],
-                timeout=10, capture_output=True,
-            )
-    except Exception:
-        pass
-
-
-def register(obj: PersonaDef | RoleDef) -> None:
-    """注册一个人格/角色（注册即失效缓存，保证新数据可见）。
-
-    仅内容真正变更时发 bus 通知（比较 to_dict），避免 load_all 每次全量
-    触发 62 次 subprocess 写总线。
-    """
-    global _LOADED_AT
-    with _WRITE_LOCK:
-        _LOADED_AT = 0.0
-        if isinstance(obj, RoleDef):
-            if obj.name not in _ROLES or _ROLES[obj.name].to_dict() != obj.to_dict():
-                _notify_bus_contract_change(obj.name, type(obj).__name__)
-            _ROLES[obj.name] = obj
-        if obj.name not in _PERSONAS or _PERSONAS[obj.name].to_dict() != obj.to_dict():
-            _notify_bus_contract_change(obj.name, type(obj).__name__)
-        _PERSONAS[obj.name] = obj  # RoleDef 是 PersonaDef 子类，只需注册一次
-
 
 def get(name: str) -> PersonaDef | RoleDef | None:
     """按名称获取。"""

@@ -10,8 +10,7 @@ import subprocess
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from registry import load_all, get, list_roles, list_personas, list_categories, register
-from models import PersonaDef, RoleDef
+from registry import load_all, get, list_roles, list_personas, list_categories
 
 EXPECTED_ROLES = 31  # session-roles（含 persona_99_*）
 EXPECTED_TOTAL = 62  # session-roles + browser-harness profiles（动态对齐 load_all）
@@ -66,42 +65,6 @@ def test_categories():
     assert sum(cats.values()) == len(all_p), f"分类人数和 {sum(cats.values())} != 人格数 {len(all_p)}"
 
 
-def test_register_role():
-    """注册一个新角色后能查到。"""
-    r = RoleDef(
-        name="test-role",
-        title="测试角色",
-        description="临时测试用",
-        category="测试",
-        system_prompt="你是 {persona_name}",
-        lifecycle="ondemand",
-        drive="ondemand",
-    )
-    register(r)
-    loaded = get("test-role")
-    assert loaded is not None, "注册后应能查到"
-    assert loaded.name == "test-role"
-    assert isinstance(loaded, RoleDef)
-
-
-def test_register_persona():
-    """注册一个人格，在 personas 中但在 roles 中不可见。"""
-    p = PersonaDef(
-        name="test-persona-only",
-        title="纯人格",
-        description="非角色人格",
-        category="测试",
-        system_prompt="你是 {persona_name}",
-    )
-    register(p)
-    all_p = list_personas()
-    names = {x.name for x in all_p}
-    assert "test-persona-only" in names, "新人格应在 list_personas 中"
-    roles = list_roles()
-    role_names = {r.name for r in roles}
-    assert "test-persona-only" not in role_names, "纯人格不应在 list_roles 中"
-
-
 def test_load_all_script_validates():
     """validate_roles.py 语法通过（忽略 eval_criteria 预期警告）。"""
     script = os.path.join(os.path.dirname(__file__), "..", "src", "validate_roles.py")
@@ -126,8 +89,6 @@ def _run_selfcheck():
         ("get('maintainer') 正确", test_get_by_name),
         ("get('nonexistent') 返回 None", test_get_by_name_nonexistent),
         ("list_categories 正确", test_categories),
-        ("register_role 注册并查询", test_register_role),
-        ("register_persona 注册纯人格", test_register_persona),
         ("validate_roles.py 通过", test_load_all_script_validates),
     ]
     passed, failed = 0, 0

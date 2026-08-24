@@ -152,15 +152,10 @@ Layer 1: roles/<name>.md（角色专业能力）
 ```bash
 python3 src/validate_roles.py
 # 预期: 文件数: 26, 角色数: 26, 错误数: 0
-
-python3 tests/test_search.py
-# 预期: 15/15 通过
 ```
 
 ### 2. 新增角色清单
 
-- [ ] `python3 src/cli.py show <name>` 不报错
-- [ ] `python3 tests/test_search.py` 全通过
 - [ ] eval_criteria 每条能在 shell 里跑通
 - [ ] system_prompt 无协作逻辑
 - [ ] skill_refs 指向已存在的 skill 文件（不存在的文件=失败）
