@@ -59,10 +59,10 @@ def search(query: str, top_k: int = 5) -> list[dict]:
 ```
 
 ## Test Suite (tests/test_search.py)
-```bash
-python3 tests/test_search.py
-# 9 tests, all must pass
-```
+
+> ⚠️ `tests/test_search.py` 与 `src/search.py` 已剪枝（零 runtime importer）。
+> 语义搜索回归暂不可用—如需恢复搜索能力，先恢复 `search.py` + `test_search.py`
+> 再跑 `python3 -m pytest tests/test_search.py -q`。
 
 ### Key Test Cases
 | Query | Expected #1 | Min Score |

@@ -84,7 +84,7 @@ pytest <相关测试> -x -q --cov=<模块> --cov-fail-under=80
 cargo check && cargo test
 npm run lint && npm test
 # 架构漂移检查
-python3 ~/.hermes/scripts/arch_drift_detector.py --json  # drift=0
+python3 ~/.hermes/scripts/arch_drift_detector.py --json  # 真实运行解析报告，drift=True 须处置后再合并
 ```
 ### 4. 提交测试
 1、通过ccs send与bus记录的方式让测试反驳性测试
@@ -100,7 +100,7 @@ python3 ~/.hermes/scripts/bus_client.py write code_review \
   "[pg] PR #<编号>: <标题>" \
   --evidence "变更文件: <列表>
 技术方案: <tech_decision 引用或 root_cause_analysis 引用>
-验证: py_compile PASS, pytest PASS, coverage ≥80%, arch_drift=0" \
+验证: py_compile PASS, pytest PASS, coverage ≥80%, arch_drift 已运行(若有漂移须先处置)" \
   --src pg
 ```
 
@@ -145,7 +145,7 @@ python3 ~/.hermes/scripts/bus_client.py write code_fix \
   "[pg] 修复 VF 信号路由: 补全 SELF_REPAIR_MAP 2 项硬映射" \
   --evidence "文件: ~/.hermes/scripts/vf_signal_router.py, ~/.hermes/scripts/vf_config_gen.py
 技术方案: lr tech_decision#12345 (补全映射表)
-验证: py_compile PASS, pytest test_vf_router.py::test_self_repair_map -v PASS, coverage 92%, arch_drift=0
+验证: py_compile PASS, pytest test_vf_router.py::test_self_repair_map -v PASS, coverage 92%, arch_drift 已运行(若有漂移须先处置)
 测试新增: test_self_repair_map_complete() 覆盖动态注册路径" \
   --src pg
 ```
@@ -156,7 +156,7 @@ python3 ~/.hermes/scripts/bus_client.py write code_review \
   "[pg] PR #42: 修复 VF 信号路由遗漏" \
   --evidence "变更文件: ~/.hermes/scripts/vf_signal_router.py, ~/.hermes/scripts/vf_config_gen.py, tests/test_vf_router.py
 技术方案: lr tech_decision#12345
-验证: py_compile PASS, pytest PASS, coverage 92%, arch_drift=0" \
+验证: py_compile PASS, pytest PASS, coverage 92%, arch_drift 已运行(若有漂移须先处置)" \
   --src pg
 ```
 

@@ -28,7 +28,6 @@ WORKFLOWS_DB = HERMES_STATE / "workflows.db"
 CURSOR_DB = HERMES_STATE / "pipeline_cursor.db"
 ROUTING_DB = HERMES_STATE / "routing.db"
 ACK_TRACKER_DB = HERMES_STATE / "ack_tracker.db"
-COMPOSITE_RUNS_DB = HERMES_STATE / "composite_runs.db"
 
 # ── 模板与配置 ──
 HERMES_TEMPLATES = _HOME / ".hermes" / "templates"

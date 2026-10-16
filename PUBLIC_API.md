@@ -36,12 +36,6 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 
 CLI 入口（`main()`，argparse），用 `python3 src/validate_roles.py` 运行。无 `validate_all()`/`validate_role()` 两个 API 函数。
 
-## Search (`search.py`)
-
-| 函数 | 参数 | 返回 |
-|------|------|------|
-| `search(query, top_k)` | `str, int` | `list[dict]` |
-
 ## SharedLoader (`shared_loader.py`)
 
 | 函数 | 参数 | 返回 |
@@ -52,16 +46,21 @@ CLI 入口（`main()`，argparse），用 `python3 src/validate_roles.py` 运行
 | `export_role(role)` | `dict` | `RoleExport` |
 | `write_export()` | — | `str` (输出路径) |
 
-## CLI (`cli.py`)
+## RoleAssembler (`role_assembler.py`)
 
-无 argparse，用 `sys.argv` 手动解析；命令为 `list/show/load/search`。
+CLI 入口：`python3 src/role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]`。
+动态组装角色 system prompt（Layer 0 base.md + Layer 1 roles/<name>.md + skill）。
 
-| 命令 | 功能 |
-|------|------|
-| `list` | 列出所有角色 |
-| `show <role>` | 查角色详情（JSON 输出） |
-| `load <role>` | 输出角色 system_prompt |
-| `search <query>` | 子串匹配搜索 title/description |
+> 注：原 `cli.py`（list/show/load/search）已剪枝（零 runtime importer）。
+> 列表/校验用 `validate_roles.py --roles`；prompt 组装用 `role_assembler.py <role>`。
+## RoleAssembler (`role_assembler.py`)
+
+CLI 入口：`python3 src/role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]`。
+动态组装角色 system prompt（Layer 0 base.md + Layer 1 roles/<name>.md + skill）。
+
+> 注：原 `cli.py`（list/show/load/search）与 `search.py`（中文语义搜索）已剪枝
+> （零 runtime importer）。列表/校验用 `validate_roles.py --roles`；prompt
+> 组装用 `role_assembler.py <role>`。
 
 ## Models (`models.py`)
 

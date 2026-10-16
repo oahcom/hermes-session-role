@@ -70,14 +70,11 @@
     "bus cat=blocker → any 越界拒绝通知"
   ],
   "eval_criteria": [
-    "测试计划含：范围/策略/人力/风险 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
-    "测试用例覆盖：正常/边界/错误/安全/性能 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "测试报告格式：summary/defects/regression/perf | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
-    "缺陷等级分级: P0(阻塞)/P1(严重)/P2(一般)/P3(建议) | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
-    "P0 缺陷阻塞发布门禁 | 验证: python3 -c 'import os; print(\"PASS\")' 输出 PASS",
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
-    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK"
+    "测试计划含：范围/策略/人力/风险",
+    "测试用例覆盖：正常/边界/错误/安全/性能",
+    "测试报告格式：summary/defects/regression/perf",
+    "缺陷等级分级: P0(阻塞)/P1(严重)/P2(一般)/P3(建议)",
+    "P0 缺陷阻塞发布门禁"
   ],
   "prompt_refs": {
     "base": "base.md",

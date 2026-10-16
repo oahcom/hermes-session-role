@@ -69,7 +69,7 @@ VALID_BUS_CATEGORIES = {
     "evolution_report", "feedback", "knowledge_distill", "memory_store",
     "monitor_dashboard", "notice", "optimization", "performance", "prd", "product_design",
     "research", "root_cause_analysis", "scheduler", "security",
-    "security_audit", "session_log", "skill_audit", "system",
+    "security_audit", "session_log", "skill_audit", "standup", "system",
     "system_design", "task_spec", "tech_decision", "test_plan",
     "test_report", "threat_model", "user_story", "verification", "workflow",
 }

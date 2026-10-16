@@ -20,39 +20,39 @@ hermes-session-roles/
     session-roles/      → 7 个基础设施角色（每个独立 JSON）
   src/
     models.py           → PersonaDef + RoleDef + registry
-    search.py           → 中文语义搜索引擎
-    cli.py              → list/show/load/search 四个子命令
-  tests/
-    test_search.py      → 9 个搜索回归测试
+    registry.py         → load_all/get/list_* 注册表（纯加载索引）
+    validate_roles.py   → 31 角色全量校验 (CLI: --roles/--category)
+    role_assembler.py   → 动态组装 system prompt (CLI 入口)
   docs/                 → 本文档
 ```
 
 ## 命令速查
 
 ```bash
-python3 src/cli.py list                  # 全部
-python3 src/cli.py list --roles          # 仅 session 角色
-python3 src/cli.py show maintainer       # 查看详细 JSON
-python3 src/cli.py load maintainer       # 加载 prompt 文本
-python3 src/cli.py search "修服务器"      # 语义搜索
-python3 tests/test_search.py             # 运行全部测试
+python3 src/validate_roles.py --roles          # 列出全部 31 角色
+python3 src/validate_roles.py --category 维护   # 按分类筛选
+python3 src/validate_roles.py                   # 全量校验 (JSON 结构完整性)
+
+python3 src/role_assembler.py maintainer        # 输出角色 system_prompt 文本
+python3 src/role_assembler.py maintainer --output prompt.md            # 写入 prompt.md
+python3 src/role_assembler.py maintainer --inject ccs-workspaces/maintainer/CLAUDE.md  # 注入 KNOWLEDGE 块
 ```
 
 ## 搜索基准
 
-```python
+> ⚠️ `search.py` 与 `cli.py search` 已剪枝（零 runtime importer）。语义搜索能力
+> 暂未生效—如需恢复，参见 [SEARCH.md](SEARCH.md)（当前标记为存档候选）。
+
+```
+（原搜索基准）
 "修服务器" → maintainer  # 37-43 分
 "清理"     → curator     # 62-64 分
 "写代码"   → developer   # 67-71 分
-"翻译文档" → i18n-localizer  # 30-33 分
-"运维"     → maintainer  # 76-84 分
-"部署"     → maintainer
-"关闭任务" → closer
 ```
 
 ## 红线
 
 - 不加新依赖（stdlib only）
-- 每 JSON 改完必须 `python3 src/cli.py show <name>` 验证
+- 每 JSON 改完必须 `python3 src/role_assembler.py <name>` 验证
 - 改完必须 git commit，不留 staged
-- 测试必须 `python3 tests/test_search.py` 9/9 通过
+- `python3 src/validate_roles.py` 零错误

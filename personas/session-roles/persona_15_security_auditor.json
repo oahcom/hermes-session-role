@@ -65,10 +65,9 @@
     "git commit 安全加固代码"
   ],
   "eval_criteria": [
-    "每份报告含：风险等级、复现步骤、修复建议、参考 CVE | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
-    "依赖漏洞扫描：pip-audit / cargo audit / npm audit 至少一项通过 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "配置审计：systemd/cron/SSH/防火墙/密钥管理至少 5 项检查 | 验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS"
+    "每份报告含：风险等级、复现步骤、修复建议、参考 CVE",
+    "依赖漏洞扫描：pip-audit / cargo audit / npm audit 至少一项通过",
+    "配置审计：systemd/cron/SSH/防火墙/密钥管理至少 5 项检查"
   ],
   "system_prompt": "",
   "prompt_refs": {

@@ -194,7 +194,24 @@ def assemble_role_prompt(role_name: str) -> str:
 
     eval_criteria = role.get('eval_criteria', [])
     if eval_criteria:
-        parts.append("## 评估标准\n" + "\n".join(f"- {c}" for c in eval_criteria))
+        # 恒真验证命令(print OK/PASS)不反映产出质量，标注为无效、避免角色误以为被客观校验。
+        _trivial = ('import sys; print("OK")', "import sys; print('OK')",
+                    'import sys; print("PASS")', "import sys; print('PASS')",
+                    'import time; print', 'import os; print("OK")', 'import os; print("PASS")')
+        rendered = []
+        _SEP = " | 验证: "
+        for c in eval_criteria:
+            if any(t in str(c) for t in _trivial):
+                rendered.append(f"- {c}  ⚠️ 恒真验证：不反映产出质量，仅作格式占位")
+            elif _SEP in str(c):
+                # 可执行校验：把 | 验证: 后的命令作为角色自检动作呈现（非自动执行）
+                claim, cmd = str(c).split(_SEP, 1)
+                rendered.append(f"- **{claim.strip()}**\n"
+                                f"  自检命令：`{cmd.strip()}`\n"
+                                f"  （产出后运行此命令并核对结果；不通过则补齐再交付）")
+            else:
+                rendered.append(f"- {c}")
+        parts.append("## 评估标准（方法论文档，非自动校验）\n" + "\n".join(rendered))
 
     mistakes = role.get('mistakes', [])
     if mistakes:

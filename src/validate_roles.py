@@ -19,7 +19,10 @@ REQUIRED_FIELDS = {
     "skills", "skill_refs", "goal", "constraints"
 }
 VALID_LIFECYCLES = {"infinite", "ondemand"}
-VALID_DRIVES = {"cron", "ondemand", "goal"}
+# infinite: 常驻驱动。引擎拉起角色时显式传 --drive infinite
+# (session-pipeline/src/pipeflow/role_lifecycle.py:_ensure_role_alive)，此前 persona
+# JSON 未同步该值。与 lifecycle 的 infinite 不同轴：lifecycle 管回收，drive 管启动闸门。
+VALID_DRIVES = {"cron", "ondemand", "goal", "infinite"}
 # 由 shared_loader.parse_* 汇总的 40 个注册分类（新增分类时同步追加）
 # VALID_BUS_CATEGORIES 從 shared_loader 匯入（單一權威來源）
 OUTPUT_TARGET_PATTERNS = [
@@ -211,11 +214,27 @@ def _validate_output_targets(fname: str, data: dict, errors: list[str]) -> None:
             errors.append(f"{fname}: output_targets[{i}]='{tgt}' 格式无效")
 
 
+# 恒真验证命令：永远 PASS，不代表任何产出质量。base.md:42 明令禁止用此类
+# checker 替代人读判断，故此处直接拒绝，逼 eval_criteria 回到自然语言描述性标准。
+_TRIVIAL_VERIFIERS = (
+    'import sys; print("OK")', "import sys; print('OK')",
+    'import sys; print("PASS")', "import sys; print('PASS')",
+    'import time; print', 'import os; print("OK")', 'import os; print("PASS")',
+)
+
+
+def _is_trivial_verifier(criteria: str) -> bool:
+    c = criteria.replace("验证:", "").replace("输出", "")
+    return any(p in c for p in _TRIVIAL_VERIFIERS)
+
+
 def _validate_eval_criteria(fname: str, data: dict, errors: list[str]) -> None:
     """校验 eval_criteria 必须是可执行命令或描述性标准。"""
     for i, criteria in enumerate(data.get("eval_criteria", [])):
         if not isinstance(criteria, str):
             errors.append(f"{fname}: eval_criteria[{i}] 不是字符串")
+        elif _is_trivial_verifier(criteria):
+            errors.append(f"{fname}: eval_criteria[{i}] 是恒真验证命令(print OK/PASS)，不反映产出质量——改为自然语言描述性标准")
         elif not looks_like_shell_command(criteria):
             errors.append(f"{fname}: eval_criteria[{i}]='{criteria[:60]}...' 看起来不是可执行的 shell 命令（需以 bash/python/curl/git 等开头或包含管道/重定向）")
 
@@ -547,7 +566,7 @@ if __name__ == "__main__":
     # Inline self-check: VALID_BUS_CATEGORIES imported from shared_loader
     from shared_loader import VALID_BUS_CATEGORIES as _cats
     assert isinstance(_cats, set), "VALID_BUS_CATEGORIES must be a set"
-    assert len(_cats) == 41, f"Expected 41 categories, got {len(_cats)}"
+    assert len(_cats) == 42, f"Expected 42 categories, got {len(_cats)}"
     assert "architecture" in _cats, "architecture must be a registered category"
     # Inline self-check: refactored main() produces same validation output
     assert callable(main), "main() must be callable after refactor"

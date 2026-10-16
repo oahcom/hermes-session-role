@@ -6,6 +6,8 @@
 
 定义"谁是谁"——角色身份模板 JSON，供 launcher 和 pipeline 消费。
 
+> **唯一真实优化标的**：角色的对话质量、思考质量、动作质量。本项目的 JSON 再完美，只要角色实际对话在空转、胡说、做无用功，就是零优化。进程存活、消息流动、路由速度都只是"系统在转"的证据，**不能证明任何角色在高质量产出**——谁拿这些当优化证据，谁就是没做优化。
+
 ## 关键规则
 
 ### 角色 JSON Schema
@@ -61,6 +63,8 @@ grep -A2 output_targets personas/session-roles/persona_*.json
 - ❌ 向 `prompts/base.md` 写回全球规则（已移入 `~/.claude/CLAUDE.md`）
 - ❌ 在 persona.json 的 `system_prompt` 中写 `prompts/roles/*.md` 已覆盖的内容
 - ❌ 跨项目修改：本项目的文件调整不直接影响 launcher 或 pipeline 的代码
+- ❌ 用流程指标代理质量判断：tmux session 数、bus stats 条数、workflow running 数、路由延迟——这些只能证明"系统在转"，**不能证明角色在高质量产出**。声称优化完成前，必须亲自打开一个角色的对话（tmux transcript / bus 最近产出）逐轮读、亲手判断思考与动作质量。自动化 checker、看板、质量分一旦替代"人读对话做判断"，就会让人去刷指标而非去想内容——这是本项目的头号反模式，明确禁止。
+- ❌ 把"消息送达"等同于"任务完成"：角色收到 prompt 且回了话，不等于它想对了、做对了。
 
 ## 向网络寻求帮助（角色通用核心能力）
 所有角色 prompt 已注入"搜索是思考第一站"规则，工具入口：

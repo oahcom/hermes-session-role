@@ -66,9 +66,8 @@
   "eval_criteria": [
     "部署前 health check 验证 | 验证: df -h / | head -1",
     "部署后 smoke test 验证 | 验证: curl -sf -o /dev/null http://localhost:8890 && echo OK || echo FAIL",
-    "故障处理附根因分析 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
-    "每周 runbook 更新 | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts=",
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS"
+    "故障处理附根因分析",
+    "每周 runbook 更新"
   ],
   "prompt_refs": {
     "base": "base.md",

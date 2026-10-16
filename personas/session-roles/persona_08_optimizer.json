@@ -71,9 +71,6 @@
   ],
   "eval_criteria": [
     "验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1",
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
-    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
     "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
     "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0"
   ],

@@ -146,7 +146,7 @@ V2.0 全部从 tmux sessions + 角色 JSON 实时派生，只有一个 `/tmp/ccs
 
 | 项目 | API 地址 | 核心功能 |
 |------|---------|---------|
-| hermes-session-roles | PUBLIC_API.md, src/cli.py | list/show/load/search |
+| hermes-session-roles | PUBLIC_API.md, src/validate_roles.py, src/role_assembler.py | validate / list / assemble prompt |
 | session-launcher | PUBLIC_API.md, src/ccs.py | start/stop/send/status/health |
 | session-pipeline | PUBLIC_API.md, src/router.py, src/auto_route.py | route/poll/dashboard |
 

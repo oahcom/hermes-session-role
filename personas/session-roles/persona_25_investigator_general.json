@@ -20,7 +20,9 @@
     "bus cat=root_cause_analysis 根因分析"
   ],
   "eval_criteria": [
-    "无法完整排查时，准确升级给 specialist 或 senior | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK"
+    "每次调查产出 root_cause_analysis 含可复现步骤",
+    "证据链完整：每条 root_cause_analysis 引用 bus fact id",
+    "无幻觉结论：结论须有 bus 证据支撑"
   ],
   "prompt_refs": {
     "base": "base.md",

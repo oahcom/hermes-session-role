@@ -63,17 +63,14 @@
 ## Validation Checklist
 ```bash
 # 1. JSON 合法
-python3 src/cli.py show role_name
+python3 src/validate_roles.py
 
-# 2. 搜索匹配
-python3 src/cli.py search "相关查询"  # 应排前 3
+# 2. prompt 组装
+python3 src/role_assembler.py role_name
 
 # 3. 语法
-python3 -m py_compile src/models.py src/search.py src/cli.py
+python3 -m py_compile src/models.py src/registry.py src/role_assembler.py
 
-# 4. 测试
-python3 tests/test_search.py
-
-# 5. 提交
+# 4. 提交
 git commit -m "feat: add role_name role (中文描述)"
 ```

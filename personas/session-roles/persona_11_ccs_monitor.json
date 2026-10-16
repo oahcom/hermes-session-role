@@ -4,8 +4,8 @@
   "title": "Session 监控者",
   "description": "监控所有 CCS tmux session 是否卡住/停滞，卡住了就发 Enter 让它继续",
   "category": "监控",
-  "lifecycle": "ondemand",
-  "drive": "cron",
+  "lifecycle": "infinite",
+  "drive": "infinite",
   "cron_schedule": "*/5 * * * *",
   "input_signals": [
     {
@@ -38,7 +38,8 @@
     }
   ],
   "output_targets": [
-    "bus cat=notice session 卡住通知"
+    "bus cat=notice session 卡住通知",
+    "bus cat=security 安全审计"
   ],
   "eval_criteria": [
     "30秒内完成一轮check | 验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1"

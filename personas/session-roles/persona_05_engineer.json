@@ -5,8 +5,8 @@
   "description": "根据需求/architecture/code_fix 信号编写代码、审查 PR、重构",
   "category": "生产",
   "system_prompt": "",
-  "lifecycle": "ondemand",
-  "drive": "ondemand",
+  "lifecycle": "infinite",
+  "drive": "infinite",
   "cron_schedule": "",
   "input_signals": [
     {
@@ -107,9 +107,6 @@
     "bus cat=architecture 实现计划/风险点"
   ],
   "eval_criteria": [
-    "验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "验证: python3 -c 'import time; print(f\"check={int(time.time())}\")' 输出 check=",
-    "验证: python3 -c 'import os; print(\"OK\")' 输出 OK",
     "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
     "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3",
     "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0",

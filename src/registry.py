@@ -1,5 +1,5 @@
 """
-Persona/Role 注册表 — load_all, get, list_*, register。
+Persona/Role 注册表 — load_all, get, list_*。
 
 从 models.py 拆分，职责：加载 JSON + 管理注册表索引。
 """
@@ -19,9 +19,9 @@ _ROLES: dict[str, RoleDef] = {}
 _PERSONAS: dict[str, PersonaDef] = {}
 _LOADED_AT: float = 0.0
 _LOADED_COUNT: int = 0
-_LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存，register() 时失效
+_LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存
 
-# 写路径锁（RLock 允许 load_all 内部调用 register 重入）。
+# 写路径锁（RLock，load_all 在写回缓存时持有）。
 # ponytail: 当前单进程使用，读路径（get/list_*) 不加锁；多线程共享此模块时
 # 需把读操作也纳入锁，升级路径是把读缓存换成线程安全的 dict 快照。
 _WRITE_LOCK = threading.RLock()

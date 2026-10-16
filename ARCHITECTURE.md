@@ -279,7 +279,7 @@ registry.py 加：契约变更触发通知（写 bus architecture）
 
 | 项目 | 入口 | 调用方式 |
 |------|------|----------|
-| session-roles | `python3 src/cli.py list/show/load/search` | CLI |
+| session-roles | `python3 src/validate_roles.py --roles` / `src/role_assembler.py <role>` | CLI |
 | session-roles | `python3 src/role_assembler.py <role>` | CLI |
 | session-roles | `python3 src/shared_loader.py` | CLI |
 | session-roles | `python3 src/validate_roles.py` | CLI |

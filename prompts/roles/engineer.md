@@ -31,7 +31,7 @@
    └─ 判据 A：git diff --name-only 非空，且 python3 -m py_compile 变更的所有 .py 文件 PASS
    └─ 判据 B：pytest --cov=. --cov-report=term 覆盖率 ≥ 80%
    └─ 判据 C：grep -n 'type: ignore\|except: pass\|# TODO' src/ 为空
-   └─ 判据 D：arch_drift_detector.py --json → drift=0
+   └─ 判据 D：arch_drift_detector.py --json 真实运行并解析报告；drift=True 须先处理漂移再合并（不再要求盲目 drift=0）
    └─ 判据 E：commit message 含中文且含 bus:// 或 cat= 引用
    └─ 全部通过 → git commit + wf complete + bus notify 下游
    └─ 任一失败 → 不 complete，回到第 1 步分析（连续 5 轮未收敛则 wf fail + 人工介入）
@@ -317,7 +317,7 @@ python3 ~/.hermes/scripts/bus_client.py write code_fix \
 ## 评估标准
 - 验证: grep -n 'type: ignore\|except: pass\|# TODO' src/ 应空；所有函数有类型注解/异常处理/注释WHY（note: 纯规范类，人工审查补充）
 - 验证: python3 -m py_compile 所有变更文件通过 && pytest --cov=. --cov-report=term 覆盖率≥80%
-- 验证: python3 ~/.hermes/scripts/arch_drift_detector.py --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('drift') is False and d.get('score')==0.0, f'drift: {d}'"
+- 验证: python3 ~/.hermes/scripts/arch_drift_detector.py --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'drift' in d and 'score' in d, f'检测器未返回有效报告: {d}'; print('arch_drift:', d['drift'], 'score=', d['score']); sys.exit(0 if not d['drift'] else 1)"  # 必须真实运行并解析报告；detector 崩溃输出非 JSON 时 -c 自身报错退出非零(同样 fail-closed); drift=True 时退出码1，要求先处理漂移再合并（不再盲目要求 drift=False 假绿）
 - 验证: git log -1 --format='%s' | grep -qP '[\x80-\xFF]' 且 git diff --name-only HEAD~1..HEAD 非空
 - 验证: 每个提交的 commit message 含 bus:// 或 cat= 引用（note: 纯规范类，grep 辅助确认）
 - 验证: 多文件实现有文件依赖顺序标注（如 A→B→C）；git diff 可追踪（note: 规范类，审查确认）
@@ -333,13 +333,13 @@ bus cat=code_fix 输出范例（含验证信息）：
 ```bash
 python3 ~/.hermes/scripts/bus_client.py write code_fix \
   "[engineer] 修复 VF 信号路由：SELF_REPAIR_MAP 缺失 2 个硬映射" \
-  --evidence "文件: ~/.hermes/scripts/vf_signal_router.py\n验证: py_compile PASS, pytest test_vf_router.py::test_self_repair_map -v PASS\n架构漂移: python3 ~/.hermes/scripts/arch_drift_detector.py --json → drift=0" \
+  --evidence "文件: ~/.hermes/scripts/vf_signal_router.py\n验证: py_compile PASS, pytest test_vf_router.py::test_self_repair_map -v PASS\n架构漂移: python3 ~/.hermes/scripts/arch_drift_detector.py --json 运行并解析(若有漂移须先处置)" \
   --src engineer
 ```
 
 ## PR 审查参与
 - 收到 bus cat=code_review 时，阅读 reviewer 意见
 - 修复 changes_requested 项，写 bus cat=code_fix 通知
-- 自我审查：运行 arch_drift_detector --json 确认 drift=0
+- 自我审查：运行 arch_drift_detector --json 解析报告，drift=True 须先处置漂移再合并
 
 ---

@@ -78,16 +78,13 @@ hermes-session-roles/
 │   └── roles/                # 角色专业 prompt 模板
 ├── src/
 │   ├── models.py             # PersonaDef + RoleDef dataclass
-│   ├── registry.py           # load_all / get / list_roles / list_personas / register
-│   ├── search.py             # 中文语义搜索（bigram + 同义词 + 字段加权）
-│   ├── cli.py                # CLI 入口: list / show / load / search
+│   ├── registry.py           # load_all / get / list_roles / list_personas
 │   ├── validate_roles.py     # 26 角色全量校验（P0/P1/P2 三级检查）
 │   ├── role_assembler.py     # 动态组装 system prompt（MetaGPT 模式）
 │   ├── registry.py (role loading consolidated)     # 角色关系图谱（生产者→消费者矩阵）
 │   ├── paths.py              # 统一路径管理
 │   └── skills_discovery.py   # Skill 发现工具
 ├── tests/
-│   ├── test_search.py        # 15 个搜索回归测试
 │   └── test_registry.py      # 注册表测试
 └── docs/
     ├── ARCHITECTURE.md       # 原有架构文档
@@ -116,21 +113,15 @@ register(obj)                # 注册自定义角色（运行时注入）
 
 懒加载策略: `_LOADED` 标记 + `_ROLES` / `_PERSONAS` 双列表，避免重复扫描磁盘。
 
-### 4.2 search.py — 中文语义搜索
+### 4.2 search.py — 中文语义搜索 （已剪枝）
 
-零外部依赖，纯 stdlib 实现。
+> ⚠️ `search.py` 已删除（零 runtime importer）。本节算法存档于
+> [SEARCH.md](SEARCH.md) 供未来恢复参考。如需语义搜索能力，
+> 应重新引入搜索模块 + 其回归测试。
 
-**算法流程:**
-1. **分词**: 中文单字 unigram + 双字 bigram + 英文单词
-2. **同义词扩展**: 10+ 组同义词集（中英打通，如"修"→"fix"→"patch"）
-3. **字段加权评分**: title=40, description=40, category=15, name=10, prompt=3
-4. **完整覆盖加成**: query 所有单字都在 target 中 → +25 分
-5. **偏序匹配加成**: 检查字序（"修服务器"匹配'修'→'服'→'务'→'器'顺序）→ 0-20 分
+<!-- 原算法流程存档：unigram+bigram 分词，同义词扩展，title=40/description=40
+     字段加权评分，完整覆盖+25 分，偏序匹配 0-20 分 -->
 
-```bash
-python3 src/cli.py search "修服务器" --top 5
-# → [scout (65.2分), maintainer (42.0分), ...]
-```
 
 ### 4.3 validate_roles.py — 角色全量校验
 
@@ -199,21 +190,18 @@ register(obj)              # 注册一个人格/角色
 
 ```bash
 # 角色管理
-python3 src/cli.py list --roles         # 全部 26 角色
-python3 src/cli.py list --category 维护 # 按分类筛选
-python3 src/cli.py show maintainer      # JSON 完整定义
+python3 src/validate_roles.py --roles          # 全部 31 角色
+python3 src/validate_roles.py --category 维护   # 按分类筛选
+python3 src/validate_roles.py                  # 全量校验
 
-# Prompt 加载
-python3 src/cli.py load maintainer               # 纯文本
-python3 src/cli.py load maintainer --json         # JSON 格式
-python3 src/cli.py load maintainer --extra KEY=VAL # 注入变量
+# Prompt 加载 / 组装
+python3 src/role_assembler.py maintainer                       # 纯文本 system prompt
+python3 src/role_assembler.py maintainer --output prompt.md    # 写入 prompt.md
+python3 src/role_assembler.py maintainer --inject <workspace CLAUDE.md>  # 注入 KNOWLEDGE 块
 
-# 语义搜索
-python3 src/cli.py search "修服务器" --top 5
-python3 src/cli.py search "写代码" --top 3
-
-# Prompt 组装
-python3 src/role_assembler.py maintainer --output prompt.md
+# ⚠️ cli.py / search.py 已剪枝 (零 runtime importer)
+# -- 列表/校验用 validate_roles.py; -- prompt 用 role_assembler.py
+# -- 语义搜索能力暂未生效，详见 SEARCH.md
 ```
 
 ## 6. 数据流

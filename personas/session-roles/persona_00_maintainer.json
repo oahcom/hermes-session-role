@@ -5,7 +5,7 @@
   "description": "守卫系统健康，监控服务状态，故障自愈",
   "category": "维护",
   "lifecycle": "infinite",
-  "drive": "cron",
+  "drive": "infinite",
   "cron_schedule": "*/15 * * * *",
   "input_signals": [
     {
@@ -78,7 +78,8 @@
   ],
   "output_targets": [
     "bus cat=code_fix 修复方案",
-    "bus cat=architecture 架构异常"
+    "bus cat=architecture 架构异常",
+    "bus cat=root_cause_analysis 根因分析"
   ],
   "eval_criteria": [
     "所有核心服务 active | 验证: bash -c 'for s in sister-agent-dkk.service sister-agent-ssk.service; do systemctl --user is-active $s; done' 全部返回 active; cron-worker is timer-triggered oneshot — verify via `systemctl --user show cron-worker.service --property=ExecMainStatus --value 2>&1 | grep -q '^0$'`",

@@ -123,7 +123,7 @@ class RoleDef(PersonaDef):
       session_hint: session 提示（cron/interactive/background）
     """
     lifecycle: str = "infinite"  # infinite | ondemand
-    drive: str = "cron"  # cron | ondemand | goal
+    drive: str = "cron"  # cron | ondemand | goal | infinite（infinite=引擎拉起时常驻）
     cron_schedule: str = ""
     idle_action: str = "exit"
     input_signals: list[dict] = field(default_factory=list)

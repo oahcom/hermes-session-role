@@ -17,10 +17,8 @@ Session 生态的**定义层**——每个 CCS（Claude Code Session）是谁、
 │  │  personas/browser-harness/*.json  → 53 浏览器自动化人格        │      │
 │  │  prompts/roles/*.md               → 角色专业 prompt 模板       │      │
 │  │                                                               │      │
-│  │  src/cli.py          → list/show/load/search CLI              │      │
-│  │  src/search.py       → 中文语义搜索引擎                        │      │
-│  │  src/validate_roles.py → 31 角色全量校验                       │      │
-│  │  src/role_assembler.py → 动态组装 system prompt                │      │
+│  │  src/validate_roles.py → 31 角色全量校验 (--roles 列表)        │      │
+│  │  src/role_assembler.py → 动态组装 system prompt (CLI 入口)     │      │
 │  └──────────────────────────┬───────────────────────────────────┘      │
 │                              │                                          │
 │              ┌───────────────┴───────────────┐                         │
@@ -78,17 +76,15 @@ prompts/
   skills/                      # 技能库模板
 
 src/
-  cli.py                  → CLI 入口（list/show/load/search）
   models.py               → PersonaDef + RoleDef dataclass
-  registry.py             → load_all/get/list_*/register 注册表
-  search.py               → 中文语义搜索（bigram + 同义词 + 字段加权）
-  validate_roles.py       → 31 角色全量校验
-  role_assembler.py       → 动态组装 system prompt
+  registry.py             → load_all/get/list_* 注册表（纯加载索引）
+  validate_roles.py       → 31 角色全量校验（--roles 列表）
+  role_assembler.py       → 动态组装 system prompt（CLI 入口）
   # role_relations.py     → [已删除] 角色关系图谱（迁移至 Router API）
 #   inject_skills.py        → 技能注入工具
 #   create_skill_library.py → 技能库创建工具
 tests/
-  test_search.py          → 15 个搜索回归测试
+  test_registry.py        → 加载/查询 回归测试
 ```
 
 ---
@@ -104,7 +100,7 @@ tests/
 | maintainer | 运维者 | infinite | cron (15m) | code_fix, architecture | security |
 | scout | 侦察兵 | infinite | loop | architecture, evolution_report | architecture |
 | consumer | 信息消费者 | ondemand | ondemand | reflexion_lesson | * |
-| curator | 信息维护者 | infinite | cron (hourly) | skill_audit, cleanup, architecture | skill_audit, architecture, code_fix, performance |
+| curator | 信息维护者 | infinite | cron (*/15 * * * *, 每15分钟) | skill_audit, cleanup, architecture | skill_audit, architecture, code_fix, performance |
 | coordinator | 管理者 | infinite | loop | scheduler, architecture, ccs_health | task_spec, workflow, user_story, test_plan, deployment_plan, deployment_report, test_report, bug_report, security_audit, evolution_report, changelog, ccs_health |
 | engineer | 开发工程师 | ondemand | ondemand | code_fix, code_review, architecture | architecture, task_spec, user_story, code_review, bug_report, test_report, test_plan, documentation, security_audit, system_design |
 | closer | 闭环者 | ondemand | ondemand | architecture | *, knowledge_distill, memory_store, system_design |
@@ -175,24 +171,15 @@ Browser Harness 是一个独立的浏览器自动化人格库，包含 53 个人
 
 ```bash
 # 列出角色
-python3 src/cli.py list --roles                    # 全部 31 角色
-python3 src/cli.py list --category 维护            # 按分类筛选
+python3 src/validate_roles.py --roles               # 全部 31 角色
+python3 src/validate_roles.py --category 维护        # 按分类筛选
 
-# 显示详情
-python3 src/cli.py show maintainer                 # JSON 完整定义
+# 显示详情（JSON 完整定义）
+python3 src/role_assembler.py maintainer             # 输出 system prompt 文本
 
-# 加载 system prompt
-python3 src/cli.py load maintainer                 # 纯文本
-python3 src/cli.py load maintainer --json           # JSON 格式
-python3 src/cli.py load maintainer --extra KEY=VAL  # 注入变量
-
-# 语义搜索
-python3 src/cli.py search "修服务器" --top 5
-python3 src/cli.py search "写代码" --top 3
-python3 src/cli.py search "监控报警" --top 3
-
-# 角色组装（动态 prompt）
+# 动态组装（注入 workspace KNOWLEDGE 块）
 python3 src/role_assembler.py maintainer --output prompt.md
+python3 src/role_assembler.py maintainer --inject ccs-workspaces/maintainer/CLAUDE.md
 ```
 
 ---
@@ -204,20 +191,13 @@ python3 src/role_assembler.py maintainer --output prompt.md
 python3 src/validate_roles.py
 # 输出: 文件数: 31, 角色数: 31, 错误数: 0, 所有角色验证通过
 
-# 语义搜索回归（15 场景）
-python3 tests/test_search.py
-# 输出: 结果: 15/15 通过
-
 # 快速冒烟
-python3 src/cli.py list --roles
-python3 src/cli.py show maintainer | python3 -m json.tool > /dev/null
-python3 src/cli.py search "性能" --top 3
+python3 src/role_assembler.py maintainer > /dev/null
 ```
 
 ### 新增角色验证清单
 
-- [ ] `python3 src/cli.py show <name>` 不报错
-- [ ] `python3 tests/test_search.py` 全通过
+- [ ] `python3 src/role_assembler.py <name>` 不报错
 - [ ] `eval_criteria` 每条能在 shell 里跑通
 - [ ] `system_prompt` 无协作逻辑（无 watchdog/turn_tracker/重启等词）
 - [ ] `drive=cron` 时有 `cron_schedule`

@@ -20,9 +20,9 @@
     "bus cat=root_cause_analysis 根因分析"
   ],
   "eval_criteria": [
-    "刑侦员绝不改代码 | 验证: python3 -c 'import sys; print(\"PASS\")' 输出 PASS",
-    "产出含复现步骤 + 证据链 + 根因 + 修复建议 | 验证: python3 -c 'import sys; print(\"OK\")' 输出 OK",
-    "需处理跨栈关联分析 | 验证: python3 -c 'import time; print(f\"ts={int(time.time())}\")' 输出 ts="
+    "每次调查产出 root_cause_analysis 含可复现步骤",
+    "证据链完整：每条结论引用 bus fact id",
+    "无幻觉结论：结论须有 bus 证据支撑"
   ],
   "prompt_refs": {
     "base": "base.md",
