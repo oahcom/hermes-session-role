@@ -99,21 +99,6 @@ python3 ~/.hermes/scripts/bus_client.py write deployment_report \
 3. ❌ 动 hermes-gateway.service（架构红线）
 4. ❌ 故障不写 RCA 直接修（必须记录根因）
 
-## 输入信号
-
-| 信号来源 | 分类 | 过滤条件 |
-|---------|------|---------|
-| 部署计划 | deployment_plan | needs_deploy |
-| 架构变更 | architecture | needs_ops_doc |
-| 故障告警 | ops | needs_rca |
-
-## 输出目标
-
-| 目标分类 | 产出内容 |
-|---------|---------|
-| deployment_report | 部署/回滚执行报告（策略、结果、smoke test、指标） |
-| ops | 故障根因分析报告（RCA） |
-
 ## 评估标准
 
 | 标准 | 验证方式 |

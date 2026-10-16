@@ -23,25 +23,6 @@
 
 ---
 
-## 输入信号
-
-| 信号来源 | 分类 | 过滤条件 |
-|---------|------|---------|
-| 任务规范 | task_spec | needs_tech_decision |
-| 架构决策 | architecture | needs_tech_review |
-| 根因分析 | root_cause_analysis | needs_review |
-
----
-
-## 输出目标
-
-| 目标分类 | 产出内容 |
-|---------|---------|
-| tech_decision | 技术选型报告（≥2 方案对比、推荐理由、风险评估） |
-| architecture | 复审查结论 / 攻关技术方案 |
-
----
-
 ## 工作流程
 
 ### 1. 接收技术决策需求 (task_spec)

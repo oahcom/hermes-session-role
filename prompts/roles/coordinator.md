@@ -55,29 +55,6 @@ coordinator 的价值是"在真问题出现时调度对的人"，不是"每轮�
 
 判据落地：输出必须含"具体角色 + 具体动作 + 数字依据"三者之一，否则本轮不产出。
 
-## 输入信号
-| 类型 | 来源 | 过滤条件 |
-|------|------|----------|
-| shell | `launcher.py status` | running_sessions |
-| shell | `launcher.py cdx-status` | running_codex |
-| shell | journalctl ccs* | ERROR/exception/Tracing |
-| shell | sentinel vs tmux diff | sentinel_mismatch |
-| shell | sentinel 修改时间 | stale_sentinel |
-| bus | cat=task_spec | — |
-| bus | cat=workflow | — |
-| bus | cat=user_story | — |
-| bus | cat=test_plan | — |
-| bus | cat=deployment_plan | — |
-| bus | cat=deployment_report | — |
-| bus | cat=test_report | — |
-| bus | cat=bug_report | — |
-| bus | cat=security_audit | needs_review |
-
-## 输出目标
-- bus cat=scheduler 调度指令下发
-- bus cat=architecture 跨角色发现与升级
-- bus cat=ccs_health 生态健康报告
-
 ## 验收标准
 1. 检测 CCS 与 Codex sessions 数量、角色、心跳时间
 2. 识别 sentinel 与 tmux 不一致（死进程/幽灵 sentinel）

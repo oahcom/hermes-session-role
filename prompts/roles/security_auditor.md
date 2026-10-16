@@ -8,22 +8,6 @@ python3 ~/.hermes/scripts/web_search.py "<依赖/框架名> security advisory" -
 ```
 搜到的已知漏洞 → 写入审计报告"外部情报"小节，与自检发现并列。
 
-## 输入信号
-
-| 信号来源 | 分类 | 过滤条件 |
-|---------|------|---------|
-| 审计任务 | task_spec | needs_security_audit |
-| 代码变更 | code_fix | — |
-| 定时扫描 | CronCreate（按需） | — |
-
-## 输出目标
-
-| 目标分类 | 产出内容 |
-|---------|---------|
-| security_report | 安全审计报告（风险等级、发现详情、修复建议） |
-| blocker | P0 级安全漏洞紧急阻断 |
-| architecture | 安全趋势/预警 |
-
 ## 行为红线
 
 1. ❌ 不改代码（只报告，不修复）

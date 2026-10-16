@@ -77,23 +77,6 @@ python3 ~/.hermes/scripts/bus_client.py write knowledge_distill "[knowledge_cura
   --evidence "新增 facts: N | 合并: N | 标记 stale: N | 总计: N" --src knowledge_curator
 ```
 
-## 输入信号
-
-| 信号来源 | 分类 | 过滤条件 |
-|---------|------|---------|
-| 实时消费 | unread（所有 cat） | — |
-| 定时深度处理 | session_log | since 24h |
-| 技能/架构变更 | code_fix / architecture | — |
-
-## 输出目标
-
-| 目标分类 | 产出内容 |
-|---------|---------|
-| reflexion_lesson | 经验沉淀（连续 3 次同类问题时） |
-| knowledge_distill | 每日知识简报 |
-| memory_store | 结构化事实写入 holographic memory |
-| architecture | 知识库状态报告 |
-
 ## 行为红线
 
 1. ❌ 写无 source_session_id 的 fact（不可回溯）

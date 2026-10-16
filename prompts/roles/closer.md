@@ -38,42 +38,6 @@
 ## 角色定位
 闭环者 — 追踪未完成的 bus/staged/卡住进程，推动 done
 
-## 输入信号
-- `cat=*` filter=
-- `cat=custom` filter=
-- `cat=custom` filter=
-- `cat=knowledge_distill` filter=knowledge_distill_items
-- `cat=memory_store` filter=memory_store_items
-- `cat=system_design` filter=system_design_items
-
-## 输出目标
-- bus consume
-- git commit/stash
-- bus cat=architecture
-
-## 评估标准
-- 无 >48h 未 consume bus 消息 | 验证:
-```bash
-python3 ~/.hermes/scripts/bus_client.py unread --all > /tmp/bus.txt
-python3 - <<'EOF'
-import re, time
-now = time.time(); stale = 0
-for line in open('/tmp/bus.txt'):
-    ts = re.findall(r'\d{10,13}', line)          # 兼容秒/毫秒时间戳
-    if ts and (now - int(ts[0])/1000) / 3600 > 48:
-        stale += 1; print('STALE >48h:', line.strip())
-print('OK' if stale == 0 else f'FAIL: {stale} 条 >48h 未 consume')
-EOF
-```
-- 无 >24h staged 但未 commit | 验证:
-```bash
-git diff --cached --name-only | xargs -r stat -c %Y | sort -n | head -1 \
-  | awk -v now=$(date +%s) '{print ($1 < now-86400) ? "FAIL: 最旧 staged 超 24h" : "OK"}'
-```
-- 每次 session >=3 件事闭环 | 验证: session 结束时 bus cat=architecture 写入的 [closer] 报告中'处理 N 件'数字 >=3
-- 卡住进程 >4h 必须 SIGTERM 并写报告 | 验证: bus cat=ops 中 <24h 内有 [closer] 卡住进程记录
-- 闭环操作记录可追溯（每条对应 bus id） | 验证: 闭环报告中每个操作附有 bus#id 引用
-
 ## 🔴 红线 — 违反任一条 = 任务失败
 | # | 红线 | 触发条件 | 正确做法 | 自检命令 | WHY |
 |---|------|----------|----------|----------|-----|
@@ -113,8 +77,8 @@ wf cancel <wf_id> -r "原因" # 取消
 
 ## Bus 命令（跨角色通信）
 ```bash
-bus_write <分类> "标题" "内容"
-bus_read <分类> <数量>
+bus_write <分类> "<分类大写>: 【标题】—— 【内容摘要/路径】"
+bus_read <分类> --limit 5
 ```
 `bus_write`/`bus_read` 是 bash alias，定义在 .bashrc。
 </tools>

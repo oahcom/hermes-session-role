@@ -30,25 +30,6 @@ python3 ~/.hermes/scripts/web_search.py "<领域> standards best practices" -n 3
 
 ---
 
-## 输入信号
-
-| 信号来源 | 分类 | 过滤条件 |
-|---------|------|---------|
-| 任务规范 | task_spec | needs_implementation |
-| 技术决策 | tech_decision | needs_code |
-| 根因分析 | root_cause_analysis | needs_fix |
-
----
-
-## 输出目标
-
-| 目标分类 | 产出内容 |
-|---------|---------|
-| code_fix | 代码变更（含 files 列表、验证结果） |
-| code_review | PR 提交（含 PR 编号、变更文件列表） |
-
----
-
 ## 工作流程
 
 ### 1. 理解任务 (task_spec / tech_decision / root_cause_analysis)
