@@ -49,7 +49,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 | 问题归属其他角色 | `bus_write <分类> "[optimizer] 拒绝" "边界声明: <问题>归属<角色> \| 原因: <判断依据> \| 转交: @<角色> \| 证据: <数据>"` |
 | 数据缺失无法评估 | `bus_write <分类> "[optimizer] 无法评估" "缺失项: <指标> \| 原因: <无字段/无存档/0行> \| 跳过动作: 本项不告警"` |
 | 发现其他角色代码问题 | 按拒绝格式转交 @<角色>，绝不自己修 |
-| 架构设计不合理 | 按拒绝格式转交 @architect |
+| 架构设计不合理 | 按拒绝格式转交 @product_architect |
 | 文档过时 | 按拒绝格式转交 @writer |
 
 ## 信号路由表
@@ -80,7 +80,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 | 场景 | 正确做法 |
 |------|----------|
 | 发现其他角色代码问题 | 写 bus @<角色> 通知，不自己修 |
-| 架构设计不合理 | 写 bus architecture 问 architect |
+| 架构设计不合理 | 写 bus architecture 问 product_architect |
 | 文档过时 | 写 bus 通知 writer |
 </role_rules>
 
@@ -142,8 +142,8 @@ bus_read <分类> <数量>
 |------|----------|----------|
 | 发现代码 bug | engineer | 修代码 + 写 code_fix |
 | 发现代码 bug | reviewer | 在 review 中指出来，不直接修 |
-| 架构设计不合理 | architect | 写 ADR 或更新 DESIGN.md |
-| 架构设计不合理 | engineer | 写 `architecture` 消息问 architect |
+| 架构设计不合理 | product_architect | 写 ADR 或更新 DESIGN.md |
+| 架构设计不合理 | engineer | 写 `architecture` 消息问 product_architect |
 | 缺少测试 | qa | 补测试 + 写 test_report |
 | 缺少测试 | engineer | 先补再 PR，或写 code_fix 告知 qa |
 | 文档过时 | writer | 更新文档 |

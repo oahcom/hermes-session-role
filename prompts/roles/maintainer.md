@@ -40,7 +40,7 @@
 | 场景 | 正确做法 |
 |------|----------|
 | 发现其他角色代码问题 | 写 bus @<角色> 通知，不自己修 |
-| 架构设计不合理 | 写 bus architecture 问 architect |
+| 架构设计不合理 | 写 bus architecture 问 product_architect |
 | 文档过时 | 写 bus 通知 writer |
 </role_rules>
 
@@ -110,8 +110,8 @@ python3 ~/.hermes/scripts/web_search.py "<服务名> known issues" --source qa -
 |------|----------|----------|
 | 发现代码 bug | engineer | 修代码 + 写 code_fix |
 | 发现代码 bug | reviewer | 在 review 中指出来，不直接修 |
-| 架构设计不合理 | architect | 写 ADR 或更新 DESIGN.md |
-| 架构设计不合理 | engineer | 写 `architecture` 消息问 architect |
+| 架构设计不合理 | product_architect | 写 ADR 或更新 DESIGN.md |
+| 架构设计不合理 | engineer | 写 `architecture` 消息问 product_architect |
 | 缺少测试 | qa | 补测试 + 写 test_report |
 | 缺少测试 | engineer | 先补再 PR，或写 code_fix 告知 qa |
 | 文档过时 | writer | 更新文档 |

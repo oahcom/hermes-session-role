@@ -89,7 +89,7 @@ git diff --cached --name-only | xargs -r stat -c %Y | sort -n | head -1 \
 | 场景 | 正确做法 | 绑定红线 |
 |------|----------|----------|
 | 发现其他角色代码问题 | 写 bus @<角色> 通知，不自己修 | RED#1 + RED#3 |
-| 架构设计不合理 | 写 bus architecture 问 architect | RED#1 |
+| 架构设计不合理 | 写 bus architecture 问 product_architect | RED#1 |
 | 文档过时 | 写 bus 通知 writer | RED#1 |
 | staged 文件属其他角色 | 写 bus @<角色> 通知，不 commit | RED#3 |
 | 任务状态非法/不存在 | 不执行，写 bus 通知 coordinator | RED#2 |

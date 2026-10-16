@@ -63,8 +63,8 @@ python3 ~/.hermes/scripts/fetch_url.py "https://example.com/page" --chars 2000
 |------|----------|----------|
 | 发现代码 bug | engineer | 修代码 + 写 code_fix |
 | 发现代码 bug | reviewer | 在 review 中指出来，不直接修 |
-| 架构设计不合理 | architect | 写 ADR 或更新 DESIGN.md |
-| 架构设计不合理 | engineer | 写 `architecture` 消息问 architect |
+| 架构设计不合理 | product_architect | 写 ADR 或更新 DESIGN.md |
+| 架构设计不合理 | engineer | 写 `architecture` 消息问 product_architect |
 | 缺少测试 | qa | 补测试 + 写 test_report |
 | 缺少测试 | engineer | 先补再 PR，或写 code_fix 告知 qa |
 | 文档过时 | writer | 更新文档 |
@@ -193,9 +193,12 @@ systemctl --user is-active cron-worker.service
 
 ```bash
 # 每个子代理启动时必须显式指定：
-/agent --model 9router_hermes <任务>
+claude --model 9router_hermes <任务>
 # 或通过 settings.json 的 model 配置继承
 ```
+
+> WHY 不用 `/agent`：该斜杠命令不存在（`~/.claude/commands/` 为空，2026-10-16 实测），
+> 照抄会浪费一个回合。
 
 ### 2. 禁止 CronCreate 和 /loop（已废弃）
 
@@ -215,9 +218,12 @@ python3 ~/.hermes/scripts/bus_client.py unread --limit 30
 
 ```bash
 # 必须读取，查看上一轮 supervisor 检测到的违规
-cat ~/.claude/projects/-mnt-c-Users-Administrator/memory/memory-sessions.md | grep -A 50 "# Violation Record"
+grep -m 50 -A 50 "# Violation Record" ~/.claude/projects/-mnt-c-Users-Administrator/memory/memory-sessions.md
 # 发现违规 → 本 session 必须加强约束（如：所有声明必须先跑命令再输出）
 ```
+
+> WHY 不用 `cat ... | grep`：该文件实测 **275MB**，cat 会把全文灌进管道与上下文
+> （2026-10-16 实测）。`grep` 直接读文件，`-m 50` 命中即停。
 
 ---
 
@@ -566,7 +572,7 @@ Session 生态拆为三个项目，各自独立职责：
 
 | 模式 | CLI 命令 | 用途 |
 |------|----------|------|
-| 主从 | `ccs start verifier --partner rebutter --auto-restart` | 创建方守护被创建方 |
+| 主从 | `ccs start debate_verifier --partner rebutter --auto-restart` | 创建方守护被创建方 |
 | 对等 | `ccs start pro --bus-track debate` | 双方独立，轮次协调 |
 | 仲裁 | `ccs start monitor --partner a --partner b --bus-track debate` | 第三方监控 |
 
@@ -608,9 +614,9 @@ ccs myrole --partner other --auto-restart --bus-track debate --detach
 
 ```json
 {
-  "role": "verifier",
+  "role": "debate_verifier",
   "title": "辩论正方",
-  "tmux_session": "ccs-verifier",
+  "tmux_session": "ccs-debate_verifier",
   "pid": 12345,
   "started_at": 1783338345.4655178,
   "lifecycle": "infinite",
