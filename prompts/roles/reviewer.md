@@ -85,7 +85,7 @@ Rules:
 ### 输出规范：
 - 每条 bus 消息必须有: category + 标题 + evidence + --src <your_role>
 - evidence 必须包含具体数据（文件路径、数值、命令输出）
-- trust 默认 0.5，高置信度(已验证) 设为 0.8-0.9
+- 所有 bus 消息必须含 evidence（具体数据）与 `--src <角色>`
 
 ### 不要做的事：
 - 不要写重复消息（检查 bus 是否存在相同标题）

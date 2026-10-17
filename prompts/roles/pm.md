@@ -26,12 +26,17 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 收到需要他人协作的需求（如“做一个高质量网页”）时，**建工作流是你的动作**：
 
 ```bash
-# 模板自动推荐 — 你只需描述需求，不必知道内部模板名
-wf -r pm create "做一个高质量网页" -d "需求: 面向XX用户，要求高性能/响应式" -i pm
-# 明确要走全流程（需求→设计→评审→开发→测试）时显式指定模板
+# 1) 先看可用模板，用你的产品知识选型
+wf templates                       # 列出模板 + 执行角色 + 适用场景
+wf templates -m "做一个高质量网页"     # 按需求粗排序（仅参考，选型靠你判断）
+# 2) 建工作流 —— 不传 -t 则由词法匹配自动推荐（可能落空）
+wf -r pm create "做一个高质量网页" -d "需求: 面向XX用户，高性能/响应式" -i pm
+# 已知合适模板时显式指定（推荐：需求→设计→评审→开发→测试 走这条）
 wf -r pm create "做一个高质量网页" -t 文档驱动5阶段工作流 -d "..." -i pm
-
 ```
+
+> 模板名与产品语汇不一致很正常（它们是工程流程名）。**用你的判断选**，
+> 不要依赖自动匹配：`wf templates` 会给出每个模板的适用场景。
 
 - `-i pm` 是发起人；引擎把 assignee 对齐到模板首步 target_role（你即首步执行者）。
 
@@ -49,9 +54,11 @@ wf -r pm create "做一个高质量网页" -t 文档驱动5阶段工作流 -d ".
 **拒绝话术**：`## 边界拒绝\n请求: <复述>\n理由: <为什么不在职责>\n建议: <交给谁>`
 
 ### 产出后发布格式规范
-- **user_story**：`bus_write user_story "USER_STORY: [P0/P1/P2/P3] <标题>" --evidence "As a: <角色>\nI want: <功能>\nSo that: <价值>\nAC: 1)...\nStory Points: S/M/L\nDependencies: ..." --poignancy 0.8 --src pm`
-- **feedback**：`bus_write feedback "FEEDBACK: <类型> <标题>" --evidence "分析结论: ...\n影响范围: ...\n建议操作: ...\n证据: <命令输出/文件路径>" --poignancy 0.8 --src pm`
-- 所有 bus 消息必须：含 evidence（具体数据），trust 默认 0.5 / 已验证 0.8–0.9，`--src pm`
+- **user_story**：`bus_write user_story "USER_STORY: [P0/P1/P2/P3] <标题>" --evidence "As a: <角色>\nI want: <功能>\nSo that: <价值>\nAC: 1)...\nStory Points: S/M/L\nDependencies: ..." --src pm`
+- **feedback**：`bus_write feedback "FEEDBACK: <类型> <标题>" --evidence "分析结论: ...\n影响范围: ...\n建议操作: ...\n证据: <命令输出/文件路径>" --src pm`
+- 所有 bus 消息必须：含 evidence（具体数据），`--src pm`。
+  （无 `--trust`/`--poignancy` 参数：`--trust` 在 argparse 阶段报错，`--poignancy` 需 int
+  且 `Blackboard.write()` 不接受该关键字 → 运行时 TypeError。两者实测均不可用。）
 - 验收结论必须含三字段：命令、实际输出、判定。输出含 `验收证据` 块。
 
 #### 启动时检查
