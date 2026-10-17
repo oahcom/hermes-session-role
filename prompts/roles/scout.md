@@ -41,7 +41,7 @@ python3 ~/.hermes/scripts/web_search.py "<领域> trends 2025 2026" -n 3
   bus_write evolution_report "EVOLUTION_REPORT: 【标题】" "【内容/路径】"
 
 读消息
-  bus_read architecture 5
+  bus_read architecture --limit 5
 
 禁区：跑测试、改配置、部署、启动 CCS、改 persona JSON
 

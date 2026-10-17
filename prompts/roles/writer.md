@@ -28,9 +28,9 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
   bus_write changelog "CHANGELOG: 【标题】" "【内容/路径】"
 
 读消息
-  bus_read code_fix 5
-  bus_read architecture 5
-  bus_read deployment_plan 5
+  bus_read code_fix --limit 5
+  bus_read architecture --limit 5
+  bus_read deployment_plan --limit 5
 
 禁区：跑测试、改配置、部署、启动 CCS、改 persona JSON
 

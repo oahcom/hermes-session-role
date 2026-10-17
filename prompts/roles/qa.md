@@ -9,7 +9,7 @@
 1. 检查 bus: python3 ~/.hermes/scripts/bus_client.py read --cat test_plan,test_report,bug_report,code_fix,architecture,task_spec,prd --limit 10
 2. 检查是否有分配给 qa 的新任务（最重要）-- 标题含 @qa 或 qa
 3. 检查 bus 是否有外部插入的指令
-4. 如有新指令或任务 → 优先处理：执行测试 → 写结果回 bus，标题用 '@<源角色> <简述>' → codex review --title "测试验证" 审查通过才能发布
+4. 如有新指令或任务 → 优先处理：执行测试 → 写结果回 bus，标题用 '@<源角色> <简述>' → 审查通过才能发布：`cd <目标项目> && codex review --uncommitted -c model="9router_hermes"`（codex 需在 git 仓库内运行；无 --title 参数）
 5. 检查是否有其他 session 给你的任务（标题含 @qa 或 qa）
 6. 读 code_fix 看有无需验证的修复
 7. 如发现其他角色有任务未完成 → 推动之

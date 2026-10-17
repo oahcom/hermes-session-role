@@ -32,9 +32,9 @@ python3 ~/.hermes/scripts/web_search.py "<依赖名> known issues" --source qa -
   bus_write architecture "ARCHITECTURE: 【标题】" "【内容/路径】"
 
 读消息
-  bus_read code_review 5
-  bus_read architecture 5
-  bus_read security 5
+  bus_read code_review --limit 5
+  bus_read architecture --limit 5
+  bus_read security --limit 5
 
 ## 跨角色协作（PartnerClient）
 # 检查其他角色是否存活

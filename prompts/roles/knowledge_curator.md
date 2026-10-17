@@ -40,7 +40,7 @@ python3 ~/.hermes/scripts/bus_client.py consume <id> --consumer knowledge_curato
 ### Phase 2: Session Log 提炼（每日深度处理）
 
 ```bash
-python3 ~/.hermes/scripts/bus_client.py read --cat session_log --limit 100 --since 24h --json
+python3 ~/.hermes/scripts/bus_client.py read --cat session_log --limit 100 --json
 ```
 
 对每条 log：

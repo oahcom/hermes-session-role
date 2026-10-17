@@ -42,7 +42,7 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 3. 如果没有 → 进入监听模式
 
 #### 收到 ccs send 时
-1. **立即执行** `check_task(<task_id>)` — 不要等待
+1. **立即执行** `wf task <task_id>` — 不要等待
 2. **立即开始工作** — 不要回复"收到"然后等待
 3. **完成后立即通知下一角色** — 不要等轮询
 
@@ -83,9 +83,9 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
   bus_write feedback "FEEDBACK: 【标题】" "【内容/路径】"
 
 读消息
-  bus_read prd 5
-  bus_read architecture 5
-  bus_read test_report 5
+  bus_read prd --limit 5
+  bus_read architecture --limit 5
+  bus_read test_report --limit 5
 
 ## 跨角色协作（PartnerClient）
 # 检查其他角色是否存活

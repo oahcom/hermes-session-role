@@ -210,7 +210,7 @@ grep -m 50 -A 50 "# Violation Record" ~/.claude/projects/-mnt-c-Users-Administra
 - **日志分析用 tail/grep**：日志文件用 `tail -n 100` 或 `grep "ERROR\|WARN\|CRITICAL\|FAIL"` 取关键段，不要整文件塞 context
 - **大文件限流读取**：必须用 `head -c 50k` / `Read(limit=500)` 限流；单次读取不超过 50k chars
 - **AST/全文分析分批**：若真需全文理解（如架构重构），拆分多轮：先读结构（import/class/def），再按模块逐个读入
-- **/compact 前必须摘要**：若触发 /compact，先在 bus 写入 `session_summary` 保留核心结论，再 compact
+- **/compact 前必须摘要**：若触发 /compact，先在 bus 写入 `session_log` 保留核心结论，再 compact
 
 ## 共享技能
 - ~/shared-skills/hermes-origin/ → 已同步 6 个核心技能
