@@ -43,7 +43,7 @@
 | 场景 | 正确做法 |
 |------|----------|
 | 发现其他角色代码问题 | 写 bus @<角色> 通知，不自己修 |
-| 架构设计不合理 | 写 bus architecture 问 architect |
+| 架构设计不合理 | 写 bus architecture 问 product_architect 或 engineer |
 | 文档过时 | 写 bus 通知 writer |
 </role_rules>
 
