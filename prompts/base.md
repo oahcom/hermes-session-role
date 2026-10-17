@@ -123,12 +123,9 @@ claude --model 9router_hermes <任务>
 - 不得调用 CronCreate 工具创建任何定时器
 - 会话驱动依赖外部调度（cron-worker / workflow-engine / Sister Bus 事件），不依赖 session 内自循环
 
-### 3. 加载 Sister Bus 未读消息（限 30 条防 /compact）
+### 3. 加载 Sister Bus 未读消息
 
-```bash
-python3 ~/.hermes/scripts/bus_client.py unread --limit 30
-# 若 > 0 条，逐条阅读并纳入上下文，读完后标记已消费。limit 30 限制首次加载量，防止 /compact。
-```
+命令见全局 `~/.claude/CLAUDE.md`（启动必做），此处不重复。
 
 ### 4. 读取违规历史（自我纠正）
 
@@ -149,136 +146,17 @@ grep -m 50 -A 50 "# Violation Record" ~/.claude/projects/-mnt-c-Users-Administra
 - 测试方法名用英文：`test_delete_empty_department_returns_204`（标识符一律英文，含测试方法名）
 - 断言信息中文
 - 提交信息中文：`feat/fix/refactor: 中文描述`
-## 七、Hermes 生态特有规则（项目上下文）
-### 核心原则
-
-## 关键端口
-| 端口 | 服务 | systemd 单元 |
-|------|------|-------------|
-| :20128 | 9Router 模型路由 | nine-router |
-| :8767 | hermes-gateway | hermes-gateway.service |
-| :8890 | 控制面板 | hermes-control-panel |
-| :9901 | Fact Store (DKK) | memory-server-dkk.service |
-| :9902 | Fact Store (SSK) | memory-server-ssk |
-| /tmp/sister_bus_*.sock | Sister Bus (Unix Socket) | — |
-| — | sister-agent-dkk | sister-agent-dkk.service |
-| — | sister-agent-ssk | sister-agent-ssk.service |
-| — | skill-sync | skill-sync.service |
-
-## Session 模型与 Worktree 结构
-三个并发 session，各自在独立 worktree 工作:
-- **DKK daemon** (`scripts-wdkk/dkk`): 大姐 daemon，主服务逻辑
-- **SSK daemon** (`scripts-wssk/ssk`): 小妹 daemon，审计角色
-- **Cron worker** (`scripts-wcron/cron`): 10 分钟轮询任务
-- 主分支 (`quality-gate`) 只读；所有编辑必须在 worktree 分支
-
-## 架构红线
-详见 [[hermes-architecture-redlines]] (9 条完整规则 + 生命周期规则 + 踩坑记录)
-
-以下为**最关键**规则，必须牢记:
-1. **绝对禁止**重启 hermes-gateway (除非 `hermes gateway restart`)
-   → 后果: SIGKILL → WeChat 等长连接中断 → 所有 agent session 断开 → 5~30 分钟恢复
-2. VF 信号改动必须检查 SELF_REPAIR_MAP (8 个硬映射)
-   → 后果: 硬编码映射遗漏导致信号路由错误，触发级联故障
-3. 服务探测必须 3 次连续失败才标 down (单次超时不算)
-   → 后果: 单次网络抖动导致服务被误判下线，触发不必要的故障处理
-4. Daemon 必须 PID 锁单实例 (防止双进程 race)
-   → 后果: 双进程并发读写状态文件导致数据损坏
-
-完整 9 条规则、生命周期红线、并发编辑保护、踩坑记录请参阅: `~/.claude/projects/-mnt-c-Users-Administrator/memory/hermes-architecture-redlines.md`
-
-## Coding 规范
-**[Python]**
-- Python 3.10+, 类型注解
-
-**[Config]**
-- 绝对禁止 `yaml.dump()` 重写 config.yaml (破坏格式→gateway 崩溃)
-- 只用 `patch` 或 `sed` 修改配置文件
-
-**[Architecture]**
-- 不要创建平行 agent 循环: daemon 或 cron 选一个
-- 改 Daemon 必须同步更新控制面板
-- **架构同步铁律**: 每次修改架构/服务/端口/数据流/handler 时，必须:
-  1. 运行 `python3 ~/.hermes/scripts/arch_drift_detector.py --json` 检查文档漂移
-  2. 漂移 > 0 时更新 `~/.hermes/skills/software-development/project-architecture/` 对应 references/
-  3. 运行 `python3 ~/.hermes/scripts/arch_doc_generator.py` 刷新 arch_ai.json
-  4. 工程手册路径: `~/.hermes/notes/architecture/PROJECT_MANUAL.md`
-- 触发场景: 加/减服务、改端口、加/减 handler、改数据库 schema、改数据流、改架构红线
-
-**[Large File / Log Analysis]**
-- **先 grep/rg 定位再读**：大文件（>50k token）严禁直接全文读取；先 `Grep(pattern, glob)` 或 `Bash(grep -n ...)` 定位函数/区块，再用 `Read(offset/limit)` 只读片段
-- **日志分析用 tail/grep**：日志文件用 `tail -n 100` 或 `grep "ERROR\|WARN\|CRITICAL\|FAIL"` 取关键段，不要整文件塞 context
-- **大文件限流读取**：必须用 `head -c 50k` / `Read(limit=500)` 限流；单次读取不超过 50k chars
-- **AST/全文分析分批**：若真需全文理解（如架构重构），拆分多轮：先读结构（import/class/def），再按模块逐个读入
-- **/compact 前必须摘要**：若触发 /compact，先在 bus 写入 `session_log` 保留核心结论，再 compact
-
-## 共享技能
-- ~/shared-skills/hermes-origin/ → 已同步 6 个核心技能
-- 自动同步 daemon 运行中 (systemd skill-sync.service)
-- Claude Code 和 Codex 通过符号链接访问
-
 ## 工作流 DB 路径（不要 find 全盘）
 - 生产库：`~/.hermes/state/workflows.db`（→ `~/.hermes/data/state/workflows.db`）
 - 查任务：`wf -r <角色名> my` / `wf -r <角色名> task <wf_id>` / `wf -r <角色名> check`
 - 实测教训：未告知路径时角色会 `find / -name "workflow*.db"`，耗时 80s+ 且拖垮整机负载
 
-## 免费代码生成
-- MiMo Code: `~/.mimocode/bin/mimo`，详见 [[mimocode-usage]]
-
 ---
 
-## 八、Sister Bus 跨 session 通信规则
-**目的**：session 之间（DKK/SSK/Cron/Claude Code）通过 Blackboard SQLite 共享知识，解决"每次 session 从零开始"问题。
+## 八、Sister Bus
 
-### 8.1 总线地址
-```bash
-# Blackboard DB（SQLite FTS5）
-~/.hermes/sister_bus/blackboard.db
-
-# CLI 工具
-~/.hermes/scripts/bus_client.py
-```
-
-### 8.2 必做：session 启动加载 bus
-**每次新 session 开始，必须先**：
-```bash
-python3 ~/.hermes/scripts/bus_client.py unread --limit 30
-```
-如果 > 0 条未读，逐条阅读并纳入当前上下文。读完后：
-```bash
-# 标记为已消费（每个 fact 的 id）
-python3 ~/.hermes/scripts/bus_client.py consume <id> --consumer claude
-```
-
-### 8.3 必做：重要发现写入 bus
-以下情况**必须**写入 bus（`src="claude"`）：
-- **架构决策**、**红线变更** → `cat="architecture"`
-- **修了 P0/P1 bug** → `cat="code_fix"`
-- **发现了安全隐患** → `cat="security"`
-- **性能优化 / 重构完成** → `cat="performance"`
-- **写入新 memory 文件时**，同步写 bus
-
-```bash
-python3 ~/.hermes/scripts/bus_client.py write architecture \
-  "标题（80字以内）" \
-  --evidence "详细内容" \
-  --src claude
-```
-
-### 8.4 选做：查询历史
-```bash
-# 按分类查近 20 条
-python3 ~/.hermes/scripts/bus_client.py read --cat architecture --limit 20
-
-# 全文搜索
-python3 ~/.hermes/scripts/bus_client.py search "关键词"
-
-# 看统计
-python3 ~/.hermes/scripts/bus_client.py stats
-```
-
-### 8.5 不要重复写
-写入前先 `search` 或 `read --cat ...` 确认没有重复。重复的 bus 条目 = 噪音。
+工具与命令见全局 `~/.claude/CLAUDE.md` §八（Claude Code 已自动加载，不在此重复）。
+**角色侧只记一条**：写 bus 前先 `search`/`read --cat` 确认无重复——重复条目即噪音。
 
 ---
 
