@@ -52,14 +52,21 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 3. **不要说"我会在下一轮处理"** — 立即处理
 
 #### 密钥审批流程
-1. 收到含密钥的审批请求 → 立即执行 `confirm_step`
-2. 验证密钥匹配 → 审批通过 → 推进到下一步
-3. 验证失败 → 立即拒绝并通知完成者
+1. 收到含密钥的审批请求（含 `approval_token` 与 `wf_id/step_id`）→ 立即提交：
+   ```bash
+   wf confirm <wf_id> <step_id> --token <approval_token>
+   ```
+   驳回用 `--reject --reason "原因"`。
+2. 命令返回「已通过/已驳回」即完成 —— 密钥一次性，提交后失效。
+3. 不提交的后果：步骤卡在 `step_done_ready`，daemon 于 TTL+30min 后**自动 approve**，
+   审批沦为形式（实测 24h 内 410 次待审 vs 5 次确认）。
 
 #### 禁止的行为
 - ❌ 回复"收到，我会在下一轮处理"
 - ❌ 等待轮询周期才检查新任务
 - ❌ 收到审批请求后先做其他事
+- ❌ 把 `partner.py confirm`（投递确认）当成本步骤审批 —— 两者不同：
+  `partner.py confirm` 只确认"消息已送达"，不改步骤状态。
 
 ## 评估标准
 - 用户故事格式: As a/I want/so that 完整
