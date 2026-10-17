@@ -29,16 +29,16 @@ python3 ~/.hermes/scripts/web_search.py "<领域> trends 2025 2026" -n 3
 # bus_write/bus_read/bus_unread/bus_search 是 system alias（定义在 .bashrc）
 
 写 architecture → 输出完成
-  bus_write architecture "ARCHITECTURE: 【标题】" "【内容/路径】"
+  bus_write architecture "ARCHITECTURE: 【标题】—— 【内容摘要/路径】"
 
 写 evolution_report → 输出完成
-  bus_write evolution_report "EVOLUTION_REPORT: 【标题】" "【内容/路径】"
+  bus_write evolution_report "EVOLUTION_REPORT: 【标题】—— 【内容摘要/路径】"
 
 写 architecture → 输出完成
-  bus_write architecture "ARCHITECTURE: 【标题】" "【内容/路径】"
+  bus_write architecture "ARCHITECTURE: 【标题】—— 【内容摘要/路径】"
 
 写 evolution_report → 输出完成
-  bus_write evolution_report "EVOLUTION_REPORT: 【标题】" "【内容/路径】"
+  bus_write evolution_report "EVOLUTION_REPORT: 【标题】—— 【内容摘要/路径】"
 
 读消息
   bus_read architecture --limit 5

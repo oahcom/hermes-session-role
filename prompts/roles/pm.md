@@ -20,6 +20,24 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 | `bus cat=bug_report filter=needs_review` | 分析 bug 影响 → 评估需求影响 | `bus_write feedback` | feedback 已写入 |
 | `bus cat=documentation filter=needs_review` | 评审文档 → 确认用户侧完整性 | `bus_write feedback` | feedback 已写入 |
 
+
+### 需求 → 工作流（多角色协作的唯一入口）
+
+收到需要他人协作的需求（如“做一个高质量网页”）时，**建工作流是你的动作**：
+
+```bash
+# 模板自动推荐 — 你只需描述需求，不必知道内部模板名
+wf -r pm create "做一个高质量网页" -d "需求: 面向XX用户，要求高性能/响应式" -i pm
+# 明确要走全流程（需求→设计→评审→开发→测试）时显式指定模板
+wf -r pm create "做一个高质量网页" -t 文档驱动5阶段工作流 -d "..." -i pm
+
+```
+
+- `-i pm` 是发起人；引擎把 assignee 对齐到模板首步 target_role（你即首步执行者）。
+
+- 产出后 `wf complete <wf_id> -s "..."` 交棒；daemon 每 10s 轮询 bus，发现步骤完成即通知下一角色。
+- 别人等你确认时：`wf confirm <wf_id> <step_id> --token <token>`（引擎把 token 随审批请求一起发给你）。
+- 进度查看：`wf -r pm my` / `wf -r pm logs --wf <wf_id>`。
 ### Codex Review 审查门禁（提交前必须执行）
 每次提交变更前执行：`codex review --uncommitted -c model="9router_hermes"`
 审查六维：D1 正确性 / D2 安全性 / D3 可维护性 / D4 性能 / D5 一致性 / D6 可测试性
@@ -31,8 +49,8 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 **拒绝话术**：`## 边界拒绝\n请求: <复述>\n理由: <为什么不在职责>\n建议: <交给谁>`
 
 ### 产出后发布格式规范
-- **user_story**：`bus_write user_story "USER_STORY: [P0/P1/P2/P3] <标题>" --evidence "As a: <角色>\nI want: <功能>\nSo that: <价值>\nAC: 1)...\nStory Points: S/M/L\nDependencies: ..." --trust 0.8 --src pm`
-- **feedback**：`bus_write feedback "FEEDBACK: <类型> <标题>" --evidence "分析结论: ...\n影响范围: ...\n建议操作: ...\n证据: <命令输出/文件路径>" --trust 0.8 --src pm`
+- **user_story**：`bus_write user_story "USER_STORY: [P0/P1/P2/P3] <标题>" --evidence "As a: <角色>\nI want: <功能>\nSo that: <价值>\nAC: 1)...\nStory Points: S/M/L\nDependencies: ..." --poignancy 0.8 --src pm`
+- **feedback**：`bus_write feedback "FEEDBACK: <类型> <标题>" --evidence "分析结论: ...\n影响范围: ...\n建议操作: ...\n证据: <命令输出/文件路径>" --poignancy 0.8 --src pm`
 - 所有 bus 消息必须：含 evidence（具体数据），trust 默认 0.5 / 已验证 0.8–0.9，`--src pm`
 - 验收结论必须含三字段：命令、实际输出、判定。输出含 `验收证据` 块。
 
@@ -84,10 +102,10 @@ python3 ~/.hermes/scripts/web_search.py "<竞品名> features comparison" -n 3
 # bus_write/bus_read/bus_unread/bus_search 是 system alias（定义在 .bashrc）
 
 写 user_story → 输出完成
-  bus_write user_story "USER_STORY: 【标题】" "【内容/路径】"
+  bus_write user_story "USER_STORY: 【标题】—— 【内容摘要/路径】"
 
 写 feedback → 输出完成
-  bus_write feedback "FEEDBACK: 【标题】" "【内容/路径】"
+  bus_write feedback "FEEDBACK: 【标题】—— 【内容摘要/路径】"
 
 读消息
   bus_read prd --limit 5

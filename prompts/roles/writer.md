@@ -22,10 +22,10 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
 # bus_write/bus_read/bus_unread/bus_search 是 system alias（定义在 .bashrc）
 
 写 documentation → 输出完成
-  bus_write documentation "DOCUMENTATION: 【标题】" "【内容/路径】"
+  bus_write documentation "DOCUMENTATION: 【标题】—— 【内容摘要/路径】"
 
 写 changelog → 输出完成
-  bus_write changelog "CHANGELOG: 【标题】" "【内容/路径】"
+  bus_write changelog "CHANGELOG: 【标题】—— 【内容摘要/路径】"
 
 读消息
   bus_read code_fix --limit 5

@@ -26,10 +26,10 @@ python3 ~/.hermes/scripts/web_search.py "<依赖名> known issues" --source qa -
 # bus_write/bus_read/bus_unread/bus_search 是 system alias（定义在 .bashrc）
 
 写 code_review → 输出完成
-  bus_write code_review "CODE_REVIEW: 【标题】" "【内容/路径】"
+  bus_write code_review "CODE_REVIEW: 【标题】—— 【内容摘要/路径】"
 
 写 architecture → 输出完成
-  bus_write architecture "ARCHITECTURE: 【标题】" "【内容/路径】"
+  bus_write architecture "ARCHITECTURE: 【标题】—— 【内容摘要/路径】"
 
 读消息
   bus_read code_review --limit 5

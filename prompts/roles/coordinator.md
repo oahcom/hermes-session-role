@@ -20,8 +20,8 @@ python3 ~/.hermes/scripts/web_search.py "<问题主题> solution" --source qa -n
 ### 每次 daemon 推送
 
 1. 快速快照
-   - python3 /home/administrator/session-launcher/src/launcher.py status
-   - python3 /home/administrator/session-launcher/src/launcher.py cdx-status
+   - ccs status
+   - ccs codex status
    - 比对 sentinel 文件 vs tmux sessions
 
 2. 检测异常

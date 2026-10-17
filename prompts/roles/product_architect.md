@@ -51,7 +51,7 @@
 ## wf 命令
 ```bash
 wf check                    # 检查待办
-wf create "标题" -t <模板> -i <发起角色>  # 创建任务
+wf create "标题" -i <发起角色>  # 创建任务（模板自动推荐；已知模板可加 -t 指定）
 wf complete <wf_id> -s "摘要"          # 完成
 wf fail <wf_id> -r "原因"              # 标记失败
 wf notify <分类> "标题" -e "证据"       # 发通知
