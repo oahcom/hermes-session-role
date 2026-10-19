@@ -11,14 +11,14 @@
     {
       "type": "shell",
       "spec": {
-        "command": "python3 $SESSION_LAUNCHER_DIR/launcher.py status"
+        "command": "ccs status"
       },
       "filter": "running_sessions"
     },
     {
       "type": "shell",
       "spec": {
-        "command": "python3 $SESSION_LAUNCHER_DIR/launcher.py cdx-status"
+        "command": "ccs codex status"
       },
       "filter": "running_codex"
     },
@@ -32,14 +32,14 @@
     {
       "type": "shell",
       "spec": {
-        "command": "diff <(ls /tmp/ccs-sentinels/ 2>/dev/null | sort) <(tmux ls 2>/dev/null | grep ccs- | cut -d: -f1 | sort) 2>/dev/null"
+        "command": "diff <(ls $HOME/.hermes/run/ccs-sentinels/ 2>/dev/null | sed 's/\\.json$//' | sort) <(tmux ls 2>/dev/null | grep ccs- | cut -d: -f1 | sed 's/^ccs-//' | sort) 2>/dev/null"
       },
       "filter": "sentinel_mismatch"
     },
     {
       "type": "shell",
       "spec": {
-        "command": "python3 -c \"import os,time; x=[f for f in os.listdir('/tmp/ccs-sentinels/') if time.time()-os.path.getmtime(f'/tmp/ccs-sentinels/{f}')>300]; print(f'Mismatch: {len(x)}')\""
+        "command": "python3 -c \"import os,time,pathlib; d=pathlib.Path.home()/\".hermes/run/ccs-sentinels\"; x=[f for f in os.listdir(d) if time.time()-os.path.getmtime(d/f)>300]; print(f'Mismatch: {len(x)}')\""
       },
       "filter": "stale_sentinel"
     },
@@ -155,10 +155,8 @@
   "eval_criteria": [
     "验证: bash -c 'ps aux | grep -v grep | wc -l | head -1' 输出 > 0",
     "验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1",
-    "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0",
-    "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3",
-    "验证: bash -c 'ls /tmp/ccs-sentinels/ | wc -l'",
-    "验证: bash -c 'find /tmp/ccs-sentinels/ -mmin +5 2>/dev/null | wc -l' 输出 0",
+    "验证: bash -c 'ls $HOME/.hermes/run/ccs-sentinels/ | wc -l'",
+    "验证: bash -c 'find $HOME/.hermes/run/ccs-sentinels/ -mmin +5 2>/dev/null | wc -l'",
     "验证: bash -c 'journalctl --user -u ccs* --since \"5 min ago\" 2>/dev/null | grep -cE \"ERROR|exception|Traceback\"' 输出 0",
     "验证: git -C /home/administrator/session-launcher status --porcelain | wc -l"
   ],
@@ -186,7 +184,7 @@
     "遵循 管理 角色红线",
     "不做超出职责范围的事",
     "输出必须可验证",
-    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+    "收到含 task_id 的 ccs send 时，必须先执行 `wf task <task_id>` 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
   "workgroup": [
     {

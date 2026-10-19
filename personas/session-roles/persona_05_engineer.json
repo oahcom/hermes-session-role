@@ -107,10 +107,7 @@
     "bus cat=architecture 实现计划/风险点"
   ],
   "eval_criteria": [
-    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
-    "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3",
-    "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0",
-    "验证: python3 -c 'import sys; print(\"DONE\")' 输出 DONE"
+    "验证: find /home/administrator/ccs-workspaces/engineer -name \"*.py\" -o -name \"*.md\" | wc -l 输出 > 0"
   ],
   "prompt_refs": {
     "base": "base.md",

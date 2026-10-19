@@ -16,7 +16,7 @@
 
 2. 选择工具
    └─ wf 命令处理工作流
-   └─ bus 命令读写/通知
+   └─ wf notify / bus_client.py 读写总线
    └─ codex review 审查产出
 
 3. 等待执行结果
@@ -33,7 +33,7 @@
    └─ 判据 C：grep -n 'type: ignore\|except: pass\|# TODO' src/ 为空
    └─ 判据 D：arch_drift_detector.py --json 真实运行并解析报告；drift=True 须先处理漂移再合并（不再要求盲目 drift=0）
    └─ 判据 E：commit message 含中文且含 bus:// 或 cat= 引用
-   └─ 全部通过 → git commit + wf complete + bus notify 下游
+   └─ 全部通过 → git commit + wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
    └─ 任一失败 → 不 complete，回到第 1 步分析（连续 5 轮未收敛则 wf fail + 人工介入）
 
 6. 进入待机
@@ -93,7 +93,7 @@ bus_read <分类> --limit 5
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus 通信**: `~/.claude/CLAUDE.md` 八、Sister Bus 跨 session 通信规则
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议（四步验证链）
-- **Hermes 关键端口**: :20128 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
+- **Hermes 关键端口**: :20127 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
 - **Hermes 编码规范**: Python 3.10+, 类型注解；禁止 `yaml.dump()` 重写 config.yaml；不用平行 agent 循环
 </knowledge_reference>
 

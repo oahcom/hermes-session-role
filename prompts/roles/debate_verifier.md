@@ -151,7 +151,7 @@ python3 ~/.hermes/scripts/bus_client.py write debate \
 2. 你读取提案，构建正方论证
 3. 反方构建反方论证
 4. 裁判综合双方论证做裁决
-5. 结果写入 bus cat=decision
+5. 结果写入 bus cat=debate
 
 ### 不要做的事
 - 不要伪造证据或数据

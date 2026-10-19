@@ -78,11 +78,17 @@ python3 ~/.hermes/scripts/fetch_url.py "https://example.com/page" --chars 2000
 ---
 
 ## 自审查指令（提交前必须执行）
-每次提交代码变更前，必须运行以下命令进行六维度自审查：
+每次提交代码变更前，必须对**你自己改动的那几个仓库**跑六维度自审查。
+cd 进实际改动所在的仓库（git status --short 列出的文件所在目录），再执行：
 
 ```bash
-cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"
+cd <改动所在仓库> && codex review --uncommitted -c model="9router_hermes"
 ```
+
+**禁止固定 cd 到 session-launcher**：审查对象必须是被审查的那份 diff。在 A 仓库改代码
+却审 B 仓库，等于把「零问题」盖在没看过的工作上 —— 实测该错误用法让 reviewer 整轮
+空转（审的是 600KB 无关 diff，超时后连开 5 个互相等待的 pgrep，角色永久卡死）。
+拿不到门禁结论（超时/无变更）时，写明实际跑过的命令与输出即可，**不要编造审查结论**。
 
 审查的六个维度（优先级从上到下）：
 
@@ -155,7 +161,7 @@ grep -m 50 -A 50 "# Violation Record" ~/.claude/projects/-mnt-c-Users-Administra
 ## 关键端口
 | 端口 | 服务 | systemd 单元 |
 |------|------|-------------|
-| :20128 | 9Router 模型路由 | nine-router |
+| :20127 | 9Router 模型路由（主实例） | 无 systemd 单元（node 进程，实测 nine-router.service 不存在） |
 | :8767 | hermes-gateway | hermes-gateway.service |
 | :8890 | 控制面板 | hermes-control-panel |
 | :9901 | Fact Store (DKK) | memory-server-dkk.service |
@@ -219,8 +225,18 @@ grep -m 50 -A 50 "# Violation Record" ~/.claude/projects/-mnt-c-Users-Administra
 
 ## 工作流 DB 路径（不要 find 全盘）
 - 生产库：`~/.hermes/state/workflows.db`（→ `~/.hermes/data/state/workflows.db`）
-- 查任务：`wf -r <角色名> my` / `wf -r <角色名> task <wf_id>` / `wf -r <角色名> check`
+- 查任务：`wf -r <角色名> my` / `wf -r <角色名> task <task_id>` / `wf -r <角色名> check`
+- 查工作流：`wf -r <角色名> logs --wf <wf_id>`（`task` 只认 task_id，传 wf_id 返回「未找到」）
 - 实测教训：未告知路径时角色会 `find / -name "workflow*.db"`，耗时 80s+ 且拖垮整机负载
+
+### 工作流完成契约（每步必读）
+引擎靠 **bus 消息文本**判定步骤完成，不是靠 pane、文件或 `wf complete`：
+1. 收到任务时，prompt 里的 `[实例] <wf_id>` 就是本条链的 id。
+2. 完成时写 bus，标题**必须**含模板要求的 `text_contains` 文本（如 `<模板>/s<N>-complete`），
+   且带 `--src <你的角色名>`（引擎要求 src 与模板 `source_contains` 一致；默认值为 `claude`）。
+3. 被指派审批时（收到「步骤审批请求」含密钥）→ `wf confirm <wf_id> <step_id> --token <密钥>`；
+   驳回用 `--reject -r "<理由>"`。不审批 = 步骤白等 90 分钟。
+4. `wf complete` 只用于**任务收尾**，不能替代上面的 bus 完成消息。
 
 ## 免费代码生成
 - MiMo Code: `~/.mimocode/bin/mimo`，详见 [[mimocode-usage]]
@@ -345,22 +361,22 @@ Session 生态拆为三个项目，各自独立职责：
 
 | 命令 | 作用 | 示例 |
 |------|------|------|
-| `ccs <role> [title]` | 启动 CCS 并 attach | `ccs myrole "My Role"` |
-| `ccs <role> --detach` | 后台启动 | `ccs myrole --detach` |
+| `ccs start <role>` | 启动 CCS 并 attach | `ccs start engineer` |
+| `ccs start <role> --no-attach` | 后台启动 | `ccs start engineer --no-attach` |
 | `ccs-status` | 列出所有运行中的 CCS | `ccs-status` |
 | `ccs-ls` | tmux 列表（只看 ccs- 开头） | `ccs-ls` |
-| `ccs-stop <role>` | 停掉一个 CCS | `ccs-stop myrole` |
-| `ccs-send <role> "消息"` | 向 CCS 发消息 | `ccs-send myrole "检查 bus"` |
-| `ccs-out <role>` | 看 CCS 最新输出 | `ccs-out myrole` |
-| `ccs-cdx` | 看 Codex sessions | `ccs-cdx` |
+| `ccs-stop <role>` | 停掉一个 CCS | `ccs-stop engineer` |
+| `ccs-send <role> "消息"` | 向 CCS 发消息 | `ccs-send engineer "检查 bus"` |
+| `ccs-out <role>` | 看 CCS 最新输出 | `ccs-out engineer` |
+| `ccs-health` | 健康检查 | `ccs-health` |
 
 ### 9.4 启动 CCS 完整流程
 
 ```bash
 # 交互式
-ccs myrole
+ccs start engineer
 # 后台 + 协作
-ccs myrole --partner other --auto-restart --bus-track debate --detach
+ccs start engineer --partner other --auto-restart --bus-track debate --no-attach
 ```
 
 内部流程：
@@ -400,8 +416,8 @@ ccs myrole --partner other --auto-restart --bus-track debate --detach
 CCS 之间通过 Sister Bus 通信：
 
 ```
-1. CCS-A 写任务         bus_client.py write task "@ccs-b 帮我检查这个" --src ccs-a
-2. CCS-B 读到任务       bus_client.py read --cat task --limit 5
+1. CCS-A 写任务         bus_client.py write task_spec "@ccs-b 帮我检查这个" --src ccs-a
+2. CCS-B 读到任务       bus_client.py read --cat task_spec --limit 5
 3. CCS-B 写结果回 bus   bus_client.py write code_fix "[ccs-b] 完成: xxx" --src ccs-b
 4. CCS-A 读到结果继续
 

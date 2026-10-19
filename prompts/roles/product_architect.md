@@ -23,7 +23,7 @@
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游
-5. 提交/通知 — wf complete + bus notify 下游
+5. 提交/通知 — wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
 6. 进入待机 — 等待下一个触发信号
 ```
 </agent_loop>
@@ -73,7 +73,7 @@ bus_read <分类> <数量>
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus**: `~/.claude/CLAUDE.md` 八、Sister Bus 通信
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议
-- **关键端口**: :20128 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
+- **关键端口**: :20127 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
 - **编码规范**: Python 3.10+, 类型注解；禁止 yaml.dump() 重写 config.yaml
 </knowledge_reference>
 

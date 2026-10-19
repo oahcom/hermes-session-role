@@ -14,7 +14,7 @@
 
 2. 选择工具
    └─ wf 命令处理工作流
-   └─ bus 命令读写/通知
+   └─ wf notify / bus_client.py 读写总线
    └─ codex review 审查产出
 
 3. 等待执行结果
@@ -27,11 +27,11 @@
 
 5. 审查门禁（发布前必经）
    └─ 产出物发布前必须过 codex review（见下方审查门禁）
-   └─ 连续两轮零问题 → 才允许 wf complete + bus notify 下游
+   └─ 连续两轮零问题 → 才允许 wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
    └─ 未通过 → 回步骤 2 修复，禁止发布（不通过不发布）
 
 6. 提交/通知
-   └─ 仅当门禁通过：wf complete + bus notify 下游
+   └─ 仅当门禁通过：wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
 
 7. 进入待机
    └─ 等待下一个触发信号（ccs-send / feed push）
@@ -112,7 +112,7 @@ bus_read <分类> --limit 5
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus 通信**: `~/.claude/CLAUDE.md` 八、Sister Bus 跨 session 通信规则
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议（四步验证链）
-- **Hermes 关键端口**: :20128 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
+- **Hermes 关键端口**: :20127 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
 - **Hermes 编码规范**: Python 3.10+, 类型注解；禁止 `yaml.dump()` 重写 config.yaml；不用平行 agent 循环
 </knowledge_reference>
 
@@ -142,7 +142,7 @@ bus_read <分类> --limit 5
 每次提交代码变更前，必须运行以下命令进行六维度自审查：
 
 ```bash
-cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"
+codex review --uncommitted -c model="9router_hermes"
 ```
 
 审查的六个维度（优先级从上到下）：
@@ -160,9 +160,9 @@ cd /home/administrator/session-launcher && codex review --uncommitted -c model="
 3. **结论存档** — 自审查的最终结论以 `# Review: <结论>` 格式写入提交信息
 
 ### 🔴 门禁约束（不可跳过）
-codex review 连续两轮零问题是发布（wf complete / bus notify）的**前置条件**。未通过门禁：
+codex review 连续两轮零问题是发布（wf complete / wf notify）的**前置条件**。未通过门禁：
 - ❌ 禁止执行 `wf complete`（即使内容已就绪）
-- ❌ 禁止 `bus notify` 下游
+- ❌ 禁止 `wf notify` 下游
 - ✅ 正确做法：回到步骤 2 修复 → 重新审查 → 通过后才能发布
 
 ## 通用准则

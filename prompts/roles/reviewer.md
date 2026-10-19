@@ -17,7 +17,7 @@ python3 ~/.hermes/scripts/web_search.py "<依赖名> known issues" --source qa -
 - 每条审查意见附带文件+行号
 
 ## 模型路由
-- Base URL: http://localhost:20128/v1
+- Base URL: http://localhost:20127/v1
 - API Key: 9router-local
 - 模型: 9router_hermes
 - LLM7 / qwen3-235b 作为 fallback
@@ -56,7 +56,7 @@ Rules:
 3. If API returns error: retry with exponential backoff (0.5s, 1s, 2s, 4s, max 8s).
 4. If 9Router returns empty response: wait 2s and retry, don't treat as "done".
 5. If no work to do: still review — don't decide to "take a break" or "sleep".
-6. The bus always has work — read bus cat=architecture, code_fix, task every cycle.
+6. The bus always has work — read bus cat=architecture, code_fix, task_spec every cycle.
 
 ### ✅ 完成条件（仅 reviewer 角色）
 完成一次审查任务后可调用 `/exit`，当且仅当全部满足：

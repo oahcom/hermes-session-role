@@ -13,7 +13,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
 - 删除过期文档
 
 ## 模型路由
-- Base URL: http://localhost:20128/v1
+- Base URL: http://localhost:20127/v1
 - API Key: 9router-local
 - 模型: 9router_hermes
 - LLM7 / qwen3-235b 作为 fallback
@@ -46,7 +46,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
 ### 输出规范：
 - 每条 bus 消息必须有: category + 标题 + evidence + --src <your_role>
 - evidence 必须包含具体数据（文件路径、数值、命令输出）
-- trust 默认 0.5，高置信度(已验证) 设为 0.8-0.9
+- 所有 bus 消息必须含 evidence（具体数据）与 `--src <角色>`
 
 ### 文档产出格式规范
 - 使用 Markdown，文件扩展名 `.md`
@@ -88,7 +88,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
 2. If API returns error: retry with exponential backoff (0.5s, 1s, 2s, 4s, max 8s)
 3. If 9Router returns empty response: wait 2s and retry, don't treat as "done"
 4. If no work to do: continue cycling, but check task completion exit conditions
-5. The bus always has work — read bus cat=architecture, code_fix, task every cycle
+5. The bus always has work — read bus cat=architecture, code_fix, task_spec every cycle
 
 ### 9Router 错误恢复协议
 当收到"API Error: API returned an empty or malformed response"时：
@@ -115,7 +115,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架名> latest version changelo
 ## Codex Review 门禁
 文档产出提交前必须执行 codex review，审查重点（Writer 专属）：
 ```bash
-cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"
+codex review --uncommitted -c model="9router_hermes"
 ```
 | 优先级 | 维度 | Writer 审查要点 |
 |--------|------|-----------------|

@@ -18,7 +18,7 @@
     {
       "type": "shell",
       "spec": {
-        "command": "ls /tmp/ccs-sentinels/ 2>/dev/null"
+        "command": "ls $HOME/.hermes/run/ccs-sentinels/ 2>/dev/null"
       },
       "filter": "sentinels"
     },

@@ -20,7 +20,7 @@
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游
-5. 提交/通知 — wf complete + bus notify 下游
+5. 提交/通知 — wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
 6. 进入待机 — 等待下一个触发信号
 ```
 </agent_loop>
@@ -70,7 +70,7 @@ bus_read <分类> --limit 5
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus**: `~/.claude/CLAUDE.md` 八、Sister Bus 通信
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议
-- **关键端口**: :20128 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
+- **关键端口**: :20127 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
 - **编码规范**: Python 3.10+, 类型注解；禁止 yaml.dump() 重写 config.yaml
 </knowledge_reference>
 
@@ -110,7 +110,7 @@ systemctl --user is-active sister-agent-dkk.service
 systemctl --user is-active sister-agent-ssk.service
 systemctl --user is-active cron-worker.service
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8890
-curl -s -o /dev/null -w "%{http_code}" http://localhost:20128
+curl -s -o /dev/null -w "%{http_code}" http://localhost:20127
 ```
 全部 active + 200 → **退出**。不输出任何内容。
 
@@ -143,7 +143,7 @@ sleep 3 && systemctl --user is-active <service>
 
 ## 评估标准
 - 所有核心服务 active | 验证: bash -c 'for s in sister-agent-dkk.service sister-agent-ssk.service; do systemctl --user is-active $s; done' 全部返回 active; cron-worker is timer-triggered oneshot — verify via `systemctl --user show cron-worker.service --property=ExecMainStatus --value 2>&1 | grep -q '^0$'`
-- 控制面板和路由端口可达 | 验证: bash -c 'curl -sf -o /dev/null http://localhost:8890 && curl -sf -o /dev/null http://localhost:20128 && echo OK || echo FAIL' 输出 OK
+- 控制面板和路由端口可达 | 验证: bash -c 'curl -sf -o /dev/null http://localhost:8890 && curl -sf -o /dev/null http://localhost:20127 && echo OK || echo FAIL' 输出 OK
 - 近 1 小时无 ERROR/Traceback 日志 | 验证: journalctl --user -u sister-agent-dkk -u sister-agent-ssk --since 1h --no-pager 2>&1 | grep -cEi 'ERROR|Traceback|CRITICAL' 输出 0
 - 最近修复的 MTTR < 5 分钟 | 验证: bash -c 'last_fix=$(python3 ~/.hermes/scripts/bus_client.py read --cat code_fix --limit 1 --json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); f=d.get(\"facts\",[]); print(f[0][\"timestamp\"] if f else \"\")" 2>/dev/null); if [ -z "$last_fix" ]; then echo "no_recent_fix"; else age=$(( $(date +%s) - ${last_fix%.*} )); if [ $age -lt 300 ]; then echo "MTTR_OK ${age}s"; else echo "MTTR_SLOW ${age}s"; fi; fi' 确认最近一次修复记录在5分钟内
 - 同一问题连续出现 3 次才升级到 bus architecture | 验证: python3 ~/.hermes/scripts/bus_client.py search "maintainer" --limit 10 --json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); f=d.get(\"facts\",[]); dupes=[i for i in f if i.get(\"category\")==\"code_fix\"]; print(\"code_fix_count=\" + str(len(dupes)))" 输出 code_fix_count < 3 表示未触发误升级

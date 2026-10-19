@@ -19,6 +19,7 @@ _ROLES: dict[str, RoleDef] = {}
 _PERSONAS: dict[str, PersonaDef] = {}
 _LOADED_AT: float = 0.0
 _LOADED_COUNT: int = 0
+_LOADED_BASE_DIR: str | None = None  # 缓存归属目录：换目录加载不得命中旧缓存
 _LOAD_CACHE_TTL: float = 5.0  # load_all 结果 5s 缓存
 
 # 写路径锁（RLock，load_all 在写回缓存时持有）。
@@ -78,15 +79,20 @@ def load_all(base_dir: str | None = None) -> int:
     快照模式：锁内构建临时 dict，整体替换全局引用，消除读路径空窗期。
     TTL 检查分两层：锁外快速返回（无竞争时零开销），锁内二次确认（防并发重复全量加载）。
     """
-    global _LOADED_AT, _LOADED_COUNT
+    global _LOADED_AT, _LOADED_COUNT, _LOADED_BASE_DIR
     now = time.monotonic()
-    if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
+    # 缓存键必须含 base_dir：否则 5s 窗口内换目录加载会静默返回上一批数据
+    # （测试夹具/多根部署实测拿到完整 31 角色而非临时目录的 1 个）。
+    if (_LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL
+            and _LOADED_BASE_DIR == base_dir):
         return _LOADED_COUNT
     with _WRITE_LOCK:
         # 锁内二次确认：另一线程可能刚完成加载
         now = time.monotonic()
-        if _LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL:
+        if (_LOADED_AT != 0.0 and now - _LOADED_AT < _LOAD_CACHE_TTL
+                and _LOADED_BASE_DIR == base_dir):
             return _LOADED_COUNT
+        _LOADED_BASE_DIR = base_dir
         if base_dir is None:
             base_dir = os.path.join(os.path.dirname(__file__), "..")
 

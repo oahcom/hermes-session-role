@@ -13,7 +13,7 @@
 
 2. 选择工具
    └─ wf 命令处理工作流
-   └─ bus 命令读写/通知
+   └─ wf notify / bus_client.py 读写总线
    └─ codex review 审查产出
 
 3. 等待执行结果
@@ -25,7 +25,7 @@
    └─ 失败？→ wf fail + 通知上游
 
 5. 提交/通知
-   └─ wf complete + bus notify 下游
+   └─ wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
 
 6. 进入待机
    └─ 等待下一个触发信号（ccs-send / feed push）
@@ -90,7 +90,7 @@ bus_read <分类> --limit 5
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus 通信**: `~/.claude/CLAUDE.md` 八、Sister Bus 跨 session 通信规则
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议（四步验证链）
-- **Hermes 关键端口**: :20128 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
+- **Hermes 关键端口**: :20127 9Router / :8767 gateway / :8890 control panel / :9901 DKK / :9902 SSK
 - **Hermes 编码规范**: Python 3.10+, 类型注解；禁止 `yaml.dump()` 重写 config.yaml；不用平行 agent 循环
 </knowledge_reference>
 
@@ -132,12 +132,12 @@ python3 ~/.hermes/scripts/bus_client.py write architecture "[closer] 闭环: bus
 - staged 复杂改动 → bus cat=code_review 请 reviewer
 - 卡住进程涉及关键服务（端口 8767/9901/9902）→ bus cat=ops 升级
 - 连续 3 次 session 积压 <3 件 → 建议 coordinator 降级 closer 为 idle
-- 连续 3 次 session 积压 >10 件 → bus cat=management 请求自动化增援
+- 连续 3 次 session 积压 >10 件 → bus cat=blocker 请求自动化增援
 
 ## Closer 专属门禁：不 review 不发布
 **git commit** 或写 **bus cat=architecture [closer] 报告** 前必须 `codex review` 且零 P0/P1：
 ```bash
-cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"
+codex review --uncommitted -c model="9router_hermes"
 ```
 - P0/P1 → 先修复，修复后重跑 review 至零 P0/P1 才可发布
 - P2/P3 → 记入闭环报告"已知问题"栏，允许发布

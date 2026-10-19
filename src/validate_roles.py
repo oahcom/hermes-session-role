@@ -16,7 +16,7 @@ ROLES_DIR = str(paths.SESSION_ROLES_PERSONAS)
 
 REQUIRED_FIELDS = {
     "name", "title", "description", "category", "system_prompt",
-    "skills", "skill_refs", "goal", "constraints"
+    "skills", "skill_refs", "goal", "constraints", "lifecycle"
 }
 VALID_LIFECYCLES = {"infinite", "ondemand"}
 # infinite: 常驻驱动。引擎拉起角色时显式传 --drive infinite
@@ -51,6 +51,11 @@ EVAL_CRITERIA_DESC_PATTERN = re.compile(r"^(验证|验收|标准|检查|确保)[
 def _normalize_role_name(s: str) -> str:
     """归一化角色名用于比对：小写、-/_ 视为等价分隔符。"""
     return re.sub(r"[-_]", " ", s).lower().strip()
+
+
+def _known_norm(known_roles: set[str]) -> set[str]:
+    """known_roles 的归一化集合（多处引用校验共用）。"""
+    return {_normalize_role_name(k) for k in known_roles}
 
 
 def validate_output_target(t: str | dict) -> bool:
@@ -151,7 +156,8 @@ def _validate_collab(fname: str, collab: dict, known_roles: set[str], errors: li
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate session-role JSON files")
-    parser.add_argument("--roles", action="store_true", help="仅验证 session 角色（默认全部）")
+    parser.add_argument("--roles", nargs="*", default=None,
+                        help="仅验证指定角色名（如 --roles qa lr）；省略则验证全部")
     parser.add_argument("--category", default="", help="按分类筛选验证（如 '维护'）")
     return parser.parse_known_args()[0]
 
@@ -185,7 +191,7 @@ def _validate_role_fields(fname: str, data: dict, seen_names: set[str], errors: 
     if name in seen_names:
         errors.append(f"{fname}: 重复角色名称 '{name}' (已在其他文件中定义)")
     seen_names.add(name)
-    return 1 if "lifecycle" in data else 0
+    return 1
 
 
 def _validate_input_signals(fname: str, data: dict, errors: list[str]) -> None:
@@ -220,6 +226,10 @@ _TRIVIAL_VERIFIERS = (
     'import sys; print("OK")', "import sys; print('OK')",
     'import sys; print("PASS")', "import sys; print('PASS')",
     'import time; print', 'import os; print("OK")', 'import os; print("PASS")',
+    # 2026-10-17 实测：persona eval_criteria 用这些当"验证"，输出与角色职责无关
+    # （Python 版本 / sqlite 版本 / 文件计数），任何角色跑一句就通过质量门禁。
+    'print("DONE")', "print('DONE')", 'print("done")', "print('done')",
+    'sys.version_info', 'sqlite3.sqlite_version',
 )
 
 
@@ -358,11 +368,9 @@ def _validate_one_role(
     if category_filter and data.get("category", "") != category_filter:
         return 0
     role_count = _validate_role_fields(fname, data, seen_names, errors)
-    if role_count == 0 and "lifecycle" not in data:
-        # 缺少必填字段，但仍需后续字段校验 — return 但 errors 已记录
-        pass
-    if "lifecycle" not in data:
-        return role_count
+    # 缺 lifecycle 不再提前 return：那会跳过下面全部深度校验（drive/bus 分类/
+    # skills/skill_refs/mcp/eval_criteria），使畸形角色拿到"错误数 0 全部通过"。
+    # lifecycle 已列入 REQUIRED_FIELDS，缺失由 _validate_role_fields 记录。
     lifecycle = data.get("lifecycle", "")
     if lifecycle == "infinite" and "input_signals" not in data:
         errors.append(f"{fname}: lifecycle=infinite 角色缺少 input_signals")
@@ -392,6 +400,12 @@ def _validate_one_role(
             errors.append(f"{fname}: collab 必须是 dict")
         else:
             _validate_collab(fname, collab, known_roles, errors)
+    # workgroup 原无校验：rebutter 曾声明幽灵角色 'verifier'（实为 debate_verifier），
+    # 门禁按该名建矩阵 → 向真实角色发红消息被自家矩阵拒。与 guard.watch 同款校验。
+    for _w in data.get("workgroup") or []:
+        _wr = _w if isinstance(_w, str) else (_w or {}).get("role")
+        if _wr and _wr != "*" and _normalize_role_name(_wr) not in _known_norm(known_roles):
+            errors.append(f"{fname}: workgroup 引用未知角色 '{_wr}'")
     _validate_dead_fields(fname, data, dead_warnings)
     _validate_deprecated(fname, data, dead_warnings)
     _validate_role_def(fname, data, errors)
@@ -502,6 +516,8 @@ def _check_prompt_first_line(prompts_roles_dir: str, prompt_files: list[str], er
 def main() -> int:
     args = _parse_args()
     args_category = args.category
+    # nargs="*"：未提供 → None（全量）；提供但为空 → 空集（不验任何角色，显式意图）
+    _roles_filter = set(args.roles) if args.roles else None
 
     if not os.path.isdir(ROLES_DIR):
         print(f"  FAIL: 目录不存在 {ROLES_DIR}")
@@ -537,6 +553,11 @@ def main() -> int:
             errors.append(f"{fname}: JSON 顶层必须是对象")
             continue
 
+        # --roles a b：只验名字命中的角色。不静默全量跑——旧版该参数是空操作，
+        # `--roles qa` 实际验了全部却让人以为只验了 qa。
+        if _roles_filter and data.get("name") not in _roles_filter:
+            continue
+
         checked += 1
         role_count += _validate_one_role(
             fname, data, seen_names, known_roles, errors, dead_warnings, prompt_size_done,
@@ -544,6 +565,15 @@ def main() -> int:
         )
 
     _check_prompt_quality(errors)
+
+    # --roles 指了不存在的角色 → 报错。否则 `--roles typo` 输出"0 错误"，
+    # 让人以为"该角色已校验通过"（与 lifecycle 提前 return 同类的假绿）。
+    if _roles_filter:
+        _hit = {_n for _f in files
+                for _n in [json.load(open(os.path.join(ROLES_DIR, _f))).get("name")]
+                if _n in _roles_filter}
+        for _miss in sorted(_roles_filter - _hit):
+            errors.append(f"--roles 指定的角色不存在: {_miss}")
 
     for w in dead_warnings:
         print(f"  WARN: {w}")

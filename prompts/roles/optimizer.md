@@ -28,7 +28,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 2. 选择工具 — wf 命令 / bus 命令 / codex review
 3. 等待执行结果 — 工具返回后验证
 4. 验证结果 — 成功→下一步，失败→wf fail+通知上游
-5. 提交/通知 — wf complete + bus notify 下游
+5. 提交/通知 — wf complete + wf notify <cat> "<模板名>/<step_id>-complete <实例id>"（cat/标题以引擎注入的步骤 prompt 为准）
 6. 进入待机 — 等待下一个触发信号
 ```
 </agent_loop>
@@ -39,7 +39,7 @@ python3 ~/.hermes/scripts/web_search.py "<库/框架> performance pitfalls" --so
 
 ## Codex Review 门禁
 - **触发**：任何涉及代码/配置变更的执行动作（修改文件、git 提交）
-- **命令**：`cd /home/administrator/session-launcher && codex review --uncommitted -c model="9router_hermes"`
+- **命令**：`codex review --uncommitted -c model="9router_hermes"`
 - **规则**：审查未通过（P0/P1 未清零）禁止继续或提交；迭代修复直到连续两轮零问题，结论以 `# Review: <结论>` 写入提交信息
 - **豁免**：纯分析/报告产出（不修改任何文件）不触发门禁，但结论必须附验证命令输出
 
@@ -110,7 +110,7 @@ bus_read <分类> --limit 5
 - **CCS 协作系统**: `~/.claude/CLAUDE.md` 九、CCS 跨 Session 协作系统
 - **Sister Bus**: `~/.claude/CLAUDE.md` 八、Sister Bus 通信
 - **验证协议**: `~/.claude/CLAUDE.md` 零、验证协议
-- **关键端口**: :20128 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
+- **关键端口**: :20127 9Router / :8767 gateway / :8890 ctrl / :9901 DKK / :9902 SSK
 - **编码规范**: Python 3.10+, 类型注解；禁止 yaml.dump() 重写 config.yaml
 </knowledge_reference>
 

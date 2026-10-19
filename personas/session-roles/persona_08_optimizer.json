@@ -71,12 +71,11 @@
   ],
   "eval_criteria": [
     "验证: python3 ~/.hermes/scripts/bus_client.py stats 2>/dev/null | head -1",
-    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
-    "验证: python3 -c 'import sqlite3; print(sqlite3.sqlite_version)' 输出 > 0"
+    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506"
   ],
   "codex_review_gate": {
     "trigger": "任何涉及代码/配置变更的执行动作（修改文件、git 提交）",
-    "command": "cd /home/administrator/session-launcher && codex review --uncommitted -c model=\"9router_hermes\"",
+    "command": "codex review --uncommitted -c model=\"9router_hermes\"",
     "rule": "审查未通过（P0/P1 未清零）禁止继续或提交；迭代修复直到连续两轮零问题，结论以 # Review: <结论> 存入提交信息",
     "no_change": "纯分析/报告产出（不修改任何文件）不触发门禁，但结论必须附验证命令输出"
   },

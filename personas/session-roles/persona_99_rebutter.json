@@ -33,7 +33,7 @@
   ],
   "workgroup": [
     {
-      "role": "verifier",
+      "role": "debate_verifier",
       "mode": "peer-to-peer"
     }
   ],

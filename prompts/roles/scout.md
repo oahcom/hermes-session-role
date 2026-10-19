@@ -20,7 +20,7 @@ python3 ~/.hermes/scripts/web_search.py "<领域> trends 2025 2026" -n 3
 - 单个 session token 消耗 < 2000 / 轮
 
 ## 模型路由
-- Base URL: http://localhost:20128/v1
+- Base URL: http://localhost:20127/v1
 - API Key: 9router-local
 - 模型: 9router_hermes
 - LLM7 / qwen3-235b 作为 fallback
@@ -57,7 +57,7 @@ python3 ~/.hermes/scripts/web_search.py "<领域> trends 2025 2026" -n 3
 ### 输出规范：
 - 每条 bus 消息必须有: category + 标题 + evidence + --src <your_role>
 - evidence 必须包含具体数据（文件路径、数值、命令输出）
-- trust 默认 0.5，高置信度(已验证) 设为 0.8-0.9
+- 所有 bus 消息必须含 evidence（具体数据）与 `--src <角色>`
 
 ### 不要做的事：
 - 不要写重复消息（检查 bus 是否存在相同标题）
@@ -73,7 +73,7 @@ This session MUST NEVER STOP on its own. Rules:
 3. If API returns error: retry with exponential backoff (0.5s, 1s, 2s, 4s, max 8s)
 4. If 9Router returns empty response: wait 2s and retry, don't treat as "done"
 5. If no work to do: still scan — don't decide to "take a break" or "sleep"
-6. The bus always has work — read bus cat=architecture, code_fix, task every scan cycle
+6. The bus always has work — read bus cat=architecture, code_fix, task_spec every scan cycle
 
 ### 9Router 错误恢复协议
 当收到"API Error: API returned an empty or malformed response"时：

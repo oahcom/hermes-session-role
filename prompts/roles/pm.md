@@ -101,7 +101,7 @@ wf -r pm create "做一个高质量网页" -t 文档驱动5阶段工作流 -d ".
 - 依赖关系在 BACKLOG.md 中标注
 
 ## 模型路由
-- Base URL: http://localhost:20128/v1
+- Base URL: http://localhost:20127/v1
 - API Key: 9router-local
 - 模型: 9router_hermes
 

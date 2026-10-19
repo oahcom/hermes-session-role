@@ -55,45 +55,8 @@ def read_skill(skill_path: str) -> str:
     return f'[SKILL NOT FOUND: {skill_path}]'
 
 
-# 行为约束 skill 清单（仅这些会注入 KNOWLEDGE 块，其余通过原生 SKILL.md 按需加载）
-# 基于 JSON 中定义的 skills 字段自动生成，包含所有定义了 skills 的角色
-_BEHAVIORAL_SKILLS = {
-    "maintainer": {"health_check", "diagnose", "auto_fix", "verify_fix"},
-    "scout": {"github_scan", "trend_analysis", "opportunity_eval", "report_write"},
-    "curator": {"skill_audit", "skill_sync", "category_map", "quality_gate"},
-    "coordinator": {"cluster_monitor", "sentinel_audit", "cross_role_dispatch", "escalation", "brief_write"},
-    "engineer": {"write_code", "write_tests", "refactor", "debug", "git_commit"},
-    "closer": {"backlog_scan", "close_loop", "close_report"},
-    "optimizer": {"profile_analysis", "bottleneck_identify", "optimization_apply", "benchmark"},
-    "codex-dev": {"goal_manage", "bus_poll", "code_write", "verify_commit", "budget_wrap"},
-    "ccs-monitor": {"ccs_health_check", "log_anomaly_detect", "alert_write"},
-    "debate_verifier": {"argument_parse", "evidence_check", "verdict_write", "escalation"},
-    "product_architect": {"intake_analysis", "prd_write", "system_design", "task_spec", "adr_write"},
-    "knowledge_curator": {"knowledge_extract", "knowledge_organize", "knowledge_verify", "knowledge_publish"},
-    "security_auditor": {"owasp_scan", "threat_model", "vuln_assess", "compliance_check"},
-    "pm": {"requirement_analysis", "user_story_write", "priority_rank", "acceptance_verify"},
-    "reviewer": {"d1_correctness", "d2_security", "d3_maintainability", "d4_performance", "d5_consistency", "d6_testability"},
-    "qa": {"test_plan", "test_case_write", "test_execute", "test_report"},
-    "devops": {"deploy_plan", "infra_provision", "monitor_setup", "incident_response", "rollback"},
-    "writer": {"doc_structure", "api_doc_write", "changelog_write", "readme_write", "version_bump"},
-    "lr": {"tech_selection", "redline_check", "decision_record", "tradeoff_analysis"},
-    "pg": {"decision_ladder", "impl_plan", "risk_assess", "redline_enforce"},
-    "investigator_python": {"evidence_chain", "stack_trace_analysis", "root_cause_identify", "fix_propose"},
-    "investigator_senior": {"cross_stack_correlation", "architecture_review", "systemic_root_cause", "fix_propose"},
-    "investigator_general": {"triage_decision", "log_analysis", "escalation_rule", "fix_propose"},
-    "archivist": {"shell_scripts", "scheduler"},
-    "ccs-coordinator": {"ccs_ops", "monitor"},
-    "consumer": {"bus_ops", "workflow"},
-    "public": {"communication", "routing"},
-    "rebutter": {"debate", "analysis"},
-    "regression_test_return": {"testing", "reporting"},
-    "research": ["research", "writing"],
-    "test": ["health_check", "diagnose", "auto_fix", "verify_fix"],
-}
-
-
-def is_behavioral(role_name: str, skill_name: str) -> bool:
-    return skill_name in _BEHAVIORAL_SKILLS.get(role_name, set())
+# 角色 JSON 声明的 skills 全部注入 KNOWLEDGE 块；其余技能走原生 SKILL.md 按需加载。
+# 曾有一张角色→技能白名单在此过滤，但其条目与 persona.skills 逐一重合，恒真，已删。
 
 
 def assemble_role_prompt(role_name: str) -> str:
@@ -167,10 +130,9 @@ def assemble_role_prompt(role_name: str) -> str:
 
     skills = role.get('skills', [])
     skill_refs = role.get('skill_refs', {})
-    behavioral_skills = [s for s in skills if is_behavioral(role_name, s)]
-    if behavioral_skills:
+    if skills:
         skill_parts = []
-        for skill in behavioral_skills:
+        for skill in skills:
             skill_doc = read_skill(skill_refs.get(skill, f'skills/{skill}.md'))
             skill_parts.append(f"### 技能: {skill}\n{skill_doc}")
         parts.append("## 行为约束\n" + "\n\n".join(skill_parts))

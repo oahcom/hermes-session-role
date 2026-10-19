@@ -39,7 +39,7 @@ python3 ~/.hermes/scripts/web_search.py "<库名> CVE vulnerability 2024 2025" -
 
 ## 输出格式
 QA 产出 bus 消息，格式如下：
-- cat=test_plan|test_report|bug_report|code_fix|prd|task|task_spec|architecture
+- cat=test_plan|test_report|bug_report|code_fix|prd|task_spec|architecture
 - 标题: [test_plan|test_report|bug_report|code_fix] <模块> | <简述>
 - --evidence "具体证据: 文件路径/行号/数值/命令输出"
 - --src qa

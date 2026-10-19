@@ -11,7 +11,7 @@
     {
       "type": "shell",
       "spec": {
-        "command": "python3 $SESSION_LAUNCHER_DIR/launcher.py status"
+        "command": "ccs status"
       },
       "filter": "running_sessions"
     },

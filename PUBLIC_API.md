@@ -18,7 +18,6 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 
 | 函数 | 参数 | 返回 |
 |------|------|------|
-| `register(obj)` | `PersonaDef \| RoleDef` | `None` |
 | `get(name)` | `str` | `Optional[PersonaDef \| RoleDef]` |
 | `list_roles()` | — | `list[RoleDef]` |
 | `list_personas(category)` | `Optional[str]` | `list[PersonaDef]` |
@@ -32,6 +31,9 @@ hermes-session-roles **不引用** session-launcher 或 session-pipeline。零�
 | `assemble_role_prompt(role_name)` | `str` | `str` (assembled prompt text) |
 | `load_role_json(role_name)` | `str` | `dict[str, Any]` (delegates to registry.get) |
 
+CLI 入口：`python3 src/role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]`。
+动态组装角色 system prompt（Layer 0 base.md + Layer 1 roles/<name>.md + skill）。
+
 ## ValidateRoles (`validate_roles.py`)
 
 CLI 入口（`main()`，argparse），用 `python3 src/validate_roles.py` 运行。无 `validate_all()`/`validate_role()` 两个 API 函数。
@@ -41,22 +43,9 @@ CLI 入口（`main()`，argparse），用 `python3 src/validate_roles.py` 运行
 | 函数 | 参数 | 返回 |
 |------|------|------|
 | `load_roles()` | — | `list[dict]` |
-| `load_role(name)` | `str` | `Optional[dict]` |
 | `export_all()` | — | `list[dict]` |
 | `export_role(role)` | `dict` | `RoleExport` |
 | `write_export()` | — | `str` (输出路径) |
-
-## RoleAssembler (`role_assembler.py`)
-
-CLI 入口：`python3 src/role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]`。
-动态组装角色 system prompt（Layer 0 base.md + Layer 1 roles/<name>.md + skill）。
-
-> 注：原 `cli.py`（list/show/load/search）已剪枝（零 runtime importer）。
-> 列表/校验用 `validate_roles.py --roles`；prompt 组装用 `role_assembler.py <role>`。
-## RoleAssembler (`role_assembler.py`)
-
-CLI 入口：`python3 src/role_assembler.py <role_name> [--output <path>] [--inject <claude.md path>]`。
-动态组装角色 system prompt（Layer 0 base.md + Layer 1 roles/<name>.md + skill）。
 
 > 注：原 `cli.py`（list/show/load/search）与 `search.py`（中文语义搜索）已剪枝
 > （零 runtime importer）。列表/校验用 `validate_roles.py --roles`；prompt

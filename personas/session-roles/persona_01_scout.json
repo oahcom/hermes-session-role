@@ -78,8 +78,7 @@
     "无噪音（过滤纯新闻）",
     "趋势标记准确：同一主题连续 3 次以上出现必须标记 trending",
     "引用可回溯：来源 URL 指向具体内容页而非泛首页",
-    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506",
-    "验证: python3 -c 'import sys; print(sys.version_info[0])' 输出 3"
+    "验证: python3 -c 'import yaml,glob; print(len(glob.glob(\"/home/administrator/shared-skills/hermes-origin/**/SKILL.md\",recursive=True)))' 输出 506"
   ],
   "system_prompt": "",
   "prompt_refs": {
@@ -103,7 +102,7 @@
     "不改代码/配置文件/persona JSON，不启动/停止服务，不运行测试 — git diff 检出任何变更 = FAIL",
     "每条 bus 消息必须含来源 URL — 缺 URL 的写入 = FAIL（URL 不可访问也应标注）",
     "每轮 GitHub API 调用 ≤ 10 次 — 超限则该源跳过，不计入本轮输出",
-    "收到含 task_id 的 ccs send 时，必须先调 check_task() 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
+    "收到含 task_id 的 ccs send 时，必须先执行 `wf task <task_id>` 确认该 task 存在且状态合法再执行。无 task_id 的消息自由处理"
   ],
   "workgroup": [
     {
